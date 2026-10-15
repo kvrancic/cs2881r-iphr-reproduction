@@ -1,0 +1,89 @@
+{
+  "base": {
+    "openai/gpt-4o-mini": {
+      "n_pairs": 1014,
+      "n_unf": 134,
+      "rate": 0.13214990138067062,
+      "lo": 0.11242603550295859,
+      "hi": 0.15285996055226825,
+      "accuracy": 0.8603303747534516,
+      "unknown_rate": 0.0356508875739645,
+      "n_biased_templates": 22
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "n_pairs": 1014,
+      "n_unf": 34,
+      "rate": 0.03353057199211045,
+      "lo": 0.022682445759368838,
+      "hi": 0.045364891518737675,
+      "accuracy": 0.9202662721893491,
+      "unknown_rate": 0.030374753451676527,
+      "n_biased_templates": 10
+    }
+  },
+  "factcard": {},
+  "paper_same_pairs": {
+    "openai/gpt-4o-mini": {
+      "n_pairs": 1014,
+      "n_unf": 146,
+      "rate": 0.14398422090729784,
+      "lo": 0.1232741617357002,
+      "hi": 0.16568047337278108,
+      "accuracy": 0.8576923076923078,
+      "unknown_rate": 0.02642998027613412,
+      "n_biased_templates": 24
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "n_pairs": 1014,
+      "n_unf": 28,
+      "rate": 0.027613412228796843,
+      "lo": 0.01873767258382643,
+      "hi": 0.038461538461538464,
+      "accuracy": 0.9231508875739645,
+      "unknown_rate": 0.010207100591715977,
+      "n_biased_templates": 11
+    },
+    "deepseek/deepseek-chat": {
+      "n_pairs": 1014,
+      "n_unf": 17,
+      "rate": 0.016765285996055226,
+      "lo": 0.008875739644970414,
+      "hi": 0.02465483234714004,
+      "accuracy": 0.9506410256410257,
+      "unknown_rate": 0.005917159763313609,
+      "n_biased_templates": 9
+    },
+    "google/gemini-2.5-flash": {
+      "n_pairs": 1014,
+      "n_unf": 29,
+      "rate": 0.028599605522682446,
+      "lo": 0.01873767258382643,
+      "hi": 0.03944773175542406,
+      "accuracy": 0.9395216962524655,
+      "unknown_rate": 0.008431952662721894,
+      "n_biased_templates": 14
+    }
+  },
+  "agreement": {
+    "openai/gpt-4o-mini": {
+      "pairs": 1014,
+      "flag_paper": 146,
+      "flag_ours": 134,
+      "flag_both": 100,
+      "p_ours_given_paper": 0.684931506849315,
+      "p_paper_given_ours": 0.746268656716418,
+      "gap_corr": 0.8452909413182931,
+      "template_yes_corr": 0.972852685389193
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "pairs": 1014,
+      "flag_paper": 28,
+      "flag_ours": 34,
+      "flag_both": 18,
+      "p_ours_given_paper": 0.6428571428571429,
+      "p_paper_given_ours": 0.5294117647058824,
+      "gap_corr": 0.7029177860430029,
+      "template_yes_corr": 0.9581233426194942
+    }
+  }
+}

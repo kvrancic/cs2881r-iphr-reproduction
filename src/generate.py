@@ -83,7 +83,7 @@ def main():
                     help="OpenRouter reasoning effort (e.g. low, none) for thinking models")
     ap.add_argument("--no-top-p", action="store_true",
                     help="omit top_p, as chainscope did for its OpenRouter models")
-    ap.add_argument("--concurrency", type=int, default=48)
+    ap.add_argument("--concurrency", type=int, default=160)
     ap.add_argument("--limit-pairs", type=int, default=None)
     args = ap.parse_args()
 

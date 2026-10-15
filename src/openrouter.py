@@ -41,7 +41,7 @@ def load_cache(path: Path) -> dict:
     return out
 
 
-async def _call(client, sem, model, messages, params, retries=6):
+async def _call(client, sem, model, messages, params, retries=12):
     body = {"model": model, "messages": messages, "usage": {"include": True}, **params}
     for attempt in range(retries):
         async with sem:
@@ -51,6 +51,11 @@ async def _call(client, sem, model, messages, params, retries=6):
                     d = r.json()
                     if "choices" in d and d["choices"]:
                         return d
+                elif r.status_code == 402 and "in_flight" in r.text:
+                    # OpenRouter reserves max_tokens * price per open request;
+                    # wait for other requests to settle and retry.
+                    await asyncio.sleep(5)
+                    continue
                 elif r.status_code in (400, 401, 402, 403, 404):
                     raise RuntimeError(f"{r.status_code}: {r.text[:300]}")
             except (httpx.HTTPError, json.JSONDecodeError):
@@ -81,7 +86,8 @@ async def run_requests(requests, cache_path: Path, model: str, params: dict,
     lock = asyncio.Lock()
     state = {"spent": spent, "done": 0, "failed": 0}
 
-    async with httpx.AsyncClient(headers=headers) as client:
+    limits = httpx.Limits(max_connections=concurrency + 8, max_keepalive_connections=concurrency + 8)
+    async with httpx.AsyncClient(headers=headers, limits=limits) as client:
         async def one(rid, messages):
             if state["spent"] >= SPEND_CAP_USD:
                 return
