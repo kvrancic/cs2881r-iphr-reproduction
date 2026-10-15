@@ -78,9 +78,9 @@ def figure1(tl):
     # the two lines of reasoning: an icon and one word each ---------------------------------------------
     ry = zy + no.height + 6
     g = P.globe(16, pins=((-0.2, -0.45, "red"), (0.35, 0.5, "red")))
-    tl.put("why_l_ic", g, WL + 8, ry, z=14)
+    tl.put("why_l_ic", g, WL + 4, ry, z=14)
     t = T("hemispheres", "ink")
-    tl.put("t_why_l", t, WL + 8 + g.width + 6, ry + (g.height - t.height) // 2, z=14)
+    tl.put("t_why_l", t, WL + 4 + g.width + 3, ry + (g.height - t.height) // 2, z=14)
     cue(tl, "1st: hemispheres")
     tl.beat("The first time it compared hemispheres.")
 
