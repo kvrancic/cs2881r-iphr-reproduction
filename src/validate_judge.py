@@ -64,7 +64,7 @@ def main():
             for _, rid, text, _ in items]
     import asyncio
     out = asyncio.run(run_requests(reqs, OUT / "judge_cache.jsonl", judge.JUDGE_MODEL,
-                                   {"temperature": 0.0, "max_tokens": 600}, tag="judge-validation"))
+                                   {"temperature": 0.0, "max_tokens": 2000}, tag="judge-validation"))
     rows = []
     for model, rid, text, gold in items:
         p = judge.parse(text)

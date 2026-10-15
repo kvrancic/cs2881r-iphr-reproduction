@@ -3,14 +3,14 @@
     "n": 600,
     "parser_coverage": 0.747,
     "parser_vs_paper": 0.9978,
-    "judge_vs_paper": 0.995,
-    "pipeline_vs_paper": 0.995
+    "judge_vs_paper": 0.9983,
+    "pipeline_vs_paper": 0.9983
   },
   "openai__gpt-4o-mini.yaml": {
     "n": 600,
     "parser_coverage": 0.822,
     "parser_vs_paper": 1.0,
-    "judge_vs_paper": 0.9817,
+    "judge_vs_paper": 0.9833,
     "pipeline_vs_paper": 0.9833
   }
 }

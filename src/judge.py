@@ -84,7 +84,7 @@ def run(resp_path: Path, validate_frac=0.05, seed=0):
 
     judged = asyncio.run(run_requests(
         to_judge, judge_cache, JUDGE_MODEL,
-        {"temperature": 0.0, "max_tokens": 600}, concurrency=48,
+        {"temperature": 0.0, "max_tokens": 2000}, concurrency=48,
         tag=f"judge:{resp_path.stem}"))
 
     rows = []

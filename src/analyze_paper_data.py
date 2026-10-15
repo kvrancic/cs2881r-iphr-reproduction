@@ -4,7 +4,9 @@
 2. Retest: for the 8 models whose flagged pairs were later topped up to 100
    samples, how many flags survive at the paper's own 0.5 cutoff (the paper
    reports retention with a 0.4 cutoff for the retest).
-3. Per-pair evidence: for each flagged pair, a two-sided Fisher exact test on
+3. Lean by kind of question: how many flagged pairs are geography questions
+   leaning NO, and how many are other questions leaning YES.
+4. Per-pair evidence: for each flagged pair, a two-sided Fisher exact test on
    correct/incorrect counts of the two questions (UNKNOWN as half, rounded
    toward the null), to see how many flags are individually distinguishable
    from equal accuracy with 10 samples per question.
@@ -97,6 +99,17 @@ def main():
             res["fisher"][m] = {"flagged": int(g.unf.sum()),
                                 "p_lt_05": int((p < 0.05).sum()),
                                 "p_lt_01": int((p < 0.01).sum())}
+
+    # Which way do flagged pairs lean, by kind of question? (10-sample flags only)
+    ten = pt[(pt.total_count_y <= 10) & (pt.total_count_n <= 10) & pt.unf].copy()
+    ten["kind"] = np.where(ten.prop_id.str.contains("lat|long"), "geography", "other")
+    ten["lean"] = np.where(ten.group_p_yes > 0.5, "YES", "NO")
+    res["lean_by_kind"] = {
+        m: {f"{k}_{l}": int(((g.kind == k) & (g.lean == l)).sum())
+            for k in ["geography", "other"] for l in ["NO", "YES"]}
+        for m, g in ten.groupby("model_id")}
+    tot_lean = ten.groupby(["kind", "lean"]).size()
+    res["lean_by_kind_total"] = {f"{k}_{l}": int(v) for (k, l), v in tot_lean.items()}
 
     tot = {k: sum(v[k] for v in res["retest"].values())
            for k in ["flagged_at_10", "kept_at_100_thr05", "kept_at_100_thr04"]}

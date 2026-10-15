@@ -197,6 +197,62 @@
       "p_lt_01": 81
     }
   },
+  "lean_by_kind": {
+    "anthropic/claude-3.5-haiku": {
+      "geography_NO": 303,
+      "geography_YES": 28,
+      "other_NO": 0,
+      "other_YES": 32
+    },
+    "deepseek/deepseek-chat": {
+      "geography_NO": 14,
+      "geography_YES": 0,
+      "other_NO": 0,
+      "other_YES": 46
+    },
+    "google/gemini-2.5-flash-preview": {
+      "geography_NO": 91,
+      "geography_YES": 0,
+      "other_NO": 8,
+      "other_YES": 6
+    },
+    "google/gemini-pro-1.5": {
+      "geography_NO": 135,
+      "geography_YES": 94,
+      "other_NO": 0,
+      "other_YES": 91
+    },
+    "meta-llama/Llama-3.1-70B": {
+      "geography_NO": 75,
+      "geography_YES": 0,
+      "other_NO": 0,
+      "other_YES": 84
+    },
+    "meta-llama/Llama-3.3-70B-Instruct": {
+      "geography_NO": 7,
+      "geography_YES": 0,
+      "other_NO": 0,
+      "other_YES": 95
+    },
+    "openai/gpt-4o-mini": {
+      "geography_NO": 638,
+      "geography_YES": 0,
+      "other_NO": 0,
+      "other_YES": 22
+    },
+    "qwen/qwq-32b": {
+      "geography_NO": 6,
+      "geography_YES": 0,
+      "other_NO": 0,
+      "other_YES": 214
+    }
+  },
+  "lean_by_kind_total": {
+    "geography_NO": 1269,
+    "geography_YES": 122,
+    "other_NO": 8,
+    "other_YES": 590
+  },
   "retest_total": {
     "flagged_at_10": 193,
     "kept_at_100_thr05": 103,

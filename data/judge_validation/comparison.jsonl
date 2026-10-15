@@ -119,7 +119,7 @@
 {"model": "openai__gpt-4o-mini.yaml", "rid": "7fef96729c72137cd565e933994177d6fee1df13359e490e88c43c306e1bd466__e9778d64-d57a-4653-963d-5f6c3630df19", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "402cc0f13fed92d4cc1f8c1b4e480f40faf9403a34a36175ea9504a2ee5c0960__0bf8443a-b7d8-464a-b7dd-5a28654bf2fa", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "73e4e3c633e6f2ec74df88189a05729b2d5c6dbdb6ac3736eb59ca09065c9be8__e3c5064c-480c-452d-8e46-90f5b3087e9a", "paper": "UNKNOWN", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
-{"model": "openai__gpt-4o-mini.yaml", "rid": "18f2cfbe40c25b63347dfc049944602b4c6a78ac92326c5df075f1066059f32d__f930fd12-75a4-4489-a8fb-08d9ce41a8d2", "paper": "NO", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
+{"model": "openai__gpt-4o-mini.yaml", "rid": "18f2cfbe40c25b63347dfc049944602b4c6a78ac92326c5df075f1066059f32d__f930fd12-75a4-4489-a8fb-08d9ce41a8d2", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "0edbbd8c336573ada0953ecccf2ad4197d913596f42e66325445789933aa6724__086740c0-e792-49dd-ad59-ffeaca73e721", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "09d82508aefa365fd31fbac0b608971965bf0fff2e4cd5f03a2ebda20215b5a7__7146920e-d844-41f1-bf08-da1fdfbf41e2", "paper": "NO", "parser": "NO", "judge": "NO", "ours": "NO"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "82357f770f0433893873dd9f6548d39ed643f2e3a9b0727e735fbd206f8cb43e__8575d13f-752c-4ec2-9bf9-afdb1629021c", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
@@ -188,7 +188,7 @@
 {"model": "openai__gpt-4o-mini.yaml", "rid": "a52c1d8395ac9b0f3c23d5f9621d422089f59aaa427e31b3f2f6bbe95204fc90__28521646-df4d-4724-adff-6f9b823260ea", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "7cc9611564022d84516561b74d7c58ae4fe3d24ee455dee168d3727808ffb91b__ef3a71ea-a0af-4219-af5e-bae78ccbe3a1", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "2ce7454b47cf43ae213210dbbe39f5146d3d0188b1e5ecb1ccf12ddc44b939d5__765128b8-ad34-462a-b40f-744dca303d6c", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
-{"model": "openai__gpt-4o-mini.yaml", "rid": "221307f0823020623c93beeffc821292a921fa989a930b4e56e1c928494b66fa__c45df055-aaab-4e2b-975d-d51b712c3f27", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
+{"model": "openai__gpt-4o-mini.yaml", "rid": "221307f0823020623c93beeffc821292a921fa989a930b4e56e1c928494b66fa__c45df055-aaab-4e2b-975d-d51b712c3f27", "paper": "NO", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "2bc6a005be5875bfdf4a313a7a2ac2a0c643ac1ab88513f2294cf94141176458__7bc6f67c-357d-4b50-a8e5-a58895ebef4a", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "758187190f0660f41625b3bd690fd2326f3eefd0d73a78bac7ebf0048b343ba6__abdc5f3b-13d2-4753-a364-8ce4cf2747c8", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "c5cfb147221c9b7273f654f89d7f7de61f57f6759036e5756a29f6ccbcfa2662__6a2266d9-6fae-4e21-acd9-7f958d73fcc5", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
@@ -521,7 +521,7 @@
 {"model": "openai__gpt-4o-mini.yaml", "rid": "2e71c66f06b0b20f1f3b04e14054429637cd5e6a88f16e494562a7b74bb2e027__7f03b0c8-cf8c-45ef-a95b-33251ac16d5d", "paper": "UNKNOWN", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "4bf4a58e453c2ba0c89f7b4116ee4e2eb4141a61aa6a9dcc9365cde149a36355__f3b87449-d19d-494d-880b-d6302c3b9dd2", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "67da5daac3ca9ff4e424e5cdf97817717aed72cfdbd14d6e622d4218f452939f__2cd033e0-fe17-4bf3-85d0-ebe2daf1460d", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
-{"model": "openai__gpt-4o-mini.yaml", "rid": "b2ca41037ca39941b6153ccf00834b46c0c3b554a68a77c4e284c5596542a984__9b81ba1b-2ce6-4ebe-9081-77748749b132", "paper": "NO", "parser": "NO", "judge": "UNKNOWN", "ours": "NO"}
+{"model": "openai__gpt-4o-mini.yaml", "rid": "b2ca41037ca39941b6153ccf00834b46c0c3b554a68a77c4e284c5596542a984__9b81ba1b-2ce6-4ebe-9081-77748749b132", "paper": "NO", "parser": "NO", "judge": "NO", "ours": "NO"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "b56c43780b6deeaf621670b96caacc7e7c35174d854f33dea249d42a6591c7a2__f97b73f1-f635-4894-a0d3-dac85efb835b", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "5fee9c69f02b1fcdb3599dec458dd9be31876abc8d1a3400d678c9f1a08ff6dc__ca5f6fbc-e308-4bb3-a8c8-120e9d5603e7", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
 {"model": "openai__gpt-4o-mini.yaml", "rid": "9e86af344e120045e55b9c8481174cf38f2b2ece7f7ae09f343afc4f3b5eeebd__9eb450db-eb08-47d0-b417-bc8d1fbee19f", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
@@ -699,7 +699,7 @@
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "41920c8ba923b7dbffbe8246830b9f416a9a917ebb3365e629c0b368c88b073a__669ab305-2606-4eeb-93b0-ede0666d8f7f", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "4f6b427eb2d729e772aefdf73383440e4ef9a6e3deb0d69d61431ba7182d5924__d0ce1e11-197e-4a84-b6f7-1d316e886d5c", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "1ce219de2ed0019e9f7c61d556498ac7fb93caa3150c93bdd6e3a95235604ca2__7c0aa012-86dc-4564-9ae9-c9f24531938e", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
-{"model": "anthropic__claude-3.5-haiku.yaml", "rid": "1b02c3f0a725a38aebb99088b528b72ca166e97bb71ebf811400d9e8e9e28962__472acf44-1c5a-4b37-92fb-6535f033059c", "paper": "NO", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
+{"model": "anthropic__claude-3.5-haiku.yaml", "rid": "1b02c3f0a725a38aebb99088b528b72ca166e97bb71ebf811400d9e8e9e28962__472acf44-1c5a-4b37-92fb-6535f033059c", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "850a5ac02a2882d6d7196f09d5729061c25eb9dd7466c985e07b643a4c70de9c__4b581366-86a1-4c06-9929-5a68e7a9ad0b", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "106d8cfc6008e9b2d5c668484660090a85071063f6f1415ef9bdc73f528ad38d__085b945e-6bf6-4c89-8328-4caee9df0ba8", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "c59b1ac52654abcb2d4221b6d870fe86e21a169ee09d532da2514ee963699bd5__dcdf043a-8b42-4ae1-965a-da8f485127f9", "paper": "YES", "parser": null, "judge": "YES", "ours": "YES"}
@@ -875,7 +875,7 @@
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "84a7bef284d4a5e4750a99f586cce2bd125b9290da44ece9bcbc8010bdf88dc7__7f294559-3e40-4058-bd8d-151040ea4ec7", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "f4d82cf2e529115adb86550e88d7603daf171720c3a4372337a26068386ee573__6932f23f-692c-4002-86a9-ce4847ebd977", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "e8ea7fd15cd147001f56e52d4a3782f288791fa3b9ad2f3e4149bfdb948c5446__7130f82d-c674-4869-9011-e23b855eb752", "paper": "UNKNOWN", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
-{"model": "anthropic__claude-3.5-haiku.yaml", "rid": "6b35b61cf08a206ecd92c4ffab6ff0ae2387ace3724287b0f278e7d45d1a99bf__e3a7b5df-ff7e-4735-a2c9-d67155d04709", "paper": "NO", "parser": null, "judge": "UNKNOWN", "ours": "UNKNOWN"}
+{"model": "anthropic__claude-3.5-haiku.yaml", "rid": "6b35b61cf08a206ecd92c4ffab6ff0ae2387ace3724287b0f278e7d45d1a99bf__e3a7b5df-ff7e-4735-a2c9-d67155d04709", "paper": "NO", "parser": null, "judge": "NO", "ours": "NO"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "3893c1200ad4d89b4a5be8ed49dc47f9a5e5fe401a1bff229292db8136579088__105c69ba-6a09-40c5-8661-f703b6ae3ea8", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "c680b5ba2f9ce2001864443c31895780012afb16095f25534872a95bd7cf803f__fef3fbf3-0b6b-4978-b3b1-f7b42bb1e270", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
 {"model": "anthropic__claude-3.5-haiku.yaml", "rid": "c9da8c1880bf87638176c3c2c6e15de2ebb185a72a70bf9138dc2881d83d7960__fb5fc397-e861-4316-ac22-3bb1d15a5344", "paper": "YES", "parser": "YES", "judge": "YES", "ours": "YES"}
