@@ -14,16 +14,19 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
 | Flagged, paper's answers with our labeller | 134 | 31 | 12 | 25 |
 | Flagged, our run | 139 | 35 | 6 | 20 (general release) |
 | Lean gap, paper / ours | 0.164 / 0.157 | 0.059 / 0.071 | 0.038 / 0.035 | 0.059 / 0.057 |
-| Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.16) | 0.41 (0.23) | 0.33 (0.20) |
+| Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.17) | 0.41 (0.22) | 0.33 (0.21) |
+| Lean-side excess that returns in our run (null, 97.5%) | 0.193 (0.042) | 0.054 (0.050) | 0.067 (0.049) | 0.055 (0.034) |
 | Flagged with both true values in the prompt | 2 | 0 | 0 | not run |
 
 - **Newer models on the same pairs:** GPT-5.6 Luna 13 flags (0 with values), Qwen 3.8 Flash 3, Claude Haiku 5.5 2, DeepSeek V4 Flash 1.
-- **GPT-4o-mini's 684 geography pairs:** 131 flags with the paper's wording, 140 with a paraphrase, 31 with one sentence saying what "west of" means, 24 with "a more western longitude", 0 with both coordinates of both places, 2 with the asked coordinate.
+- **Tie cards** (one rounded value printed for both entities, 330 non-geography pairs): GPT-4o-mini and Llama 3.3 answer UNKNOWN 98% and 89% of the time, with no lean and no flags.
+- **Closed-book recall:** Llama 3.3 knows the order for 72% of its 32 flagged non-geography pairs (85% of unflagged pairs).
+- **GPT-4o-mini's 684 geography pairs:** 131 flags with the paper's wording, 140 with a paraphrase, 31 with one sentence saying that anywhere further west counts, 667 with one sentence saying only directly west counts, 24 with "a more western longitude", 0 with both coordinates of both places, 2 with the asked coordinate.
 - **From the authors' released counts alone:**
-  - our code gives the plotted count exactly for the 8 models with 10-answer data;
+  - our code gives the plotted count exactly for the 8 models with 10-answer data, and all 64 values of the paper's Table 10;
   - the plot divides by 4,892 where the data hold 4,834 pairs;
   - the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%);
-  - the model ranking changes in 8 of 11 alternative cutoff settings;
+  - the model ranking changes in 8 of 11 alternative cutoff settings, as the paper's own Table 10 also shows;
   - by kind of question the ranking nearly reverses: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
 
 ## Layout
@@ -34,7 +37,7 @@ src/
   iphr.py                the pair criteria, matched to the authors' code
   make_subsample.py      the fixed 21% sample and its geography pairs (both committed; rebuild byte-identically)
   openrouter.py          async client with an on-disk cache and a spend cap
-  generate.py            sample answers: --condition base | factcard | coordwording | paraphrase | clarified | fullcard
+  generate.py            sample answers: --condition base | factcard | tiecard | coordwording | paraphrase | clarified | strict | fullcard
   judge.py               label answers YES / NO / UNKNOWN (strict rule, then the paper's judge prompt)
   judge_prompt.txt       the authors' judge prompt, word for word
   validate_judge.py      our labels against theirs on 1,200 of their answers
@@ -42,13 +45,16 @@ src/
   analyze_paper_data.py  Figure 2 counts, retest and lean by kind, from the released counts
   analyze_runs.py        rates, intervals, paper-vs-ours agreement, fact cards by kind
   noise_models.py        expected recurrence, residual test, paired tests, cutoff grid, Figure 2 by kind
-  geo_analysis.py        the six geography wordings and the other-axis offset check
+  geo_analysis.py        the seven geography wordings and flag rates by distance
+  tie_analysis.py        tie cards: does the lean act when the prompt leaves the order open
+  recall_probe.py        closed-book recall of each entity's value, flagged vs unflagged pairs
+  report_tables.py       writes report/table_agree.tex (Table 1) from the result files
   cited_facts.py         what the answers in flagged pairs state about the compared values
   strict_reading.py      strict-reading phrases by side of each geography pair
   figures.py             report figures
 data/
   questions/, properties/   the paper's question files and the geography coordinates
-  subsample_pairs.csv       our 1,014 pairs (subsample_geo_pairs.csv: the 684 geography pairs)
+  subsample_pairs.csv       our 1,014 pairs (subsample_geo_pairs.csv and subsample_other_pairs.csv split them)
   responses/<condition>/<model>.labels.jsonl   our label for every answer
   paper_answers/            our judge's replies on the paper's answers
   judge_validation/         our labels against the paper's on their answers
@@ -91,7 +97,7 @@ The pickle holds only pandas and numpy objects; we listed its opcodes with `pick
 
 **Full rerun with new sampling.** Put `OPENROUTER_API_KEY=...` in `.env`, then run `./run_all.sh` and `./run_analysis.sh`. `SPEND_CAP_USD` (default 100) stops all calls once logged spend reaches it. The 10-pair cost pilots used `generate.py --limit-pairs 10`.
 
-Cost of our runs at October 2026 OpenRouter prices: $66 for answers, $16 for labels, $2 for the fact reader, $84 in total.
+Cost of our runs at October 2026 OpenRouter prices: $96 in total (answers, labels, the fact reader and the recall probe; `data/spend.jsonl` has every call).
 
 ## Use of AI tools
 
@@ -106,3 +112,4 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **03:30–04:00.** Claude Haiku 5.5's own thinking used up the judge's 600-token limit on up to 8% of calls. We deleted those replies and re-judged with 2,000 tokens. Built the fact reader; reading samples showed it counted north/south statements on east/west questions, so we limited it to the asked property. Found that flags split into geography leaning NO and everything else leaning YES.
 - **04:00–04:30.** First report. The first AI review found overclaims, no noise baseline and a judge check limited to easy answers. Added the expected recurrence, relabelling of the paper's own answers and the "more western longitude" run.
 - **04:30–05:15.** The second AI review found that comparing flag counts had little power and that the coordinate wording mixed a clearer reading with coordinate recall. Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates). The residual test reversed our earlier reading: pair-specific order effects exist and repeat. Rewrote the report and the talk.
+- **05:15–06:15.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography, and generated Table 1 from the result files. The knowledge claim changed: for geography the flags sit on the easiest pairs and track the reading of the direction word.

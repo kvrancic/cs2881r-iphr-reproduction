@@ -149,6 +149,41 @@ def residual_test(a, b):
             "null_mean": float(np.mean(null)), "null_975": float(np.quantile(null, 0.975))}
 
 
+def lean_signed(pt, res):
+    """Residual signed so that positive means more asymmetry in the template's lean direction."""
+    return np.where(pt.group_p_yes.to_numpy() > 0.5, res, -res)
+
+
+def one_sided_recurrence(a, b):
+    """Pairs with excess lean-direction asymmetry in run a: does the excess return in run b?
+
+    The cutoff is the 97.5th percentile of the lean-signed residual in run a under
+    simulations of the template-only model. For the selected pairs we report the
+    mean lean-signed residual in run b and the same quantity under the null.
+    """
+    key = ["prop_id", "comparison", "pair_key"]
+    j = a.merge(b, on=key, suffixes=("", "_2"))
+    ja = j[[c for c in j.columns if not c.endswith("_2")]]
+    jb = j[key + [c for c in j.columns if c.endswith("_2")]].rename(columns=lambda c: c[:-2] if c.endswith("_2") else c)
+    sa = lean_signed(ja, residuals(ja))
+    sb = lean_signed(jb, residuals(jb))
+    k, bb = fit_know_or_guess(ja)
+    puy, pun = rates(ja, "y")[1], rates(ja, "n")[1]
+    py, pn = k + (1 - k) * bb, k + (1 - k) * (1 - bb)
+
+    def sim():
+        ay, an = draw(from_accuracy(py, puy), puy), draw(from_accuracy(pn, pun), pun)
+        s_ = ja.assign(p_correct_y=ay, p_correct_n=an)
+        return lean_signed(ja, residuals(s_))
+
+    cut = np.quantile(np.concatenate([sim() for _ in range(50)]), 0.975)
+    sel = sa > cut
+    null = [sim()[sel].mean() for _ in range(N_SIM)]
+    return {"cut": float(cut), "selected_pairs": int(sel.sum()), "mean_in_other_run": float(sb[sel].mean()),
+            "share_positive_in_other_run": float((sb[sel] > 0).mean()),
+            "null_mean": float(np.mean(null)), "null_975": float(np.quantile(null, 0.975))}
+
+
 def lean_gap(pt):
     lean_yes = pt.group_p_yes > 0.5
     return float(np.mean(np.where(lean_yes, pt.p_correct_y - pt.p_correct_n, pt.p_correct_n - pt.p_correct_y)))
@@ -231,6 +266,7 @@ def main():
             "ratio_ours_to_paper_answers_our_labels_ci": cluster_boot(r, b),
             "lean_gap": {"paper": lean_gap(a), "paper_answers_our_labels": lean_gap(r), "ours": lean_gap(b)},
             "residual_test_same_judge": residual_test(r, b),
+            "one_sided_lean_recurrence": one_sided_recurrence(r, b),
             "grid_paper_relabelled_ours": grid,
         }
 

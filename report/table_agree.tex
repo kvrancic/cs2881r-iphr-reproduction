@@ -1,0 +1,12 @@
+\begin{tabular}{lrrrcrrccc}
+\toprule
+& \multicolumn{3}{c}{Flagged (of 1,014)} & Ours / paper & \multicolumn{2}{c}{Lean gap} & Recurrence & Residual $r$ & Lean-side\\
+Model & paper & paper ans., & ours & ans., our & paper & ours & observed & observed & excess\\
+& & our labels & & labels (95\%) & & & (unchanged) & (null 97.5\%) & (null 97.5\%)\\
+\midrule
+GPT-4o-mini & 146 & 134 & 139 & 0.94--1.17 & 0.164 & 0.157 & 72\% (70\%) & 0.69 (0.18) & 0.193 (0.042)\\
+Llama 3.3 70B & 28 & 31 & 35 & 0.88--1.57 & 0.059 & 0.071 & 77\% (53\%) & 0.47 (0.17) & 0.054 (0.050)\\
+Gemini 2.5 Flash$^\dagger$ & 29 & 25 & 20 & 0.37--1.33 & 0.059 & 0.057 & 52\% (61\%) & 0.33 (0.21) & 0.055 (0.034)\\
+DeepSeek V3 & 17 & 12 & 6 & 0.00--1.20 & 0.038 & 0.035 & 8\% (44\%) & 0.41 (0.22) & 0.067 (0.049)\\
+\bottomrule
+\end{tabular}

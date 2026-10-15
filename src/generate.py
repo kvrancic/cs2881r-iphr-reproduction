@@ -95,6 +95,39 @@ def clarified(q_str: str) -> str:
             f"even if it is also far to the {OTHER_SIDES[d]}.")
 
 
+def strict(q_str: str) -> str:
+    """Keep the paper's wording and add the strict reading of the direction."""
+    a, d, b = GEO_Q.match(q_str.rsplit("\n", 1)[1]).groups()
+    same = "latitude" if d in ("east", "west") else "longitude"
+    return f"{q_str} Count {a} as {d} of {b} only if it is directly {d} of it, at about the same {same}."
+
+
+def rounded(prop_id: str, x: float, y: float) -> str:
+    """One coarse value shared by both entities, so the card leaves the order open."""
+    m = (x + y) / 2
+    if prop_id.endswith(("book-release", "movie-release", "song-release", "nyt-pubdate")):
+        return f"released or published around {(date(1899, 12, 30) + timedelta(days=int(m))).year}"
+    if prop_id.endswith("movie-length"):
+        return f"about {round(m / 600) * 10} minutes long"
+    if prop_id.endswith("book-length"):
+        return f"about {round(m / 50) * 50} pages"
+    if prop_id.endswith("person-age"):
+        return f"died at about age {round(m / 5) * 5}"
+    if prop_id.endswith("person-birth"):
+        return f"born around {round(m / 10) * 10}"
+    if prop_id.endswith("person-death"):
+        return f"died around {round(m / 10) * 10}"
+    if prop_id.endswith("area"):
+        return f"about {float(f'{m / 1e6:.1g}'):,.0f} square km"
+    raise KeyError(prop_id)
+
+
+def tie_card(row) -> str:
+    v = rounded(row.prop_id, row.x_value, row.y_value)
+    return ("Reference data (rounded):\n"
+            f"- {row.x_name}: {v}\n- {row.y_name}: {v}\n\n")
+
+
 _PROPS = {}
 
 
@@ -119,6 +152,10 @@ def full_card(row) -> str:
 
 
 def build_prompt(row, condition: str) -> str:
+    if condition == "strict":
+        return PROMPT.format(question=strict(row.q_str))
+    if condition == "tiecard":
+        return tie_card(row) + PROMPT.format(question=row.q_str)
     if condition == "paraphrase":
         return PROMPT.format(question=paraphrase(row.q_str))
     if condition == "clarified":

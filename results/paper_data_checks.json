@@ -155,6 +155,10 @@
       "kept_at_100_thr04": 13
     }
   },
+  "table10": {
+    "cells_matched": 64,
+    "cells": 64
+  },
   "lean_by_kind": {
     "anthropic/claude-3.5-haiku": {
       "geography_NO": 303,

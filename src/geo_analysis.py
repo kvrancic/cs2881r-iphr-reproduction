@@ -3,17 +3,17 @@
 1. Wording conditions on the 684 geography pairs of our sample (GPT-4o-mini):
    base (paper wording), paraphrase ("lie to the west of"), clarified (paper
    wording plus "count it as west if it is anywhere further west, even if it
-   is also far to the north or south"), coordwording ("a more western
+   is also far to the north or south"), strict (paper wording plus "count it as
+   west only if it is directly west, at about the same latitude"), coordwording ("a more western
    longitude"), factcard (the asked coordinate of both entities) and fullcard
    (both coordinates of both entities). For each: flags, accuracy on each side,
    mean template lean, lean gap, and the share of answers that cite degrees.
 
-2. Other-axis offset. A strict reading ("directly west") can only produce NO to
-   both orders when the two places are far apart on the axis the question does
-   not ask about. If the strict reading drives the flags, flagged pairs should
-   have a larger offset on the other axis, relative to the asked axis, than
-   unflagged pairs. Checked on the paper's full released data for the models
-   with geography flags, and on our run.
+2. Distances. Flag rate and accuracy on each side of a pair by quartile of the
+   distance on the asked axis and on the other axis (and the two-way table),
+   in the paper's released data for the models with geography flags and in
+   our run. A strict reading ("directly west") or a "different continents"
+   reading becomes more likely as the places lie further apart.
 
 Writes results/geo_analysis.json.
 """
@@ -33,7 +33,7 @@ from questions import load_questions
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = "openai/gpt-4o-mini"
-CONDITIONS = ["base", "paraphrase", "clarified", "coordwording", "factcard", "fullcard"]
+CONDITIONS = ["base", "paraphrase", "clarified", "strict", "coordwording", "factcard", "fullcard"]
 DEGREES = re.compile(r"\d+(?:\.\d+)?\s*°|\d+(?:\.\d+)?\s*degrees", re.I)
 GEO = r"-(?:lat|long)$"
 
@@ -85,7 +85,33 @@ def conditions(qs):
     return out
 
 
-def offsets(qs, vals):
+def add_distances(pt, qs, vals):
+    """Distance on the asked axis and on the other axis, in degrees."""
+    q = qs.set_index("qid")
+    da, do = [], []
+    for r in pt.itertuples():
+        row = q.loc[r.qid_y]
+        base, axis = row.prop_id.rsplit("-", 1)
+        other = vals[f"{base}-{'long' if axis == 'lat' else 'lat'}"]
+        da.append(abs(row.x_value - row.y_value))
+        do.append(abs(other.get(row.x_name, np.nan) - other.get(row.y_name, np.nan)))
+    return pt.assign(d_asked=da, d_other=do)
+
+
+def distance_table(pt):
+    """Flag rate and accuracy on each side by quartile of the two distances."""
+    pt = pt.assign(qa=pd.qcut(pt.d_asked, 4, labels=False), qo=pd.qcut(pt.d_other, 4, labels=False))
+    return {
+        "flag_rate_by_asked_quartile": [float(x) for x in pt.groupby("qa").unf.mean()],
+        "acc_yes_q_by_asked_quartile": [float(x) for x in pt.groupby("qa").p_correct_y.mean()],
+        "acc_no_q_by_asked_quartile": [float(x) for x in pt.groupby("qa").p_correct_n.mean()],
+        "flag_rate_by_other_quartile": [float(x) for x in pt.groupby("qo").unf.mean()],
+        "flag_rate_asked_x_other": [[float(x) for x in row] for row in
+                                    pt.pivot_table(index="qa", columns="qo", values="unf", aggfunc="mean").to_numpy()],
+    }
+
+
+def distances(qs, vals):
     out = {}
     paper = pd.read_pickle(ROOT / "data" / "paper" / "df-wm-non-ambiguous-hard-2.pkl.gz")
     paper = paper[(paper.total_count <= 10) & paper.prop_id.str.contains(GEO)]
@@ -93,23 +119,17 @@ def offsets(qs, vals):
               "google/gemini-pro-1.5"]:
         pt = iphr.pair_table(paper[paper.model_id == m])
         pt["unf"] = iphr.flag_pairs(pt)
-        pt = add_offsets(pt, qs, vals)
-        lean_no = pt.group_p_yes < 0.5
-        f, u = pt[pt.unf], pt[~pt.unf & lean_no]
-        out[f"paper | {m}"] = {
-            "flagged": int(len(f)),
-            "median_other_ratio_flagged": float(f.other_ratio.median()),
-            "median_other_ratio_unflagged_in_no_leaning_templates": float(u.other_ratio.median()),
-            "flag_rate_by_other_ratio_quartile_in_no_leaning_templates": [
-                float(x) for x in pt[lean_no].groupby(pd.qcut(pt[lean_no].other_ratio, 4)).unf.mean()],
-        }
+        out[f"paper | {m}"] = distance_table(add_distances(pt, qs, vals))
+    ours = pd.read_csv(ROOT / "results" / "pairs_base.csv")
+    ours = ours[(ours.model_id == MODEL) & ours.prop_id.str.contains(GEO)].reset_index(drop=True)
+    out[f"ours | {MODEL}"] = distance_table(add_distances(ours, qs, vals))
     return out
 
 
 def main():
     qs = load_questions()
     vals = other_axis_table()
-    res = {"conditions": conditions(qs), "offsets": offsets(qs, vals)}
+    res = {"conditions": conditions(qs), "distances": distances(qs, vals)}
     json.dump(res, (ROOT / "results" / "geo_analysis.json").open("w"), indent=2)
     print(json.dumps(res, indent=1))
 

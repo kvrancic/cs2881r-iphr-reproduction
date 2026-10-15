@@ -166,7 +166,7 @@ def fig_mechanism(noise):
 def fig_extensions(runs, geo):
     models = ["openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct", "deepseek/deepseek-chat",
               "openai/gpt-5.6-luna"]
-    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.5), gridspec_kw={"width_ratios": [1, 1.25]})
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.5), gridspec_kw={"width_ratios": [1, 1.15]})
     ax = axes[0]
     for i, m in enumerate(models):
         b, f = runs["base"][m]["n_unf"], runs["factcard"][m]["n_unf"]
@@ -182,18 +182,21 @@ def fig_extensions(runs, geo):
     ax.set_title("(a) Fact cards", fontsize=8.5, loc="left")
 
     ax = axes[1]
-    conds = [("base", "paper\nwording", ORANGE), ("paraphrase", "paraphrase", ORANGE),
-             ("clarified", "+ what\n'west of'\nmeans", VIOLET), ("coordwording", "'more\nwestern\nlongitude'", VIOLET),
-             ("fullcard", "both\ncoords\ngiven", AQUA), ("factcard", "asked\ncoord\ngiven", AQUA)]
+    conds = [("strict", "+ only directly west counts", VIOLET), ("paraphrase", "paraphrase, same vague word", ORANGE),
+             ("base", "paper's wording", ORANGE), ("clarified", "+ anywhere further west counts", VIOLET),
+             ("coordwording", "'a more western longitude'", VIOLET), ("factcard", "asked coordinate given", AQUA),
+             ("fullcard", "both coordinates given", AQUA)]
+    y = np.arange(len(conds))
     for i, (c, lab, col) in enumerate(conds):
         n = geo["conditions"][c]["flags"]
-        ax.bar(i, max(n, 0.6), 0.62, color=col, linewidth=0, zorder=2)
-        ax.text(i, n + 3, str(n), ha="center", fontsize=6.8, color=INK2)
-    ax.set_xticks(range(len(conds)))
-    ax.set_xticklabels([lab for _, lab, _ in conds], fontsize=6.2)
-    ax.set_ylabel("Flagged pairs (of 684)")
-    ax.set_ylim(0, 160)
-    ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
+        ax.barh(i, max(n, 3), 0.62, color=col, linewidth=0, zorder=2)
+        ax.text(max(n, 3) + 10, i, str(n), va="center", fontsize=6.8, color=INK2)
+    ax.set_yticks(y)
+    ax.set_yticklabels([lab for _, lab, _ in conds], fontsize=6.6)
+    ax.invert_yaxis()
+    ax.set_xlabel("Flagged pairs (of 684)")
+    ax.set_xlim(0, 760)
+    ax.xaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.set_title("(b) GPT-4o-mini, geography pairs", fontsize=8.5, loc="left")
     fig.tight_layout(w_pad=1.2)
     save(fig, "fig_extensions")

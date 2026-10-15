@@ -210,6 +210,14 @@
         "null_mean": 0.09465483627127376,
         "null_975": 0.1828889928089921
       },
+      "one_sided_lean_recurrence": {
+        "cut": 0.18629277979933892,
+        "selected_pairs": 61,
+        "mean_in_other_run": 0.1934593793933895,
+        "share_positive_in_other_run": 0.8360655737704918,
+        "null_mean": 0.007820201082779987,
+        "null_975": 0.04160417880544644
+      },
       "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
           188,
@@ -259,10 +267,10 @@
       }
     },
     "meta-llama/llama-3.3-70b-instruct": {
-      "expected_recurrence_if_unchanged": 0.5489291289714443,
+      "expected_recurrence_if_unchanged": 0.5321579278235827,
       "expected_recurrence_ci": [
-        0.39972222222222226,
-        0.7146103896103897
+        0.36619565217391303,
+        0.7368421052631579
       ],
       "paper_run_vs_ours": {
         "flags": 28,
@@ -285,8 +293,8 @@
         "mcnemar_p": 0.480682373046875
       },
       "ratio_ours_to_paper_answers_our_labels_ci": [
-        0.8823529411764706,
-        1.5653726708074527
+        0.88,
+        1.5714285714285714
       ],
       "lean_gap": {
         "paper": 0.05862919132149902,
@@ -296,8 +304,16 @@
       "residual_test_same_judge": {
         "r": 0.4717476362987837,
         "r_pairs_with_k_above_0": 0.5048440040008572,
-        "null_mean": 0.06551291788723478,
-        "null_975": 0.16431569464903836
+        "null_mean": 0.06453185822152144,
+        "null_975": 0.1730637192660725
+      },
+      "one_sided_lean_recurrence": {
+        "cut": 0.16541269245755819,
+        "selected_pairs": 51,
+        "mean_in_other_run": 0.05360226121964142,
+        "share_positive_in_other_run": 0.6274509803921569,
+        "null_mean": 0.011981140889036051,
+        "null_975": 0.0500028425929492
       },
       "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
@@ -348,10 +364,10 @@
       }
     },
     "deepseek/deepseek-chat": {
-      "expected_recurrence_if_unchanged": 0.4624089749904378,
+      "expected_recurrence_if_unchanged": 0.4414759996840105,
       "expected_recurrence_ci": [
-        0.15357142857142858,
-        0.8464285714285715
+        0.15384615384615385,
+        0.8
       ],
       "paper_run_vs_ours": {
         "flags": 17,
@@ -375,7 +391,7 @@
       },
       "ratio_ours_to_paper_answers_our_labels_ci": [
         0.0,
-        1.2730519480519462
+        1.2
       ],
       "lean_gap": {
         "paper": 0.03786982248520711,
@@ -385,8 +401,16 @@
       "residual_test_same_judge": {
         "r": 0.40961753659605027,
         "r_pairs_with_k_above_0": 0.39268982340075326,
-        "null_mean": 0.11800504337246491,
-        "null_975": 0.2272800236474973
+        "null_mean": 0.11998879732927233,
+        "null_975": 0.22014271681852682
+      },
+      "one_sided_lean_recurrence": {
+        "cut": 0.13084987057808461,
+        "selected_pairs": 36,
+        "mean_in_other_run": 0.06670873175014445,
+        "share_positive_in_other_run": 0.6944444444444444,
+        "null_mean": 0.008986491986161036,
+        "null_975": 0.04901648549417798
       },
       "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
@@ -437,10 +461,10 @@
       }
     },
     "google/gemini-2.5-flash": {
-      "expected_recurrence_if_unchanged": 0.638388593725975,
+      "expected_recurrence_if_unchanged": 0.612818107911397,
       "expected_recurrence_ci": [
-        0.46845982142857145,
-        0.8333333333333334
+        0.45359848484848486,
+        0.7916666666666666
       ],
       "paper_run_vs_ours": {
         "flags": 29,
@@ -463,8 +487,8 @@
         "mcnemar_p": 0.359283447265625
       },
       "ratio_ours_to_paper_answers_our_labels_ci": [
-        0.3887820512820513,
-        1.2779761904761893
+        0.3684210526315789,
+        1.3333333333333333
       ],
       "lean_gap": {
         "paper": 0.059220907297830375,
@@ -474,8 +498,16 @@
       "residual_test_same_judge": {
         "r": 0.3294133908087545,
         "r_pairs_with_k_above_0": 0.3084341575903818,
-        "null_mean": 0.10680930145442315,
-        "null_975": 0.2047365124706196
+        "null_mean": 0.10461576889164352,
+        "null_975": 0.21163399489784612
+      },
+      "one_sided_lean_recurrence": {
+        "cut": 0.14410794526143794,
+        "selected_pairs": 48,
+        "mean_in_other_run": 0.05468244837828331,
+        "share_positive_in_other_run": 0.4375,
+        "null_mean": 0.005386256714425064,
+        "null_975": 0.034392592965221985
       },
       "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [

@@ -1,0 +1,18 @@
+{
+  "openai/gpt-4o-mini": {
+    "pairs": 330,
+    "parsed": 330,
+    "known_order_flagged": 0.625,
+    "flagged": 8,
+    "known_order_unflagged": 0.8322981366459627,
+    "unflagged": 322
+  },
+  "meta-llama/llama-3.3-70b-instruct": {
+    "pairs": 330,
+    "parsed": 330,
+    "known_order_flagged": 0.71875,
+    "flagged": 32,
+    "known_order_unflagged": 0.8456375838926175,
+    "unflagged": 298
+  }
+}

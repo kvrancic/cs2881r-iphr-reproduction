@@ -4,7 +4,8 @@
 2. Retest: for the 8 models whose flagged pairs were later topped up to 100
    samples, how many flags survive at the paper's own 0.5 cutoff (the paper
    reports retention with a 0.4 cutoff for the retest).
-3. Lean by kind of question: how many flagged pairs are geography questions
+3. The paper's Appendix Table 10 (rates over a grid of cutoffs), recomputed.
+4. Lean by kind of question: how many flagged pairs are geography questions
    leaning NO, and how many are other questions leaning YES.
 
 Writes results/paper_data_checks.json.
@@ -34,6 +35,18 @@ PAPER_COUNTS = {
     "meta-llama/Llama-3.3-70B-Instruct": 102, "qwen/qwq-32b": 220,
 }
 N_PAIRS = 4834
+# The paper's Appendix Table 10 (rates in %, accuracy cutoff 0.4 then 0.6,
+# lean cutoff 0.03, 0.05, 0.07, 0.10), for the 8 models with 10-answer data.
+TABLE10 = {
+    "anthropic/claude-3.5-haiku": [11.5, 10.1, 9.1, 6.2, 6.0, 5.4, 4.9, 3.6],
+    "deepseek/deepseek-chat": [2.4, 1.6, 0.7, 0.3, 1.3, 0.9, 0.4, 0.2],
+    "openai/gpt-4o-mini": [18.1, 17.0, 15.7, 14.3, 10.6, 10.2, 9.7, 9.1],
+    "google/gemini-pro-1.5": [10.0, 7.6, 5.8, 3.1, 7.1, 5.6, 4.3, 2.3],
+    "google/gemini-2.5-flash-preview": [3.6, 2.9, 2.3, 1.3, 1.8, 1.6, 1.2, 0.9],
+    "meta-llama/Llama-3.1-70B": [4.9, 4.2, 3.3, 2.7, 3.0, 2.5, 2.2, 1.9],
+    "meta-llama/Llama-3.3-70B-Instruct": [3.9, 3.2, 2.1, 1.4, 1.6, 1.3, 1.0, 0.8],
+    "qwen/qwq-32b": [7.1, 6.8, 5.5, 3.5, 3.2, 3.0, 2.6, 1.8],
+}
 # Models whose flagged pairs were topped up to 100 samples (paper Appendix D).
 # One Gemini 2.5 Flash pair was also topped up for an example figure; it is
 # not part of the retest.
@@ -76,6 +89,15 @@ def main():
                 "kept_at_100_thr05": int(go.unf.sum()),
                 "kept_at_100_thr04": int(go.unf_04.sum()),
             }
+
+    # The paper's Table 10, recomputed over 4,834 pairs.
+    matched = 0
+    for m, row in TABLE10.items():
+        g = pt[pt.model_id == m]
+        ours = [round(100 * iphr.flag_pairs(g, at, bt).sum() / N_PAIRS, 1)
+                for at in [0.4, 0.6] for bt in [0.03, 0.05, 0.07, 0.10]]
+        matched += int(sum(a == b for a, b in zip(ours, row)))
+    res["table10"] = {"cells_matched": matched, "cells": 8 * len(TABLE10)}
 
     # Which way do flagged pairs lean, by kind of question? (10-sample flags only)
     ten = pt[(pt.total_count_y <= 10) & (pt.total_count_n <= 10) & pt.unf].copy()

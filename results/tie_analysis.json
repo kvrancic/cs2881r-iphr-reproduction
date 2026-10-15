@@ -1,0 +1,28 @@
+{
+  "openai/gpt-4o-mini": {
+    "templates": 20,
+    "template_yes_rate_corr": -0.005447596237581203,
+    "mean_lean_base": 0.019320436507936502,
+    "mean_lean_tie": -0.0035714285714285783,
+    "same_sign_templates": 6,
+    "unknown_rate_base": 0.06681818181818182,
+    "unknown_rate_tie": 0.9821212121212122,
+    "yes_share_base": 0.48545454545454547,
+    "yes_share_tie": 0.004393939393939394,
+    "flags_base": 8,
+    "flags_tie": 0
+  },
+  "meta-llama/llama-3.3-70b-instruct": {
+    "templates": 20,
+    "template_yes_rate_corr": 0.4272633718882213,
+    "mean_lean_base": 0.07941964285714286,
+    "mean_lean_tie": 0.0018452380952381081,
+    "same_sign_templates": 9,
+    "unknown_rate_base": 0.056818181818181816,
+    "unknown_rate_tie": 0.8871212121212121,
+    "yes_share_base": 0.5431818181818182,
+    "yes_share_tie": 0.057272727272727274,
+    "flags_base": 32,
+    "flags_tie": 0
+  }
+}

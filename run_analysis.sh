@@ -18,4 +18,7 @@ $PY noise_models.py
 $PY cited_facts.py openai/gpt-4o-mini meta-llama/llama-3.3-70b-instruct
 $PY strict_reading.py
 $PY geo_analysis.py
+$PY tie_analysis.py
+$PY recall_probe.py
 $PY figures.py
+$PY report_tables.py

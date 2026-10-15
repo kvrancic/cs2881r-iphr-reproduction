@@ -18,4 +18,5 @@ if __name__ == "__main__":
     sub.to_csv(ROOT / "data" / "subsample_pairs.csv", index=False)
     geo = sub[sub.prop_id.str.contains(r"-(?:lat|long)$")]
     geo.to_csv(ROOT / "data" / "subsample_geo_pairs.csv", index=False)
+    sub.drop(geo.index).to_csv(ROOT / "data" / "subsample_other_pairs.csv", index=False)
     print(len(sub), "pairs from", sub.groupby(["prop_id", "comparison"]).ngroups, "templates")
