@@ -8,15 +8,15 @@ CS2881r mini-project by Shlok Dholakia, Nadia Sumin, Karlo Vrancic and Marc Wald
 
 ## Results
 
-| On our 1,014 pairs | GPT-4o-mini | Llama 3.3 70B | DeepSeek V3 | Gemini 2.5 Flash |
-|---|---|---|---|---|
-| Flagged, paper's run | 146 | 28 | 17 | 29 (preview) |
-| Flagged, paper's answers with our labeller | 134 | 31 | 12 | 25 |
-| Flagged, our run | 139 | 35 | 6 | 20 (general release) |
-| Lean gap, paper / ours | 0.164 / 0.157 | 0.059 / 0.071 | 0.038 / 0.035 | 0.059 / 0.057 |
-| Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.17) | 0.41 (0.22) | 0.33 (0.19) |
-| Excess asymmetry that returns in our run, lean side / other side (nulls about 0.04–0.05) | 0.19 / 0.24 | 0.05 / 0.07 | 0.07 / 0.10 | 0.05 / 0.09 |
-| Flagged with both true values in the prompt | 2 | 0 | 0 | not run |
+| On our 1,014 pairs                                                                       | GPT-4o-mini   | Llama 3.3 70B | DeepSeek V3   | Gemini 2.5 Flash     |
+| ---------------------------------------------------------------------------------------- | ------------- | ------------- | ------------- | -------------------- |
+| Flagged, paper's run                                                                     | 146           | 28            | 17            | 29 (preview)         |
+| Flagged, paper's answers with our labeller                                               | 134           | 31            | 12            | 25                   |
+| Flagged, our run                                                                         | 139           | 35            | 6             | 20 (general release) |
+| Lean gap, paper / ours                                                                   | 0.164 / 0.157 | 0.059 / 0.071 | 0.038 / 0.035 | 0.059 / 0.057        |
+| Pair asymmetry correlation across runs (template-only null, 97.5%)                       | 0.69 (0.18)   | 0.47 (0.17)   | 0.41 (0.22)   | 0.33 (0.19)          |
+| Excess asymmetry that returns in our run, lean side / other side (nulls about 0.04–0.05) | 0.19 / 0.24   | 0.05 / 0.07   | 0.07 / 0.10   | 0.05 / 0.09          |
+| Flagged with both true values in the prompt                                              | 2             | 0             | 0             | not run              |
 
 - **Newer models on the same pairs:** GPT-5.6 Luna 13 flags (0 with values), Qwen 3.8 Flash 3, Claude Haiku 5.5 2, DeepSeek V4 Flash 1.
 - **Tie cards** (one rounded value printed for both entities, 330 non-geography pairs): GPT-4o-mini and Llama 3.3 answer UNKNOWN 98% and 89% of the time, as the card invites; too few answers remain to measure a lean.
@@ -101,7 +101,7 @@ Cost of our runs at October 2026 OpenRouter prices: $103 in total (answers, labe
 
 ## Use of AI tools
 
-Claude (Anthropic) wrote most of the code, ran the experiments and drafted the report, the talk script and the slides under our direction. AI reviewers (Claude agents asked to grade, fact-check, edit and attack the work) critiqued the drafts. We checked the reported numbers against the result files.
+Claude (Anthropic) wrote most of the code, ran the experiments and drafted parts of the report, the talk script and the slides under our direction. 
 
 ## Worklog
 
@@ -116,3 +116,4 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **06:30–07:30.** Added a mirror control to the residual test (the lean side and the other side return by similar amounts, so the repeated asymmetry is not specific to the lean), a forced-choice tie card, template-cluster intervals for Figure 1 and the full 20-setting cutoff grid. Built the deck.
 - **07:30–09:45.** Revised the report, talk and deck. Computed the expected recurrence from our labels and recorded the sample's effect on the paper's rates. Regenerated the figures and Table 1.
 - **09:45–12:00.** Revised the report, talk and deck again: the both-coordinates control in the geography conclusion, same-judge lean-gap comparison, rank correlation by kind written by `noise_models.py`, lit sets for the deck.
+
