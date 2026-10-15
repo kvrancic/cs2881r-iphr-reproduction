@@ -84,7 +84,15 @@ def rates(pt, side):
     return ((correct + 0.5) / tot).to_numpy(), ((u + 0.5) / tot).to_numpy()
 
 
-def expected_recurrence(pt):
+def expected_recurrence(pt, seed=None):
+    """With a seed, draw from a separate generator so the shared stream is untouched."""
+    global RNG
+    if seed is not None:
+        shared, RNG = RNG, np.random.default_rng(seed)
+        try:
+            return expected_recurrence(pt)
+        finally:
+            RNG = shared
     pcy, puy = rates(pt, "y")
     pcn, pun = rates(pt, "n")
     shares = []
@@ -250,7 +258,8 @@ def main():
         r = relab[relab.model_id == o].reset_index(drop=True)
         r["unf"] = iphr.flag_pairs(r)
         b = ours[ours.model_id == o].reset_index(drop=True)
-        exp, exp_ci = expected_recurrence(a)
+        exp_paper_labels, _ = expected_recurrence(a)
+        exp, exp_ci = expected_recurrence(r, seed=1)
 
         def recur(x):
             j = x[key + ["unf"]].merge(b[key + ["unf"]], on=key, suffixes=("_x", "_o"))
@@ -271,6 +280,7 @@ def main():
                                             int(iphr.flag_pairs(b, at, bt).sum())]
         res["paired"][o] = {
             "expected_recurrence_if_unchanged": exp, "expected_recurrence_ci": exp_ci,
+            "expected_recurrence_paper_labels": exp_paper_labels,
             "paper_run_vs_ours": recur(a), "paper_answers_our_labels_vs_ours": recur(r),
             "ratio_ours_to_paper_answers_our_labels_ci": cluster_boot(r, b),
             "lean_gap": {"paper": lean_gap(a), "paper_answers_our_labels": lean_gap(r), "ours": lean_gap(b)},

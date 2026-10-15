@@ -27,7 +27,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
   - the plot divides by 4,892 where the data hold 4,834 pairs;
   - averaged over models, the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%, also averaged over models);
   - the model ranking changes in 16 of 19 alternative cutoff settings, as the paper's own Table 10 also shows;
-  - by kind of question the ranking nearly reverses: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
+  - by kind of question the top and bottom of the ranking swap: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
 
 ## Layout
 
@@ -95,7 +95,7 @@ The pickle holds only pandas and numpy objects; we listed its opcodes with `pick
 
 **Full rerun without new sampling.** The raw answers are in the release [`data-v2`](https://github.com/kvrancic/cs2881r-iphr-reproduction/releases/tag/data-v2) as `responses.tar.gz` (97518561 bytes, sha256 `e49759ddcc08d92e510376517383d26a76b50202fa0d3ee40df87a6b4ff9333d`). Run `tar -xzf responses.tar.gz` at the repository root. Then `./run_analysis.sh` regenerates every file in `results/` and `figures/` with no paid calls. It needs internet access: `validate_judge.py` and `relabel_paper.py` download the authors' answer files from GitHub (cached under `data/*/raw/`).
 
-**Full rerun with new sampling.** Put `OPENROUTER_API_KEY=...` in `.env`, then run `./run_all.sh` and `./run_analysis.sh`. `SPEND_CAP_USD` (default 100) stops all calls once logged spend reaches it. The 10-pair cost pilots used `generate.py --limit-pairs 10`.
+**Full rerun with new sampling.** Put `OPENROUTER_API_KEY=...` in `.env`, then run `./run_all.sh` and `./run_analysis.sh`. `SPEND_CAP_USD` (default 100) stops each job once logged spend reaches it. Each job checks only its own running total, so with five jobs in parallel our total passed the cap by $2.91. The 10-pair cost pilots used `generate.py --limit-pairs 10`.
 
 Cost of our runs at October 2026 OpenRouter prices: $103 in total (answers, labels, the fact reader and the recall probe; `data/spend.jsonl.gz` logs the cost of every call).
 
@@ -114,3 +114,4 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **04:30–05:15.** Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates).
 - **05:15–06:10.** Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Generated Table 1 from the result files.
 - **06:30–07:30.** Added a mirror control to the residual test (the lean side and the other side return by similar amounts, so the repeated asymmetry is not specific to the lean), a forced-choice tie card, template-cluster intervals for Figure 1 and the full 20-setting cutoff grid. Built the deck.
+- **07:30–09:45.** Revised the report, talk and deck. Computed the expected recurrence from our labels and recorded the sample's effect on the paper's rates. Regenerated the figures and Table 1.

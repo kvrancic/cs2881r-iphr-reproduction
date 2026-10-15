@@ -117,6 +117,13 @@ def main():
     res["retest_mean_of_models"] = {
         thr: float(np.mean([v[f"kept_at_100_{thr}"] / v["flagged_at_10"] for v in res["retest"].values()]))
         for thr in ["thr05", "thr04"]}
+    # How much our 21% sample moves each 10-sample model's rate, with leans re-estimated on the sample.
+    sub = pd.read_csv(ROOT / "data" / "subsample_pairs.csv")
+    ps = iphr.pair_table(df[df.qid.isin(set(sub.qid_yes) | set(sub.qid_no))])
+    ps["unf"] = iphr.flag_pairs(ps)
+    res["subsample_shift_points"] = {
+        m: round(100 * (ps[ps.model_id == m].unf.mean() - pt[pt.model_id == m].unf.sum() / N_PAIRS), 2)
+        for m in PAPER_COUNTS if m not in OVERSAMPLED}
     json.dump(res, (OUT / "paper_data_checks.json").open("w"), indent=2)
     print(json.dumps(res, indent=1))
 

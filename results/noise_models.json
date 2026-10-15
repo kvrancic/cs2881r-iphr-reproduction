@@ -204,11 +204,12 @@
   },
   "paired": {
     "openai/gpt-4o-mini": {
-      "expected_recurrence_if_unchanged": 0.6985689166602979,
+      "expected_recurrence_if_unchanged": 0.6693957914929675,
       "expected_recurrence_ci": [
-        0.6361625100563154,
-        0.7843179513184584
+        0.5854758604758605,
+        0.7573495145631068
       ],
+      "expected_recurrence_paper_labels": 0.6985689166602979,
       "paper_run_vs_ours": {
         "flags": 146,
         "recur": 105,
@@ -304,11 +305,12 @@
       }
     },
     "meta-llama/llama-3.3-70b-instruct": {
-      "expected_recurrence_if_unchanged": 0.5415700008448292,
+      "expected_recurrence_if_unchanged": 0.5720210008234691,
       "expected_recurrence_ci": [
-        0.38690211345939934,
-        0.7647058823529411
+        0.375,
+        0.791875
       ],
+      "expected_recurrence_paper_labels": 0.5415700008448292,
       "paper_run_vs_ours": {
         "flags": 28,
         "recur": 19,
@@ -404,11 +406,12 @@
       }
     },
     "deepseek/deepseek-chat": {
-      "expected_recurrence_if_unchanged": 0.47391080013467785,
+      "expected_recurrence_if_unchanged": 0.4535166524651818,
       "expected_recurrence_ci": [
-        0.16666666666666666,
-        0.8333333333333334
+        0.14261904761904762,
+        0.8014285714285718
       ],
+      "expected_recurrence_paper_labels": 0.47391080013467785,
       "paper_run_vs_ours": {
         "flags": 17,
         "recur": 1,
@@ -504,11 +507,12 @@
       }
     },
     "google/gemini-2.5-flash": {
-      "expected_recurrence_if_unchanged": 0.6123450092573788,
+      "expected_recurrence_if_unchanged": 0.6327976875287575,
       "expected_recurrence_ci": [
-        0.4398695652173913,
-        0.8
+        0.4580818965517241,
+        0.7929276315789476
       ],
+      "expected_recurrence_paper_labels": 0.6123450092573788,
       "paper_run_vs_ours": {
         "flags": 29,
         "recur": 14,

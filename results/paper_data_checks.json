@@ -223,5 +223,15 @@
   "retest_mean_of_models": {
     "thr05": 0.6066242784992785,
     "thr04": 0.7402552308802308
+  },
+  "subsample_shift_points": {
+    "anthropic/claude-3.5-haiku": 0.97,
+    "deepseek/deepseek-chat": 0.44,
+    "openai/gpt-4o-mini": 0.75,
+    "google/gemini-pro-1.5": 0.48,
+    "google/gemini-2.5-flash-preview": 0.67,
+    "meta-llama/Llama-3.1-70B": 0.95,
+    "meta-llama/Llama-3.3-70B-Instruct": 0.65,
+    "qwen/qwq-32b": -0.41
   }
 }
