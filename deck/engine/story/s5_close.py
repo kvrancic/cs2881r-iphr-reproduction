@@ -11,7 +11,7 @@ def close(tl):
     tl.section = "close"
     tl.clear(); put_ground(tl)
     chart(tl, "fig2_rec")
-    stage(tl, "happy", ("up", "up"), c=332)
+    stage(tl, "happy", ("up", "up"), c=356)      # peeking in at the board's lower right corner, as on Figure 2
     cue(tl, "8 models: counts recompute")
     tl.beat("For the eight models with released data, Figure 2's counts recompute exactly.", fade=True)
 
@@ -28,11 +28,10 @@ def close(tl):
     cue(tl, "every model: the same lean")
     tl.beat("Every model's lean repeats.", fade=True)
 
-    # the flag counts: GPT-4o mini and Llama step forward with their counts; the other two step back
+    # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
     R = charts.RUNS
-    for k in (2, 3):
-        tl.drop(f"bot{k}", f"t_bot{k}", f"sign{k}")
-    for k, c_ in ((0, 140), (1, 244)):
+    tl.drop("bot2", "t_bot2", "sign2")
+    for k, c_ in ((0, 96), (1, 192), (3, 288)):
         key = charts.FOUR[k][0]
         a, b = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
         tl.move(f"bot{k}", x=at(c_))
@@ -43,7 +42,7 @@ def close(tl):
     tl.put("bot0", robot("grin", who="gpt"))
     _key(tl, "flagged pairs")
     cue(tl, "flag counts: the same")
-    tl.beat("The flag counts repeat for GPT-4o mini and Llama.")
+    tl.beat("The flag counts repeat for GPT-4o mini, Llama and Gemini.")
 
 
 def limits(tl):

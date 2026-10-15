@@ -28,8 +28,8 @@ def split(tl):
     # the page of Figure 2 opens into the split board; it fills the stage, no robot
     tl.keep("ground")
     chart(tl, "kind_all", alias={"bd": "doc"})
-    cue(tl, "ranking flips by kind")
-    tl.beat("The top and bottom of the ranking swap.", morph=0.9)
+    cue(tl, "ranking nearly reverses")
+    tl.beat("The ranking nearly reverses.", morph=0.9)
     chart(tl, "kind_gpt", alias={"bd": "doc"})
     cue(tl, "GPT-4o mini: geography")
     tl.beat("GPT-4o mini is flagged on a fifth of the geography pairs and on one percent of the rest.")

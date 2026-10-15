@@ -196,7 +196,7 @@ def _total(tl, parts):
 
 
 LADDER = [("base", "paper's wording"), ("paraphrase", "reworded,\nsame vague"),
-          ("clarified", "+ anywhere\nfurther west"), ("strict", "+ only\ndue west")]
+          ("coordwording", "a more western\nlongitude"), ("strict", "+ only\ndue west")]
 
 
 def _hbar(L, h=20):
@@ -278,11 +278,13 @@ def wording(tl):
     tl.beat("so it is not directly west of it.")
 
     # the wording ladder: the same 684 pairs asked in four wordings, each a chat bubble with its flags as a bar on
-    # one scale; a faint dotted track of all 684 lies behind each row from the start; GPT-4o mini stands at the right throughout
+    # one scale; a faint dotted track of all 684 lies behind each row from the start; GPT-4o mini peeks in at the
+    # lower right throughout
     tl.clear(); put_ground(tl)
     G = charts.GEO["conditions"]
     N = G["base"]["pairs"]
-    BX0, BWD = 124, 178                       # the bars start at x 124; all 684 pairs span 178 px
+    BX0, BWD = 138, 192                       # the bars start at x 138; all 684 pairs span 192 px
+    LRC = 370                                 # GPT-4o mini peeks in at the lower right corner
     ys = (24, 62, 100, 138)
     ax = blank(2, ys[-1] + 24 - ys[0] + 8)
     rect(ax, 0, 0, 2, ax.height, "ink")
@@ -291,12 +293,12 @@ def wording(tl):
         tl.put(f"slot_tr{i}", _track(BWD, 20), BX0, y_ + 1, z=11, screen=True)
     al = T(f"of {N}", "slate")
     tl.put("t_all", al, BX0 + BWD - al.width, ys[3] + 1 + 20 + 4, z=40, screen=True)
-    stage(tl, "neutral", who="gpt", c=346)
+    stage(tl, "neutral", who="gpt", c=LRC)
 
     def rung(i, face, arms=("down", "down"), acc=()):
         c_, lab = LADDER[i]
-        added = c_ in ("clarified", "strict")
-        b_ = P.bubble(lab, 108, bg="yellow" if added else "ice", edge="gold" if added else "steel", tail=None)
+        added = c_ in ("coordwording", "strict")
+        b_ = P.bubble(lab, 122, bg="yellow" if added else "ice", edge="gold" if added else "steel", tail=None)
         tl.put(f"lad_q{i}", b_, 8, ys[i] + 10 - b_.height // 2 + 2, z=12, screen=True)
         v = G[c_]["flags"]
         L = v * BWD / N
@@ -310,7 +312,7 @@ def wording(tl):
         else:
             t = ui.say(str(v), "orange", 40)
             tl.put(f"t_lv{i}", t, BX0 + round(L) + 6, ys[i] + 11 - t.height // 2, z=40, screen=True)
-        stage(tl, face, arms, acc, who="gpt", c=346)
+        stage(tl, face, arms, acc, who="gpt", c=LRC)
 
     rung(0, "neutral")
     cue(tl, "same 684 pairs, four wordings")
@@ -322,11 +324,11 @@ def wording(tl):
     hx, hy = hand(tl, "L", POINT)
     o = tl.objs["t_lv2"]
     hold(tl, "stick", hx, hy, round(o.x + o.w + 4), round(o.y + o.h / 2))
-    cue(tl, "+ further west: fewer")
-    tl.beat("One sentence saying that anywhere further west counts cuts them to 31.")
+    cue(tl, "more western longitude: 24")
+    tl.beat("Asking for a more western longitude cuts them to 24.")
     rung(3, "shock", ("up", "up"), ("sweat",))
     cue(tl, "+ only due west: almost all")
-    tl.beat("The opposite sentence, that only directly west counts, raises them to 667 of 684,")
+    tl.beat("A sentence saying that only directly west counts raises them to 667 of 684,")
 
     # under the strict reading NO is right in both orders
     clear_charts(tl)

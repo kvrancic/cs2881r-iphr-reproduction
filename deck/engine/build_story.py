@@ -5,13 +5,19 @@ from story.s2_did import act2
 from story.s3_kind import act3
 from story.s4_ext import act4
 from story.s5_close import act5
+from sprites import sets
 
 
 def story():
     tl = Timeline()
+    tl.scenery("wall_hall", sets.lecture())
     act1(tl)      # title, the Figure 1 example, the pairs, Figure 2
+    tl.scenery("wall_lab", sets.lab())
     act2(tl)      # four things; 1 the recompute, 2 the rerun
+    tl.scenery("wall_map", sets.mapwall())
     act3(tl)      # 3 Figure 2 split by kind of question
+    tl.scenery("wall_survey", sets.survey())
     act4(tl)      # 4 the two variations: fact cards, then the wording of geography questions
+    tl.scenery("wall_stage", sets.stage())
     act5(tl)      # what Figure 2 measures, thank you
     return tl

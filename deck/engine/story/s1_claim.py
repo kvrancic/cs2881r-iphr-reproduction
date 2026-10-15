@@ -100,7 +100,7 @@ def figure1(tl):
     tl.put("t_ok_r", rw, WR + (WW - rw.width) // 2, WY + WH - rw.height // 2, z=18, screen=True)
     tl.put("robot", robot("happy", ("up", "up"), who="gemini"))
     cue(tl, "each reads well")
-    tl.beat("Each answer reads well on its own,")
+    tl.beat("Each answer reads well on its own.")
 
     # the unspoken lean: the scale takes its colour and rises over the robot, which grows as it glances away --
     sc = scale(-1, s=0.75)
@@ -108,7 +108,7 @@ def figure1(tl):
     tl.drop("t_name")
     place(tl, "robot", robot("side_l", ("down", "down"), ("sweat",), who="gemini"), FC, 1.5)
     cue(tl, "unsaid: it leans NO")
-    tl.beat("yet neither mentions the model's habit of answering no to this kind of question.")
+    tl.beat("Neither mentions the model's habit of answering no to this kind of question.")
 
 
 # The wall of pairs: two thirds of the dataset are geography (places), as in the data (3,262 of 4,834 pairs).
@@ -217,7 +217,7 @@ def pairs(tl):
     tl.beat("in the direction of its usual lean.")
 
 
-FIG_RC = 338                         # the robot's centre beside the Figure 2 board
+FIG_RC = 356                         # the robot peeks in at the lower right corner of the wide Figure 2 board
 
 
 def figure2(tl):

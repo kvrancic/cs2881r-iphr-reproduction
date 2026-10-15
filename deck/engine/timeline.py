@@ -46,6 +46,14 @@ class Timeline:
         self.bgc = "white"
         self.beats = []
         self.section = ""
+        self.setpiece = None    # (id, picture): the act's set piece, put under everything on every slide
+
+    def scenery(self, id, img):
+        """Set the act's set piece: a full-screen picture just above the ground on every slide from now on."""
+        if self.setpiece:
+            self.objs.pop(self.setpiece[0], None)
+        self.setpiece = (id, img)
+        return self
 
     # stage edits -------------------------------------------------------
     def put(self, id, img=None, x=None, y=None, z=None, **kw):
@@ -102,6 +110,8 @@ class Timeline:
 
     # snapshot ------------------------------------------------------------
     def beat(self, say="", morph=0.6, notes="", video=None, fade=False, clip=None):
+        if self.setpiece and self.setpiece[0] not in self.objs:
+            self.put(self.setpiece[0], self.setpiece[1], 0, 0, z=1, screen=True)
         objs = {k: copy.copy(v) for k, v in self.objs.items()}
         self.beats.append(Beat(say=say, objs=objs, cam=self.camxy, bg=self.bgc, morph=morph,
                                section=self.section, notes=notes, video=video, fade=fade, clip=clip))

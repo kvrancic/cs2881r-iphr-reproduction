@@ -1,6 +1,6 @@
 # Storyboard
 
-73 slides, one per spoken sentence or phrase of `../talk/transcript.md`. The code is `engine/story/s*.py`; each line below is one `tl.beat`. Every slide but the title, Figure 2 (15 to 18) and the thank-you carries a cue plate at the bottom left. Colour: NO red, YES green, the paper's run blue, our run orange, the fact card aqua, unknown grey, highlights yellow; ticks and crosses are ink. The board says where the data come from: white paper on legs for the paper's figures and data, a dark terminal on a monitor stand for the released data recomputed, a white board with an orange rim on a lab bench for our own runs. Each model keeps one look: GPT-4o mini a pink antenna and a chat-bubble badge, Llama 3.3 a brown beret, DeepSeek V3 a slate fin, Gemini 2.5 Flash a gold bow, GPT-5.6 Luna a gold crescent moon, our labeller a judge's cap.
+73 slides, one per spoken sentence or phrase of `../talk/transcript.md`. The code is `engine/story/s*.py`; each line below is one `tl.beat`. Every slide but the title, Figure 2 (15 to 18) and the thank-you carries a cue plate at the bottom left. Colour: NO red, YES green, the paper's run blue, our run orange, the fact card aqua, unknown grey, highlights yellow; ticks and crosses are ink. The board says where the data come from: white paper on legs for the paper's figures and data, a dark terminal on a monitor stand for the released data recomputed, a white board with an orange rim on a lab bench for our own runs. Each act has one set piece behind everything, in the ground's pale ice and steel, that stays put through the act: a lecture hall with a window and a radiator (1 to 18), a lab wall with two shelves of glassware (19 to 38), a world map pinned to the wall (39 to 44), a surveyor's tripod and ranging pole (45 to 66), a stage with curtains and a valance (67 to 73). Figure 2 (15 to 18, 67) and the wording ladder (59 to 62) fill the width, and the robot peeks in at the lower right corner. Each model keeps one look: GPT-4o mini a pink antenna and a chat-bubble badge, Llama 3.3 a brown beret, DeepSeek V3 a slate fin, Gemini 2.5 Flash a gold bow, GPT-5.6 Luna a gold crescent moon, our labeller a judge's cap.
 
 ## Title and the Figure 1 example (1 to 9)
 1. The paper's title in smooth type at the top; the robot, half again as large, stands on the ground holding two printed papers out to its sides, the ICML paper (blue) and our reproduction (orange), each named by a tag.
@@ -39,9 +39,9 @@
 28. "99%, label agreement, on their answers".
 29. The four models we could rerun, each with its look and name tag.
 30. Each model holds up a sign with its lean, the paper's run (blue) and ours (orange), all signs on one scale with a common baseline and the same faint gridlines, each value (the lean gap, to two decimals) at its bar's end. Cue "our runs: the same lean".
-31. GPT-4o mini and Llama step forward with their flag counts, 146 and 139, 28 and 35; the other two step back.
-32. DeepSeek beside the light lab board: paper 17 and ours 6 on one axis from 0. Cue "DeepSeek: fewer flags".
-33. "our labeller" (hatched blue and orange, with a key: the paper's answers, our labeller) slides in between at 12; DeepSeek points at it and sweats. Cue "part of it: our labeller".
+31. GPT-4o mini, Llama and Gemini step forward with their flag counts, 146 and 139, 28 and 35, 29 and 20; DeepSeek steps back.
+32. The lab board, wide and centred, its rows to the right; DeepSeek stands in front of its empty lower left corner: paper 17 and ours 6 on one axis from 0. Cue "DeepSeek: fewer flags".
+33. "our labeller" (hatched blue and orange, with a key: the paper's answers, our labeller) slides in between at 12; DeepSeek points its stick at the row from below and sweats. Cue "part of it: our labeller".
 34. The same board at two cutoffs on the template's lean: at 0.05 the paper's answers under our labeller give 12 flags and our run 6; at 0.10 they give 2 and 3; DeepSeek looks on. Cue "the rest: near the cutoff".
 35. GPT-4o mini at the left points at one pair as two stacked runs, a word on each row ("this order", "other order") over its true answer ("true: NO", "true: YES") and the count of right answers at its end ("9 right", "2 right"): the paper's run lit, "this order" on yellow; our run below in grey. Cue "one order better in the paper's run".
 36. Our run lights up: the same order on yellow again. Cue "the same order, better again".
@@ -50,7 +50,7 @@
 
 ## Figure 2 by kind of question (39 to 44)
 39. The Figure 2 page splits into a globe (geography) and calendar, ruler, cake (dates, sizes, ages).
-40. The page opens into the paper board: names on the left, geography and the others as two columns of bars on one scale. Cue "ranking flips by kind".
+40. The page opens into the paper board: names on the left, geography and the others as two columns of bars on one scale. Cue "ranking nearly reverses".
 41. GPT-4o mini's row on yellow: 19.6% and 1.4%. Cue "GPT-4o mini: geography".
 42. QwQ and both Llamas on yellow. Cue "QwQ, Llama: the reverse".
 43. Two scales at either side, the left one on a plinth, the right one grey on the ground; the globe sinks the NO pan: 1,269 NO, 122 YES; the robot stands between them and points at it.
@@ -73,7 +73,7 @@
 58. The bubble grows: "not due west. So: NO."; the due-west line appears on the map.
 59. The wording ladder: four chat bubbles down the left, each with its flags as a bar on one scale; a faint dotted track of all 684 behind each row, "of 684" at its right end; the paper's wording, 131; GPT-4o mini at the right.
 60. Reworded, same vague direction: 140. Cue "reworded: about the same".
-61. "+ anywhere further west" (yellow): 31; the robot points at it. Cue "+ further west: fewer".
+61. "a more western longitude" (yellow): 24; the robot points at it. Cue "more western longitude: 24".
 62. "+ only due west" (yellow): its bar nearly fills its track, a large "667" with a smaller "of 684" under its end; GPT-4o mini throws up its hands. Cue "+ only due west: almost all".
 63. The lake map with the due-west line: "Is B west of A?" NO, "Is A west of B?" NO, both ticked.
 64. The two readings side by side: "anywhere further west" (yellow) with a green YES and "due west only" with a red NO.
@@ -83,6 +83,6 @@
 ## The close (67 to 73)
 67. Figure 2 again with an orange tick right after each of the eight recomputed bars, keyed "recomputed exactly" on a white plate beside the shorter bars, its rows a little closer so the cue fits below the board; the robot cheers. Cue "8 models: counts recompute".
 68. The four models hold signs with their lean and its value, the paper's run and ours.
-69. GPT-4o mini and Llama step forward with their flag counts; the other two step back.
+69. GPT-4o mini, Llama and Gemini step forward with their flag counts; DeepSeek steps back.
 70. to 72. The limits dealt one card per phrase, the row centred: 1,014 pairs, not all 4,834; a different judge; same weights still served?
 73. "Thank you" in white letters with an ink outline and the names in pixel type, lowered from the frame, the repo link larger in smooth type; the four models we reran in a row, two waving.

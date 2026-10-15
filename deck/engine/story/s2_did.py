@@ -215,11 +215,10 @@ def rerun(tl):
     cue(tl, "our runs: the same lean")
     tl.beat("each leans about as strongly as in the paper.", morph=0.8)
 
-    # the flag counts: GPT-4o mini and Llama step forward with their counts; the other two step back
+    # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
     R = charts.RUNS
-    for k in (2, 3):
-        tl.drop(f"bot{k}", f"t_bot{k}", f"sign{k}")
-    for k, c_ in ((0, 140), (1, 244)):
+    tl.drop("bot2", "t_bot2", "sign2")
+    for k, c_ in ((0, 96), (1, 192), (3, 288)):
         key = charts.FOUR[k][0]
         a_, b_ = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
         tl.move(f"bot{k}", x=at(c_))
@@ -230,26 +229,26 @@ def rerun(tl):
     tl.put("bot0", robot("grin", who="gpt"))
     _key(tl, "flagged pairs")
     cue(tl, "flags: about the same")
-    tl.beat("GPT-4o mini and Llama get about the same number of flags.")
+    tl.beat("GPT-4o mini, Llama and Gemini get about the same number of flags.")
 
     # DeepSeek beside its board: the paper's flags and ours, then the paper's answers relabelled by our labeller
     tl.keep("ground")
     chart(tl, "ds_two")
-    stage(tl, "side_l", who="deepseek")
+    stage(tl, "side", who="deepseek", c=DS_C)          # in front of the wide board's empty lower left corner
     cue(tl, "DeepSeek: fewer flags")
     tl.beat("DeepSeek gets fewer.")
     chart(tl, "ds_three")
-    stage(tl, "side_l", POINT, ("sweat",), who="deepseek")
-    hx, hy = hand(tl, "L", POINT)
-    x, y, w, h = chart_pos("ds_three", "dsv1")
-    hold(tl, "stick", hx, hy, round(x + w + 4), round(y + h / 2 + 2))
+    stage(tl, "side", POINT_R, ("sweat",), who="deepseek", c=DS_C)
+    hx, hy = hand(tl, "R", POINT_R)
+    x, y, w, h = chart_pos("ds_three", "dsn1")              # the stick ends just left of "our labeller"
+    hold(tl, "stick", hx, hy, round(x - 4), round(y + h / 2))
     cue(tl, "part of it: our labeller")
     tl.beat("Part of that is our labeller.")
 
     # the rest: chance near the cutoff. At the stated cutoff on the template's lean (0.05) the two runs differ; at
     # 0.10 only a few flags are left in either, so most of the gap sits in pairs just past the cutoff
     chart(tl, "ds_cut")
-    stage(tl, "focus", who="deepseek")
+    stage(tl, "focus", who="deepseek", c=DS_C)
     cue(tl, "the rest: near the cutoff")
     tl.beat("The rest may be chance, since its leans sit close to the cutoff.")
 
@@ -287,6 +286,7 @@ def rerun(tl):
 
 
 BOT_X = (66, 152, 238, 324)          # the four models in a row
+DS_C = 44                            # DeepSeek's centre in front of its board
 
 
 LEAN_PX = 300                       # placard px per unit of lean: 0.2 spans 60 px on every sign

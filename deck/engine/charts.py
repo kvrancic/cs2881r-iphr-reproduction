@@ -257,9 +257,10 @@ FIG2 = [  # (key in paper_data_checks.json, label as in the paper's Figure 2, th
     ("meta-llama/Llama-3.3-70B-Instruct", "Llama 3.3 70B", False),
     ("qwen/qwq-32b", "QwQ 32B", True),
 ]
-F2 = dict(x=50, y=14, w=680, h=490)          # the paper board: native 20..292 x 6..202, the full height of the
+F2 = dict(x=50, y=14, w=880, h=490)          # the paper board: native 20..372 x 6..202, the full height of the
 F2X0, F2PX, F2Y0, F2STEP, F2BH = 340, 19, 32, 29, 15   # stage; 16 rows 2 native px apart; the robot stands to its right
-F2TX = 548                                   # the title block, in the empty lower right of the plot
+F2TX = 748                                   # the title block, in the empty upper right of the board; the robot
+                                             # peeks in at the lower right corner
 F2_REC_H = 452                               # the shorter board of the 'recomputed' state: its slide has a cue
 
 
@@ -271,7 +272,7 @@ def ktxt(id_, x, y, s, cls="f2 navy", bg="white"):
 
 def fig2(state):
     """Figure 2 redrawn as horizontal bars, models sorted by their share, names right-aligned on the left, on a
-    paper board as tall as the stage. The title sits in the empty lower right of the plot; the gridlines run
+    paper board as tall and nearly as wide as the stage. The title sits in the empty upper right; the gridlines run
     unbroken with their labels at the foot. state: 'axes' (the names, every bar still at zero), 'bars', 'top'
     (GPT-4o mini on yellow, its value just under the end of its bar, clear of the board's top for the magnifier),
     'think' (every thinking model's name on yellow, with a key, and one bracket over every bar below 0.5%),
@@ -283,8 +284,8 @@ def fig2(state):
     rows = sorted(FIG2, key=lambda r: -CHECKS["figure2"][r[0]]["paper_pct"])
     x0, px_, y0, step, bh = F2X0, F2PX, F2Y0, 27 if rec else F2STEP, F2BH
     top, bot = y0 - 8, y0 + 16 * step - 6
-    out.append(txt("bdt", F2TX, 262 if rec else 278, "Figure 2", "f3 ink"))
-    out.append(el("bds", F2TX, 312 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
+    out.append(txt("bdt", F2TX, 26, "Figure 2", "f3 ink"))
+    out.append(el("bds", F2TX, 80, "share of<br>pairs flagged", "f2 slate", "line-height:31px"))
     TEXTS.add("bds")
     for p in (5, 10):
         x = x0 + p * px_
@@ -292,7 +293,7 @@ def fig2(state):
         out.append(txt(f"f2y{p}", x + 12, bot - 40, f"{p}%", "f2 slate"))
     out.append(grid("f2axis", x0 - 5, top, 5, bot - top, "ink"))
     if state != "axes":
-        out.append(txt("f2n", F2TX, 365 if rec else 400, "16 models", "f2 slate"))
+        out.append(txt("f2n", F2TX, 140, "16 models", "f2 slate"))
     for i, (key, lab, think) in enumerate(rows):
         d = CHECKS["figure2"][key]
         v = d["paper_pct"]
@@ -318,8 +319,8 @@ def fig2(state):
         out.append(el("f2kt", kx + 24, 116, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
         TEXTS.add("f2kt")
     if state == "think":
-        out.append(band("f2keyb", F2TX, 165, tw("thinking") + 16, 30))
-        out.append(txt("f2key", F2TX + 8, 160, "thinking", "f2 ink"))
+        out.append(band("f2keyb", 548, 165, tw("thinking") + 16, 30))
+        out.append(txt("f2key", 548 + 8, 160, "thinking", "f2 ink"))
         x = x0 + round(0.5 * px_)
         dash = "".join(f'<div class="o" style="left:0;top:{k * 16}px;width:5px;height:9px;background:var(--ink)"></div>'
                        for k in range(0, (bot - top) // 16 + 1))
@@ -421,6 +422,10 @@ def swatch(id_, x, y, kind, label, w=30):
               f"width:{w + 10 + tw(label)}px;height:40px")
 
 
+DSB = dict(x=50, w=860, s=170)   # the DeepSeek board: wider and centred, its rows moved right by s so the lower
+                                  # left corner stays empty for DeepSeek, who stands there in front of the board
+
+
 def deepseek(state="two"):
     """DeepSeek V3: the paper's flags and our run's on one axis from 0; 'three' slides in, between them, the
     paper's answers relabelled by our labeller (hatched blue and orange, with a key)."""
@@ -428,19 +433,19 @@ def deepseek(state="two"):
     rows = [("paper", d["paper_run_vs_ours"]["flags"], "bp", "navy"),
             ("our labeller", d["paper_answers_our_labels_vs_ours"]["flags"], "bm", "slate"),
             ("our run", RUNS["base"][DS]["n_unf"], "bo", "orange")]
-    out = [board("bench", "DeepSeek V3, flagged pairs")]
+    out = [board("bench", "DeepSeek V3, flagged pairs", x=DSB["x"], w=DSB["w"])]
     if state == "cut":
         return out[0] + _ds_cut(d)
     if state == "three":
-        out.append(swatch("dslg", BX + 28, BY + 66, "bm", "the paper's answers, our labeller", 40))
-    bx, bw, mx, bh, gp = BX + 230, 290, 20, 44, 34
+        out.append(swatch("dslg", DSB["x"] + 28, BY + 66, "bm", "the paper's answers, our labeller", 40))
+    bx, bw, mx, bh, gp = BX + 230 + DSB["s"], 290, 20, 44, 34
     slots = (0, 1, 2) if state == "three" else (0, None, 1)
     y0 = BY + 126
     for i, (lab, v, kind, col) in enumerate(rows):
         if slots[i] is None:
             continue
         y = y0 + slots[i] * (bh + gp)
-        out.append(txt(f"dsn{i}", BX + 28, y + 2, lab, "f2 ink"))
+        out.append(txt(f"dsn{i}", BX + 28 + DSB["s"], y + 2, lab, "f2 ink"))
         out.append(hbar(f"dsb{i}", bx, y, bw * v / mx, bh, kind))
         out.append(txt(f"dsv{i}", bx + blen(bw * v / mx) + 14, y - 16, str(v), f"f4 {col}"))
     ay = y0 + 3 * (bh + gp) - 22
@@ -458,13 +463,13 @@ def _ds_cut(d):
     between the two runs is in pairs whose template lean sits just past 0.05. noise_models.json,
     paired.deepseek.grid_paper_relabelled_ours (gap 0.5)."""
     g = d["grid_paper_relabelled_ours"]
-    out = [swatch("dslg", BX + 28, BY + 66, "bm", "the paper's answers, our labeller", 40),
-           swatch("dslg2", BX + 28, BY + 106, "bo", "our run", 40)]
-    bx, bw, mx, bh = BX + 255, 290, 20, 28       # room for the cutoff labels
+    out = [swatch("dslg", DSB["x"] + 28, BY + 66, "bm", "the paper's answers, our labeller", 40),
+           swatch("dslg2", DSB["x"] + 28, BY + 106, "bo", "our run", 40)]
+    bx, bw, mx, bh = BX + 255 + DSB["s"], 290, 20, 28       # room for the cutoff labels
     y0 = BY + 152
     for gi, (lab, key) in enumerate((("lean cutoff 0.05", "bias0.05_gap0.5"), ("lean cutoff 0.10", "bias0.1_gap0.5"))):
         yg = y0 + gi * 92
-        out.append(txt(f"dsc{gi}", BX + 28, yg + 12, lab, "f2 ink"))
+        out.append(txt(f"dsc{gi}", BX + 28 + DSB["s"], yg + 12, lab, "f2 ink"))
         for j, (v, kind, col) in enumerate(((g[key][1], "bm", "slate"), (g[key][2], "bo", "orange"))):
             i = 1 + j + 2 * gi                     # 1, 2: the bars of the slide before glide to the first cutoff
             y = yg + j * 36
@@ -677,6 +682,8 @@ def stand_of(slide):
         x, w, y, h = KB["x"], KB["w"], KB["y"], KB["h"]
     elif slide.startswith("recall"):
         x, w, y, h = BX, BW, RC["y"], RC["h"]
+    elif slide.startswith("ds"):
+        x, w, y, h = DSB["x"], DSB["w"], BY, BH
     elif slide.startswith("excess"):
         x, w, y, h = BX, BW, EX["y"], EX["h"]
     else:
