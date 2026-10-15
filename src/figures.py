@@ -40,7 +40,7 @@ PAPER_NAMES = {
     "anthropic/claude-3.7-sonnet_64k": "Sonnet 3.7 (64k)", "deepseek/deepseek-chat": "DeepSeek V3",
     "deepseek/deepseek-r1": "DeepSeek R1", "openai/gpt-4o-mini": "GPT-4o-mini",
     "openai/gpt-4o-2024-08-06": "GPT-4o Aug '24", "openai/chatgpt-4o-latest": "ChatGPT-4o",
-    "google/gemini-pro-1.5": "Gemini 1.5 Pro", "google/gemini-2.5-flash-preview": "Gemini 2.5 Flash",
+    "google/gemini-pro-1.5": "Gemini 1.5 Pro", "google/gemini-2.5-flash-preview": "Gemini 2.5 Flash (preview)",
     "google/gemini-2.5-pro-preview": "Gemini 2.5 Pro", "meta-llama/Llama-3.1-70B": "Llama 3.1 70B (base)",
     "meta-llama/Llama-3.3-70B-Instruct": "Llama 3.3 70B", "qwen/qwq-32b": "QwQ 32B",
 }
@@ -103,7 +103,8 @@ def fig_reproduction(checks, runs, relabel, cluster):
                 (runs["base"][m]["n_unf"], ORANGE, "Our run")]
         for j, (n, col, lab) in enumerate(vals):
             ax.bar(x + (j - 1) * w, n, w * 0.95, color=col, linewidth=0, zorder=2, label=lab if x == 0 else None)
-            ax.text(x + (j - 1) * w, n + 2 + 9 * (j == 1), str(n), ha="center", fontsize=5.6, color=INK2)
+            if j != 1:  # the relabelled counts are in Table 1
+                ax.text(x + (j - 1) * w, n + 2, str(n), ha="center", fontsize=5.6, color=INK2)
         ticks.append(x)
         labels.append(OUR_NAMES[m])
     x0 = len(olds) + 0.3
