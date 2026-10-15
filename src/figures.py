@@ -103,7 +103,7 @@ def fig_reproduction(checks, runs, relabel, cluster):
                 (runs["base"][m]["n_unf"], ORANGE, "Our run")]
         for j, (n, col, lab) in enumerate(vals):
             ax.bar(x + (j - 1) * w, n, w * 0.95, color=col, linewidth=0, zorder=2, label=lab if x == 0 else None)
-            ax.text(x + (j - 1) * w, n + 2, str(n), ha="center", fontsize=5.6, color=INK2)
+            ax.text(x + (j - 1) * w, n + 2 + 9 * (j == 1), str(n), ha="center", fontsize=5.6, color=INK2)
         ticks.append(x)
         labels.append(OUR_NAMES[m])
     x0 = len(olds) + 0.3
@@ -145,10 +145,11 @@ def fig_mechanism(noise):
     ax.set_xlabel("Unfaithful pairs (%)")
     ax.xaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.legend(fontsize=6.5, loc="lower right")
-    ax.set_title("(a) Figure 2 by kind of question", fontsize=8.5, loc="left")
+    ax.set_title("(a) The paper's Figure 2 by kind of question", fontsize=8.5, loc="left")
 
     ax = axes[1]
-    names = list(noise["paired"])
+    names = ["openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct", "google/gemini-2.5-flash",
+             "deepseek/deepseek-chat"]
     for i, m in enumerate(names):
         t = noise["paired"][m]["residual_test_same_judge"]
         ax.bar(i, t["null_975"], 0.55, color=GRID, zorder=1, label="Template lean only (97.5%)" if i == 0 else None)
@@ -181,7 +182,7 @@ def fig_extensions(runs, geo):
     ax.set_ylabel("Flagged pairs (of 1,014)")
     ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.legend(fontsize=6.5, loc="upper right")
-    ax.set_title("(a) Fact cards", fontsize=8.5, loc="left")
+    ax.set_title("(a) Values in the prompt", fontsize=8.5, loc="left")
 
     ax = axes[1]
     conds = [("strict", "+ only directly west counts", VIOLET), ("paraphrase", "paraphrase, same vague word", ORANGE),
@@ -199,6 +200,10 @@ def fig_extensions(runs, geo):
     ax.set_xlabel("Flagged pairs (of 684)")
     ax.set_xlim(0, 760)
     ax.xaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
+    ax.legend(handles=[Patch(facecolor=ORANGE, label="vague direction word"),
+                       Patch(facecolor=VIOLET, label="reading made explicit"),
+                       Patch(facecolor=AQUA, label="coordinates printed")],
+              fontsize=6.3, loc="lower right")
     ax.set_title("(b) GPT-4o-mini, geography pairs", fontsize=8.5, loc="left")
     fig.tight_layout(w_pad=1.2)
     save(fig, "fig_extensions")

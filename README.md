@@ -27,7 +27,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
   - the plot divides by 4,892 where the data hold 4,834 pairs;
   - averaged over models, the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%, also averaged over models);
   - the model ranking changes in 16 of 19 alternative cutoff settings, as the paper's own Table 10 also shows;
-  - by kind of question the top and bottom of the ranking swap: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
+  - by kind of question the ranking nearly reverses: GPT-4o-mini falls from first to seventh of eight (19.6% of geography pairs, 1.4% of the rest) and QwQ rises from last to first (0.2% and 13.6%).
 
 ## Layout
 
