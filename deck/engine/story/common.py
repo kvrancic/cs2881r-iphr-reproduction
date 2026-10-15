@@ -125,17 +125,20 @@ def feet(img, gy=GY):
 
 
 def floor(w=344):
-    """The ground band characters stand on: a dithered ice line that fades out at both ends."""
+    """The pool of light characters stand in: a warm dithered ellipse on the floor under their feet, brightest in
+    the middle, fading out at the ends."""
     from pal import rgba
-    img = blank(w, 6)
+    h = 10                                    # down to y 194, where the cue plate starts
+    img = blank(w, h)
     for x in range(w):
-        edge = min(x, w - 1 - x)
-        for y in range(6):
-            keep = (y == 0 and edge > 6) or (y == 0 and (x % 2 == 0)) or (y > 0 and (x + y) % 2 == 0 and edge > 12 + 6 * y)
-            if y == 1 and edge > 10 and (x + y) % 2 == 0:
-                keep = True
-            if keep:
-                img.putpixel((x, y), rgba("ice"))
+        for y in range(h):
+            d = ((x - w / 2) / (w / 2)) ** 2 + ((y - 1) / 9) ** 2
+            if d >= 1:
+                continue
+            share = 0.75 if d < 0.3 else 0.5 if d < 0.6 else 0.25
+            b4 = ((x % 4) * 4 + (y % 4) * 7) % 16 / 16
+            if b4 < share:
+                img.putpixel((x, y), rgba("white" if d < 0.3 and (x + y) % 2 == 0 else "sand"))
     return img
 
 

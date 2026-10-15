@@ -736,6 +736,10 @@
     "meta-llama/Llama-3.3-70B-Instruct",
     "deepseek/deepseek-chat"
   ],
+  "kind_rank_tau": {
+    "tau": -0.5714285714285714,
+    "p_exact": 0.06101190476190476
+  },
   "rank_stability": {
     "settings": 20,
     "settings_with_any_swap": 16,

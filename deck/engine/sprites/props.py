@@ -435,6 +435,7 @@ def compass(r=22, lit="W"):
     d = 2 * r + 3
     img = blank(d, d)
     c = d // 2
+    disc(img, c, c, r, "white")                # a light face, so it reads on dark sets
     for y in range(d):
         for x in range(d):
             q = math.hypot(x - c, y - c)

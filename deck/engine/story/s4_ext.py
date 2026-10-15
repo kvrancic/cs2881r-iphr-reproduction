@@ -283,7 +283,7 @@ def wording(tl):
     LRC = 326                                 # GPT-4o mini's centre: 16 px from the right edge of the frame
     ys = (24, 62, 100, 138)
     ax = blank(2, ys[-1] + 24 - ys[0] + 8)
-    rect(ax, 0, 0, 2, ax.height, "ink")
+    rect(ax, 0, 0, 2, ax.height, "ice")      # light: the dusk sky behind it is dark
     tl.put("lad_ax", ax, BX0 - 3, ys[0] - 4, z=12, screen=True)
     for i, y_ in enumerate(ys):              # a faint dotted track behind each row: the room up to all pairs
         tl.put(f"slot_tr{i}", _track(BWD, 20), BX0, y_ + 1, z=11, screen=True)

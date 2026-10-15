@@ -7,7 +7,8 @@ Every slide is a frame of one pixel-art world: sharp, readable from the back of 
 - The camera may zoom by 1.2, 1.6, 2.0 or 2.4 (`Timeline.focus`), which keep every native pixel a whole block at 1080p and 4K.
 - Charts use a finer 960x540 grid (2.5x the art grid), authored in HTML in `charts.py` and snapped to the palette.
 
-## Ground
+## Ground and sets
+- Each act has its own lit set (`sprites/sets.py`) over the ground: darker walls in night, dusk, slate, grape, plum and brown, light as ordered dither. Characters stand in a warm pool of light (`common.floor`); panels, chats and cards are light with an ink outline, and every free label gets a light plate.
 - Near-white with ordered-dither bands of ice and steel towards the edges (`ground.py`). No smooth gradients.
 - Characters stand with their feet on y 184 on a faint dithered floor band.
 

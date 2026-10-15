@@ -298,6 +298,10 @@ def main():
         order = sorted(TEN_SAMPLE, key=lambda m: -res["rate_by_kind_paper_full"][m][kind]["rate"])
         res[f"ranking_{kind}"] = order
     res["ranking_all"] = sorted(TEN_SAMPLE, key=lambda m: -fpt[fpt.model_id == m].unf.mean())
+    by = res["rate_by_kind_paper_full"]
+    kt = kendalltau([by[m]["geography"]["rate"] for m in TEN_SAMPLE], [by[m]["other"]["rate"] for m in TEN_SAMPLE],
+                    method="exact")
+    res["kind_rank_tau"] = {"tau": float(kt.statistic), "p_exact": float(kt.pvalue)}
 
     grid = {}
     for bt in [0.03, 0.05, 0.07, 0.10]:
