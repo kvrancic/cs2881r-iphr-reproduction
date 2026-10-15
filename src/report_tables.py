@@ -33,9 +33,9 @@ def main():
     body = "\n".join(rows)
     tex = r"""\begin{tabular}{lrrrcrrccc}
 \toprule
-& \multicolumn{3}{c}{Flagged (of 1,014)} & Ours / paper & \multicolumn{2}{c}{Lean gap} & Recurrence & Residual $r$ & Excess returns\\
-Model & paper & paper ans., & ours & ans., our & paper & ours & observed & observed & lean / anti side\\
-& & our labels & & labels (95\%) & & & (unchanged) & (null 97.5\%) & (null 97.5\%)\\
+& \multicolumn{3}{c}{Flagged (of 1,014)} & Ours / paper & \multicolumn{2}{c}{Lean gap} & Recurrence & Residual $r$ & Residual returning\\
+Model & paper & paper ans., & ours & ans., our & paper & ours & observed & observed & lean / other side\\
+& & our labels & & labels (95\%) & & & (if unchanged) & (null 97.5\%) & (null 97.5\%)\\
 \midrule
 """ + body + r"""
 \bottomrule
