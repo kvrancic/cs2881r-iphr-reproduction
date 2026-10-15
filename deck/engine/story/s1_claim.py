@@ -164,7 +164,7 @@ def pairs(tl):
         x, y = card_xy(HERO, side)
         tl.put(wid, P.qcard("place", CW_, CH_), x, y, z=11, screen=True)
     _pair_cast(tl, "neutral")
-    n = ui.big(f"{charts.N_PAIRS:,} pairs", "white", 40)
+    n = ui.say(f"{charts.N_PAIRS:,} pairs", "ink", 40)          # plain dark type: no outline, no shadow
     tl.put("t_pairs", n, cx(n, 20, 290), 8, z=40, screen=True)
     cue(tl, "question and reverse: a pair")
     tl.beat("The authors built almost five thousand such pairs")
@@ -222,7 +222,9 @@ def pairs(tl):
     # a wine arrow (the colour of NO) from under the NO pan down to the mostly-NO answers of the reversed question
     sc = tl.objs["scale"]
     px_ = round(sc.x) + sc.img.width // 2 - 23
-    ar, ax, ay = P.elbow([(px_, 58), (px_, 100), (172, 100), (172, BY + 4)], "wine")
+    rb_ = tl.objs["t_rb"]                      # it lands on "mostly wrong", not on any one answer
+    ex_ = round(rb_.x + rb_.w / 2) + 4
+    ar, ax, ay = P.elbow([(px_, 58), (px_, 100), (ex_, 100), (ex_, round(rb_.y) - 5)], "wine")
     tl.put("link", ar, ax, ay, z=30, screen=True)
     tl.put("robot", robot("side_l", ("down", "down"), ("sweat",)))
     cue(tl, "flagged: the wrong side follows the lean")

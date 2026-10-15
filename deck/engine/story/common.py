@@ -139,6 +139,13 @@ def floor(w=344):
     return img
 
 
+def spot(tl, cx, cy, rx, ry):
+    """Dim the lights for a section's opening, an ellipse of light left on the subject (removed on the next slide)."""
+    from sprites.sets import spotlight
+    tl.put("wall_spot", spotlight(cx, cy, rx, ry), 0, 0, z=1.5, screen=True)
+    return tl
+
+
 def put_ground(tl):
     tl.put("ground", ground(), 0, 0, z=0, screen=True)
     return tl

@@ -24,10 +24,8 @@ def two(tl):
         t = T(lab, "ink", align="center")
         tl.put(f"t_v{k + 1}", t, c_ - t.width // 2, LBY, z=40, screen=True)
     place(tl, "robot", robot("happy", ("out", "out")), 192)
-    from sprites.sets import tripod
-    tp = tripod()                             # the surveyor's theodolite, shown whole once, on the ground at the left
-    tl.put("tripod", tp, 10, GY - tp.height, z=8, screen=True)
     cue(tl, "two variations")
+    spot(tl, 192, 110, 185, 105)              # the lights dimmed on the opening of the variations
     tl.beat("Fourth, two variations.", fade=True)
 
 
@@ -159,7 +157,7 @@ def facts(tl):
     _name(tl, "Llama 3.3 70B")
     _big_scale(tl, 1)
     cue(tl, "wrong answer: its numbers back it")
-    tl.beat("In its wrong answers, the numbers it writes support the wrong answer.", morph=0.9)
+    tl.beat("In most of its wrong answers, the numbers it writes support the wrong answer.", morph=0.9)
 
 
 MAP_XY, MAP_WH = (12, 42), (160, 110)    # the lake map, over 40% of the width
@@ -301,9 +299,10 @@ def wording(tl):
             tl.put(f"lad_q{j}", b_, 8, ys[j] + 10 - b_.height // 2 + 2, z=12, screen=True)
         v = G[c_]["flags"]
         L = v * BWD / N
+        L = max(6, L)                         # a short bar still reads as a bar, apart from its count
         tl.put(f"slot_lb{i}", _hbar(L), BX0, ys[i] + 1, z=13, screen=True)
-        t = ui.say(str(v), "orange", 40)      # every count at its bar's end
-        tl.put(f"t_lv{i}", t, BX0 + round(L) + 6, ys[i] + 11 - t.height // 2, z=40, screen=True)
+        t = ui.say(str(v), "orange", 40)      # every count at its bar's end, a clear gap after it
+        tl.put(f"t_lv{i}", t, BX0 + round(L) + 9, ys[i] + 11 - t.height // 2, z=40, screen=True)
         stage(tl, face, arms, acc, who="gpt", c=LRC)
 
     rung(0, "neutral")
@@ -327,7 +326,7 @@ def wording(tl):
     tl.clear(); put_ground(tl)
     tl.put("map1", P.lakemap("due", 170, 110), 22, 40, z=8, screen=True)
     t = ui.chip("due west only", "white", "ink")
-    tl.put("t_read1", t, 22 + 85 - t.width // 2, 156, z=40, screen=True)
+    tl.put("t_read1", t, 22 + 85 - t.width // 2, 40 - t.height - 5, z=40, screen=True)   # above the map, clear of the floor
     for k, qq in enumerate(("Is B west of A?", "Is A west of B?")):
         b = P.bubble(qq, 128, tail=None)
         y = 50 + k * 58
@@ -340,23 +339,19 @@ def wording(tl):
 
 
 def readings(tl):
-    """Geography: many flags depend on how the model reads "west": anywhere further west (31), due west only
-    (667). Then the paper's own test where only one reading works."""
+    """Geography with both coordinates printed above the question: GPT-4o mini has no flags (geo_analysis.json,
+    conditions.fullcard). Then the paper's own test where only one reading works."""
     tl.section = "readings"
-    tl.drop("qq0", "qq1", "qno0", "qno1", "qok0", "qok1", "cue")
-    q = P.bubble("Is lake B west of lake A?", 172)
-    tl.put("q", q, (W - q.width) // 2, 8, z=12, screen=True)
-    for k, (reading, lab, fg, bg) in enumerate((("further", "anywhere further west", "ink", "yellow"),
-                                                 ("due", "due west only", "white", "ink"))):
-        x = 22 + k * 172
-        tl.put(f"map{k}", P.lakemap(reading, 170, 110), x, 40, z=8, screen=True)
-        t = ui.chip(lab, fg, bg)
-        a_ = ui.plate(*(("YES", "green") if k == 0 else ("NO", "red")), "white", 20, 2)   # B is southwest of A
-        x_ = x + 85 - (t.width + 5 + a_.width) // 2           # the reading and its answer, one row under the map
-        tl.put(f"t_read{k}", t, x_, 156, z=40, screen=True)
-        tl.put(f"t_ans{k}", a_, x_ + t.width + 5, 156 + (t.height - a_.height) // 2, z=40, screen=True)
-    cue(tl, "how it reads \"west\"")
-    tl.beat("So many of these flags depend on how the model reads \"west\".")
+    G = charts.GEO["conditions"]["fullcard"]
+    card = P.factcard(["lake A: coordinates", "lake B: coordinates"], WW - 12)
+    _scene(tl, QW, card, "happy", ("card",), ("down", "up"), who="gpt")
+    _name(tl, "GPT-4o mini")
+    n = ui.say(f"{G['flags']} flags", "orange", 40)
+    tl.put("t_zero", n, 236 - n.width // 2, 70, z=40, screen=True)
+    s_ = T(f"YES right: {G['acc_yes_q']:.0%}", "slate")
+    tl.put("t_zero2", s_, 236 - s_.width // 2, 70 + n.height + 6, z=40, screen=True)
+    cue(tl, "coordinates given: 0 flags")
+    tl.beat("With both coordinates printed it has no flags, so it reads \"west\" strictly mainly when it lacks them.", fade=True)
 
     # the paper's own test: places at the same latitude, one reading only
     tl.clear(); put_ground(tl)

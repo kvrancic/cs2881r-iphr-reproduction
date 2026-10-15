@@ -225,13 +225,13 @@ KGgKgggKgGGK
 """,
         "place": """
 ....KKKK....
-...KRRRRK...
-..KRrWRRRK..
-..KRWWRRRK..
-..KRRRRRRK..
-...KRRRRK...
-....KRRK....
-....KRRK....
+...KBBBBK...
+..KBcWBBBK..
+..KBWWBBBK..
+..KBBBBBBK..
+...KBBBBK...
+....KBBK....
+....KBBK....
 .....KK.....
 ...KKKKKK...
 ............
@@ -244,7 +244,7 @@ def qcard(kind="book", w=26, h=32, lit=False):
     """A question card: white card, a coloured header stripe by kind, the kind's icon and two lines of text."""
     img = blank(w, h)
     _rbox(img, 0, 0, w, h, "white")
-    stripe = {"book": "sand", "film": "night", "person": "clay", "place": "pink"}[kind]
+    stripe = {"book": "sand", "film": "night", "person": "clay", "place": "brown"}[kind]
     rect(img, 1, 1, w - 2, 4, stripe)
     ic = kind_icon(kind)
     if w >= 30 and h >= 38:          # a large card: the glyph at 2x fills half the face
@@ -301,15 +301,16 @@ def flag(col="gold", h=26):
 
 # ------------------------------------------------------------------------------------------------ data and code
 def folder(w=58, h=44):
-    """The released-data folder: a tan folder with a tab and a few sheets sticking out."""
+    """The released-data folder: a beige folder with a tab and a few sheets sticking out (no orange: orange is
+    our run)."""
     img = blank(w, h)
-    _rbox(img, 2, 0, 20, 8, "clay")
+    _rbox(img, 2, 0, 20, 8, "brown")
     for k, c in enumerate(("white", "ice", "white")):
         _box(img, 6 + k * 6, 3 + k * 2, w - 18, 20, c, "slate")
         for r in range(3):
             rect(img, 9 + k * 6, 7 + k * 2 + r * 4, w - 26, 1, "steel")
-    _rbox(img, 0, 12, w, h - 12, "tan")
-    rect(img, 1, 13, w - 2, 1, "peach"); rect(img, 1, h - 3, w - 2, 2, "rust")
+    _rbox(img, 0, 12, w, h - 12, "sand")
+    rect(img, 1, 13, w - 2, 1, "white"); rect(img, 1, h - 3, w - 2, 2, "clay")
     return img
 
 

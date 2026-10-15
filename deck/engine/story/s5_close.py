@@ -28,21 +28,21 @@ def close(tl):
     cue(tl, "4 reruns: about as strong")
     tl.beat("Each of the four models we reran leans about as strongly as in the paper.", fade=True)
 
-    # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
+    # GPT-4o mini steps forward, a quarter larger, with its flag count; the other three step back
     R = charts.RUNS
-    tl.drop("bot2", "t_bot2", "sign2")
-    for k, c_ in ((0, 96), (1, 192), (3, 288)):
-        key = charts.FOUR[k][0]
-        a, b = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
-        tl.move(f"bot{k}", x=at(c_))
-        tg = tl.objs[f"t_bot{k}"]
-        tl.move(f"t_bot{k}", x=c_ - tg.img.width // 2)
-        pc = P.placard([(a * 0.3, "paper", str(a)), (b * 0.3, "ours", str(b))], 76)
-        tl.put(f"sign{k}", pc, c_ - pc.width // 2, ROBOT_Y + 52)
-    tl.put("bot0", robot("grin", who="gpt"))
+    for k in (1, 2, 3):
+        tl.drop(f"bot{k}", f"t_bot{k}", f"sign{k}")
+    key = charts.FOUR[0][0]
+    a, b = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
+    k_ = 1.25
+    place(tl, "bot0", robot("grin", who="gpt"), 192, k_, z=20)
+    tg = tl.objs["t_bot0"]
+    tl.move("t_bot0", x=192 - tg.img.width // 2, y=round(GY - RB_H * k_ - tg.img.height) + 1)   # under the key, over the antenna
+    pc = P.placard([(a * 0.5, "paper", str(a)), (b * 0.5, "ours", str(b))], 100)
+    tl.put("sign0", pc, 192 - pc.width // 2, GY - RB_H * k_ + 64, z=36, screen=True)
     _key(tl, "flagged pairs")
-    cue(tl, "flag counts: the same")
-    tl.beat("The flag counts repeat for GPT-4o mini, Llama and Gemini.")
+    cue(tl, "GPT-4o mini: count repeats")
+    tl.beat("GPT-4o mini's flag count repeats closely.")
 
 
 def limits(tl):
@@ -76,7 +76,7 @@ def thanks(tl):
     width of the pixel line), above the four models we reran, all on the ground line, two of them waving."""
     tl.section = "thanks"
     tl.clear(); put_ground(tl)
-    b = ui.big("Thank you", "white", 60)
+    b = ui.say("Thank you", "ink", 60)
     tl.put("t_thanks", b, cx(b), 18, z=40, screen=True)
     nm = T("[Name 1]     [Name 2]     [Name 3]", "ink")
     y = 18 + b.height + 5

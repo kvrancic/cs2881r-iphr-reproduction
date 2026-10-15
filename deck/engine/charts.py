@@ -194,7 +194,8 @@ def _rows_svg(rows, col, s):
     return f'<svg width="{len(rows[0]) * s}" height="{len(rows) * s}" shape-rendering="crispEdges" style="vertical-align:middle">{r}</svg>'
 
 
-THINK_SVG = _rows_svg([".XXX.", "XXXXX", ".XXX.", "X...."], {"X": "slate"}, 4)   # a thought-cloud: a thinking model
+THINK_SVG = _rows_svg(["..XXXXXX..", ".XXXXXXXX.", "XXWXXWXXWX", ".XXXXXXXX.", "..XXXXXX..", ".XX.......", "X........."],
+                      {"X": "grape", "W": "white"}, 3)   # a thought bubble with three dots: a thinking model (purple: no other meaning)
 
 
 def tick_svg(col="green", s=5):
@@ -263,7 +264,8 @@ FIG2 = [  # (key in paper_data_checks.json, label as in the paper's Figure 2, th
 F2 = dict(x=50, y=14, w=640, h=490)          # the paper board: native 20..276 x 6..202, the full height of the
 F2X0, F2PX, F2Y0, F2STEP, F2BH = 300, 19, 32, 29, 15   # stage; 16 rows 2 native px apart; the robot stands to its right
 F2TX = 508                                   # the title block, in the empty lower right of the plot
-F2_REC_H = 452                               # the shorter board of the 'recomputed' state: its slide has a cue
+F2_REC = dict(x=66, w=608, h=420, oy=6, step=25, tx=500)   # the 'recomputed' state: a smaller board that clears the
+                                             # stage's curtains and valance and sits above the cue plate
 
 
 def ktxt(id_, x, y, s, cls="f2 navy", bg="white"):
@@ -282,17 +284,19 @@ def fig2(state):
     tick right after each of the eight bars we recomputed, with its key in the empty space beside the shorter bars;
     the rows sit closer and the board is shorter, so the cue fits below it)."""
     rec = state == "recomputed"
-    out = [el("bd", F2["x"], F2["y"] + (10 if rec else 0), "", "paper", f"width:{F2['w']}px;height:{F2_REC_H if rec else F2['h']}px")]
+    bx_, bw_ = (F2_REC["x"], F2_REC["w"]) if rec else (F2["x"], F2["w"])
+    out = [el("bd", bx_, F2["y"] + (F2_REC["oy"] if rec else 0), "", "paper", f"width:{bw_}px;height:{F2_REC['h'] if rec else F2['h']}px")]
     PANELS.add("bd")
     rows = sorted(FIG2, key=lambda r: -CHECKS["figure2"][r[0]]["paper_pct"])
     # 15 to 18: the names column a little right of the board's edge (room for the thought-clouds) and a slightly
     # smaller scale; 67 keeps the standard one
-    x0, px_ = (F2X0, F2PX) if rec else (F2X0 + 30, 17)
-    oy = 10 if rec else 0                   # 67: the board sits a little lower, clear of the stage's valance
-    y0, step, bh = F2Y0 + oy, 27 if rec else F2STEP, F2BH
+    x0, px_ = (F2X0, F2PX) if rec else (F2X0 + 40, 16)
+    oy = F2_REC["oy"] if rec else 0         # 67: the board sits a little lower, clear of the stage's valance
+    y0, step, bh = F2Y0 + oy, F2_REC["step"] if rec else F2STEP, F2BH
+    tx_ = F2_REC["tx"] if rec else F2TX
     top, bot = y0 - 8, y0 + 16 * step - 6
-    out.append(txt("bdt", F2TX, 272 if rec else 278, "Figure 2", "f3 ink"))
-    out.append(el("bds", F2TX, 322 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
+    out.append(txt("bdt", tx_, 247 if rec else 278, "Figure 2", "f3 ink"))
+    out.append(el("bds", tx_, 297 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
     TEXTS.add("bds")
     for p in (5, 10):
         x = x0 + p * px_
@@ -300,7 +304,7 @@ def fig2(state):
         out.append(txt(f"f2y{p}", x + 12, bot - 40, f"{p}%", "f2 slate"))
     out.append(grid("f2axis", x0 - 5, top, 5, bot - top, "ink"))
     if state != "axes":
-        out.append(txt("f2n", F2TX, 375 if rec else 400, "16 models", "f2 slate"))
+        out.append(txt("f2n", tx_, 350 if rec else 400, "16 models", "f2 slate"))
     for i, (key, lab, think) in enumerate(rows):
         d = CHECKS["figure2"][key]
         v = d["paper_pct"]
@@ -308,8 +312,8 @@ def fig2(state):
         if state == "top" and key == "openai/gpt-4o-mini":
             out.append(band(f"f2hl{i}", x0 - 20 - tw(lab) - 8, y - 4, tw(lab) + 16, bh + 8))
         if state == "think" and think:              # a small thought-cloud before every thinking model's name
-            out.append(el(f"f2hl{i}", x0 - 20 - tw(lab) - 30, y + (bh - 16) // 2, THINK_SVG, "", "width:20px;height:16px"))
-        out.append(txt(f"f2l{i}", F2["x"] + 8, y - 12, lab, "f2 ink", "right", x0 - 20 - F2["x"] - 8))
+            out.append(el(f"f2hl{i}", x0 - 20 - tw(lab) - 38, y + (bh - 21) // 2, THINK_SVG, "", "width:30px;height:21px"))
+        out.append(txt(f"f2l{i}", bx_ + 8, y - 12, lab, "f2 ink", "right", x0 - 20 - bx_ - 8))
         if state == "axes":
             continue
         out.append(hbar(f"f2b{i}", x0, y, v * px_, bh, "bp"))
@@ -320,7 +324,9 @@ def fig2(state):
         if state == "recomputed" and d["source"] == "recomputed":
             out.append(el(f"f2k{i}", end + 8, y + (bh - 14) // 2, tick_svg("orange", 2), "", "width:16px;height:14px"))
     if state == "recomputed":                      # the key of the ticks, beside the shorter bars, right of 10%
-        kx = x0 + 10 * px_ + 8
+        kx = 480                                # on a white plate that the 10% gridline passes behind
+        PLATES.add("f2kp")
+        out.append(el("f2kp", kx - 8, 118, "", "", f"width:{24 + tw('recomputed') + 16}px;height:66px;background:var(--white)"))
         out.append(el("f2kk", kx, 126 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
         out.append(el("f2kt", kx + 24, 126, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
         TEXTS.add("f2kt")
@@ -329,9 +335,9 @@ def fig2(state):
         ky = y0 + r3 * step
         kx = x0 + 100
         PLATES.add("f2keyp")
-        out.append(el("f2keyp", kx - 8, ky - 8, "", "", f"width:{30 + 10 + tw('thinking model') + 16}px;height:{bh + 16}px;background:var(--white)"))
-        out.append(el("f2keyb", kx + 4, ky + (bh - 16) // 2, THINK_SVG, "", "width:20px;height:16px"))
-        out.append(txt("f2key", kx + 34, ky - 12, "thinking model", "f2 ink"))
+        out.append(el("f2keyp", kx - 8, ky - 8, "", "", f"width:{38 + tw('thinking model') + 16}px;height:{bh + 16}px;background:var(--white)"))
+        out.append(el("f2keyb", kx, ky + (bh - 21) // 2, THINK_SVG, "", "width:30px;height:21px"))
+        out.append(txt("f2key", kx + 38, ky - 12, "thinking model", "f2 ink"))
         x = x0 + round(0.5 * px_)
         dash = "".join(f'<div class="o" style="left:0;top:{k * 16}px;width:5px;height:9px;background:var(--ink)"></div>'
                        for k in range(0, (bot - top) // 16 + 1))
@@ -558,7 +564,7 @@ def excess(state="with"):
 # ================================================================================================ split by kind
 KIND8 = NOISE["ranking_geography"]
 LABEL = {k: lab for k, lab, _ in FIG2}
-KB = dict(x=50, w=860, y=28, h=400)
+KB = dict(x=50, w=860, y=24, h=424)
 
 
 def kind(state="all"):
@@ -576,9 +582,15 @@ def kind(state="all"):
     lx, gx, ox, px_ = x0 + 260, x0 + 290, x0 + 610, 11
     out.append(txt("kdgeo", gx, y0b + 50, "geography", "f3 ink"))
     out.append(txt("kdoth", ox, y0b + 50, "others", "f3 ink"))
-    ys, step = y0b + 134, 32
+    ys, step = y0b + 130, 30
     out.append(grid("kdaxl", gx - 5, ys - 8, 5, 8 * step, "ink"))
     out.append(grid("kdaxr", ox - 5, ys - 8, 5, 8 * step, "ink"))
+    by_ = ys - 8 + 8 * step                   # a scale under each panel: 0, 10% and 20%
+    for side, x_ in (("l", gx), ("r", ox)):
+        out.append(grid(f"kdbx{side}", x_ - 5, by_, 20 * px_ + 10, 5, "ink"))
+        for p in (0, 10, 20):
+            out.append(grid(f"kdtk{side}{p}", x_ + p * px_ - 2, by_ + 5, 5, 8, "ink"))
+            out.append(txt(f"kdtl{side}{p}", x_ + p * px_ - 40, by_ + 8, "0" if p == 0 else f"{p}%", "f2 slate", "center", 80))
     for i, k in enumerate(KIND8):
         y = ys + i * step
         g, o = R[k]["geography"]["rate"] * 100, R[k]["other"]["rate"] * 100
@@ -714,7 +726,9 @@ STYLE = {"fig2": "paper", "rec_": "term", "rank": "term", "ds": "bench", "excess
 def stand_of(slide):
     style = next(v for k, v in STYLE.items() if slide.startswith(k))
     if slide.startswith("fig2"):
-        x, w, y, h = F2["x"], F2["w"], F2["y"] + (10 if slide == "fig2_rec" else 0), F2_REC_H if slide == "fig2_rec" else F2["h"]
+        rec = slide == "fig2_rec"
+        x, w = (F2_REC["x"], F2_REC["w"]) if rec else (F2["x"], F2["w"])
+        y, h = F2["y"] + (F2_REC["oy"] if rec else 0), F2_REC["h"] if rec else F2["h"]
     elif slide.startswith("kind"):
         x, w, y, h = KB["x"], KB["w"], KB["y"], KB["h"]
     elif slide.startswith("recall"):

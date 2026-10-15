@@ -159,9 +159,13 @@ def claims():
     out.append((dmax <= 0.012, f"'each of the four models we reran leans about as strongly': lean gaps differ by at most {dmax:.3f}"))
     sm = {lab: (R["paper_same_pairs"][k]["n_unf"], R["base"][k]["n_unf"], N["paired"][k]["ratio_ours_to_paper_answers_our_labels_ci"])
           for k, lab in ch.FOUR if k != ch.DS}
-    out.append((all(ci[0] <= 1 <= ci[1] for _, _, ci in sm.values()),
-                "'GPT-4o mini, Llama and Gemini about the same number of flags' (ratio interval contains 1): "
-                + ", ".join(f"{l} {a}/{b} [{ci[0]:.2f}, {ci[1]:.2f}]" for l, (a, b, ci) in sm.items())))
+    g4 = sm["GPT-4o mini"]
+    out.append((g4[2][0] <= 1 <= g4[2][1] and g4[2][1] - g4[2][0] < 0.3 and abs(g4[1] / g4[0] - 1) < 0.1,
+                f"'GPT-4o mini's flag count repeats closely': {g4[0]} and {g4[1]}, ratio interval [{g4[2][0]:.2f}, {g4[2][1]:.2f}]"))
+    rest = {l: v for l, v in sm.items() if l != "GPT-4o mini"}
+    out.append((all(ci[0] <= 1 <= ci[1] for _, _, ci in rest.values()),
+                "'Llama's and Gemini's differ within the noise' (ratio interval contains 1): "
+                + ", ".join(f"{l} {a}/{b} [{ci[0]:.2f}, {ci[1]:.2f}]" for l, (a, b, ci) in rest.items())))
     d = N["paired"][ch.DS]
     ds = (d["paper_run_vs_ours"]["flags"], d["paper_answers_our_labels_vs_ours"]["flags"], R["base"][ch.DS]["n_unf"])
     out.append((ds[0] > ds[1] > ds[2], f"'DeepSeek gets fewer, part of that our labeller': paper {ds[0]}, paper's answers with our labels {ds[1]}, ours {ds[2]}"))
@@ -200,11 +204,13 @@ def claims():
     out.append((0.65 <= lr["known_order_flagged"] < 0.75, f"'Llama ordered about seven in ten of its flagged pairs correctly': {lr['known_order_flagged']:.0%} of {lr['flagged']}"))
     out.append((0.8 <= lr["known_order_unflagged"] < 0.9, f"'against eight and a half in ten for its other pairs': {lr['known_order_unflagged']:.1%} of {lr['unflagged']}"))
     lc = CF["meta-llama/llama-3.3-70b-instruct | other"]
-    out.append((lc["wrong_states_wrong_order"] > 0.5, f"'in its wrong answers the numbers it writes support the wrong answer': {lc['wrong_states_wrong_order']:.0%} of {lc['wrong_answers']}"))
+    out.append((lc["wrong_states_wrong_order"] > 0.5, f"'in most of its wrong answers the numbers it writes support the wrong answer': {lc['wrong_states_wrong_order']:.0%} of {lc['wrong_answers']}"))
     q = ch.GEO["distances"]["paper | openai/gpt-4o-mini"]["flag_rate_by_asked_quartile"]
     out.append((q[-1] == max(q), f"'flags most common for places far apart': by distance quarter {', '.join(f'{v:.1%}' for v in q)}"))
     out.append((G["base"]["flags"] == 131, f"'with the paper's wording it has 131 flags': {G['base']['flags']} of {G['base']['pairs']}"))
     out.append((G["paraphrase"]["flags"] == 140, f"'a paraphrase with the same vague direction gives 140': {G['paraphrase']['flags']} (paper's wording {G['base']['flags']})"))
+    fc = G["fullcard"]
+    out.append((fc["flags"] == 0 and fc["acc_yes_q"] >= 0.975, f"'with both coordinates printed it has no flags': {fc['flags']} of {fc['pairs']}, YES questions right {fc['acc_yes_q']:.0%}"))
     out.append((G["coordwording"]["flags"] == 24, f"'asking for a more western longitude cuts them to 24': {G['coordwording']['flags']} of {G['coordwording']['pairs']}"))
     out.append((G["strict"]["flags"] == 667 and G["strict"]["pairs"] == 684, f"'raised them to 667 of 684': {G['strict']['flags']} of {G['strict']['pairs']}"))
     import re

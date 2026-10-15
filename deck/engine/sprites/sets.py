@@ -3,7 +3,7 @@
 elsewhere: beige and clay wood, grey lab tiles, lilac cork, slate boards, stage boards) and one set piece in steel and
 slate. The band sits below the stage's text and the pieces stay clear of the places where text sits.
 
-  lecture  the claim: wood panelling and a tall window at the right
+  lecture  the claim: wood panelling
   lab      the reproduction: a cooler wall, low grey tiles and a glass cabinet with bottles at each edge
   mapwall  by kind: a warm wall, lilac cork and a world map pinned to it
   survey   the variations: a pale slate wall and slate boards (the theodolite stands on the act's first slide)
@@ -83,7 +83,6 @@ def _window(img, x, y, w, h):
 def lecture():
     img = blank(W, H)
     _band(img, "sand", "clay", "clay")
-    _window(img, W - 64, 22, 34, 62)                   # its sill at y 86, above the robot's head
     return img
 
 
@@ -129,10 +128,8 @@ def mapwall():
         ellipse(m, 0, 0, w, h, "steel")
         for yy in range(h):
             for xx in range(w):
-                if m.getpixel((xx, yy))[3] and (xx + yy) % 2 == 0:
+                if m.getpixel((xx, yy))[3] and xx % 2 == 0 and yy % 2 == 0:     # pale: 1 in 4 pixels of ice
                     img.putpixel((cx - w // 2 + xx, cy - h // 2 + yy), rgba("ice"))
-                if m.getpixel((xx, yy))[3] and xx % 4 == 0 and yy % 4 == 0:
-                    img.putpixel((cx - w // 2 + xx, cy - h // 2 + yy), rgba("steel"))
     for (px_, py_) in ((x0 + 5, y0 + 5), (x1 - 5, y0 + 5)):
         disc(img, px_, py_, 2, "slate")
     return img
@@ -141,7 +138,7 @@ def mapwall():
 def survey():
     img = blank(W, H)
     _wall(img, "ice", 162)                                       # a pale slate wall
-    _band(img, "ice", "dusk", "dusk", step=32, top=162)      # lower: the wording ladder's last row sits above it
+    _band(img, "ice", "dusk", "dusk", step=32, top=176)      # low: under the ladder's last row and the readings' chips
     return img
 
 
@@ -161,4 +158,22 @@ def stage():
                     continue
                 fold = (i + (y // 30)) % 5
                 img.putpixel((x, y), rgba("plum" if fold == 0 else "grape" if fold in (1, 3) else "pink"))
+    return img
+
+
+def spotlight(cx, cy, rx, ry):
+    """The lights dimmed for a section's opening: a dusk dither over the whole stage except an ellipse of light
+    around the subject (cx, cy, radii rx, ry), with a dithered edge."""
+    img = blank(W, H)
+    D, N = rgba("dusk"), rgba("night")
+    for y in range(H):
+        for x in range(W):
+            d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
+            if d < 1:
+                continue
+            if d < 1.25:                                  # the edge: sparse
+                if x % 2 == 0 and y % 2 == 0:
+                    img.putpixel((x, y), D)
+            elif (x + y) % 2 == 0:
+                img.putpixel((x, y), N if (x % 4 == 0 and y % 4 == 0) else D)
     return img

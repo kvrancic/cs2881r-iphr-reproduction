@@ -10,16 +10,16 @@ def recompute(tl):
     tl.section = "recompute"
     # the released data, our code on its monitor stand and the figure, large on the ground
     tl.clear(); put_ground(tl)
-    items = [("folder", P.folder(96, 74), "released data"), ("term", P.terminal(96, 70), "our code"),
-             ("doc", P.doc(62, 80), "Figure 2")]
-    xs = (34, 152, 282)
+    items = [("folder", P.folder(110, 84), "released data"), ("term", P.terminal(110, 80), "our code"),
+             ("doc", P.doc(70, 90), "Figure 2")]
+    xs = (16, 150, 286)                       # large, filling the stage: the opening of the reproduction
     for (i, img, lab), x in zip(items, xs):
         y = feet(img) - (14 if i == "term" else 0)
         tl.put(i, img, x, y, z=12, screen=True)
         t = T(lab, "ink")
         tl.put("t_" + i, t, x + img.width // 2 - t.width // 2, y - t.height - 6, z=40, screen=True)
-    tl.put("stand", P.monitor(96, 14), 152, GY - 14, z=11, screen=True)
-    for k, x in enumerate((134, 256)):
+    tl.put("stand", P.monitor(110, 14), 150, GY - 14, z=11, screen=True)
+    for k, x in enumerate((130, 264)):
         tl.put(f"arr{k}", ui.arrow(16, "slate", 2), x, GY - 42, z=12, screen=True)
     tl.put("floor", floor(340), 22, GY, z=2, screen=True)
     cue(tl, "recompute")
@@ -110,7 +110,7 @@ def recompute(tl):
     tl.beat("while its own table shows that it does.", morph=0.9)
 
 
-def run_panel(who, rows, h=86):
+def run_panel(who, rows, h=80):
     """One run of a pair, framed in its run's colour (the paper's blue, our orange): the question and its reverse,
     ten answers each, a word and the true answer on the left of each row and the number of right answers at its
     end; the order that comes out better sits on a yellow highlight."""
@@ -120,25 +120,25 @@ def run_panel(who, rows, h=86):
     tabs = [P.truthtab("YES" if truth == "Y" else "NO") for _, truth in rows]
     counts = [_text(f"{sum(a == truth for a in answers)} right", "ink", 20, line=True) for answers, truth in rows]
     qx = 9 + max(t_.width for t_ in words + tabs) + 4
-    PX0, PP = qx + 22, 11                      # the first pip and the pip pitch
-    cx_ = PX0 + 9 * PP + 10 + 5
+    PX0, PP = qx + 22, 10                      # the first pip and the pip pitch
+    cx_ = PX0 + 9 * PP + 9 + 5
     w = cx_ + max(c_.width for c_ in counts) + 6
     img = blank(w, h)
     rect(img, 0, 0, w, h, "ink"); rect(img, 1, 1, w - 2, h - 2, col); rect(img, 3, 17, w - 6, h - 20, "white")
     t = _text(lab, "white", 20, line=True)          # cut to the font's lines: both headers share a baseline
     paste(img, t, (w - t.width) // 2, 2)
     for k, ((answers, truth), lw, tb, cn) in enumerate(zip(rows, words, tabs, counts)):
-        y = 20 + k * 32
+        y = 19 + k * 29
         if k == 0:
-            rect(img, 5, y - 1, w - 10, 30, "yellow")
-        paste(img, lw, 9, y + 1)
-        paste(img, tb, 9, y + 13)
-        paste(img, P.qcard("place", 18, 22), qx, y + 3)
+            rect(img, 5, y - 1, w - 10, 28, "yellow")
+        paste(img, lw, 9, y)
+        paste(img, tb, 9, y + 11)
+        paste(img, P.qcard("place", 18, 22), qx, y + 2)
         for i, a in enumerate(answers):       # ten answers as plain pips: green YES, red NO
             c, hi = ("green", "yellow") if a == "Y" else ("red", "rose")
             px_ = PX0 + i * PP
-            rect(img, px_, y + 5, 10, 19, "ink"); rect(img, px_ + 1, y + 6, 8, 17, c); rect(img, px_ + 1, y + 6, 8, 1, hi)
-        paste(img, cn, cx_, y + 14 - cn.height // 2)
+            rect(img, px_, y + 4, 9, 18, "ink"); rect(img, px_ + 1, y + 5, 7, 16, c); rect(img, px_ + 1, y + 5, 7, 1, hi)
+        paste(img, cn, cx_, y + 13 - cn.height // 2)
     return img
 
 
@@ -161,6 +161,7 @@ def rerun(tl):
     tl.put("t_same", s_, 192 - s_.width // 2, 22, z=40, screen=True)
     tl.put("floor", floor(330), 26, GY, z=2, screen=True)
     cue(tl, "a fifth of the pairs, rerun")
+    spot(tl, 192, 105, 150, 110)              # the lights dimmed on the opening of the rerun
     tl.beat("Second, we ran the experiment again on a fifth of the pairs with the same prompt and settings.", fade=True)
 
     # the judge -------------------------------------------------------------------------------------------
@@ -220,6 +221,7 @@ def rerun(tl):
     # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
     R = charts.RUNS
     tl.drop("bot2", "t_bot2", "sign2")
+    signs_later = []
     for k, c_ in ((0, 96), (1, 192), (3, 288)):
         key = charts.FOUR[k][0]
         a_, b_ = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
@@ -227,11 +229,23 @@ def rerun(tl):
         tg = tl.objs[f"t_bot{k}"]
         tl.move(f"t_bot{k}", x=c_ - tg.img.width // 2)
         pc = P.placard([(a_ * 0.3, "paper", str(a_)), (b_ * 0.3, "ours", str(b_))], 76)
-        tl.put(f"sign{k}", pc, c_ - pc.width // 2, ROBOT_Y + 52)
+        if k == 0:                            # GPT-4o mini's sign first; the other two hold theirs on the next slide
+            tl.put(f"sign{k}", pc, c_ - pc.width // 2, ROBOT_Y + 52)
+        else:
+            tl.drop(f"sign{k}")
+            signs_later.append((k, pc, c_))
     tl.put("bot0", robot("grin", who="gpt"))
     _key(tl, "flagged pairs")
-    cue(tl, "flags: about the same")
-    tl.beat("GPT-4o mini, Llama and Gemini get about the same number of flags.")
+    cue(tl, "GPT-4o mini: repeats closely")
+    tl.beat("GPT-4o mini's flag count repeats closely.")
+
+    for k, pc, c_ in signs_later:              # Llama's and Gemini's counts, with what an interval says about them
+        tl.put(f"sign{k}", pc, c_ - pc.width // 2, ROBOT_Y + 52, z=36 + k, screen=True)
+    tl.put("bot0", robot("happy", who="gpt"))
+    nt = T("within the noise", "slate")
+    tl.put("t_noise", nt, 240 - nt.width // 2, 37, z=40, screen=True)       # between the key and the two tags
+    cue(tl, "Llama, Gemini: within the noise")
+    tl.beat("Llama's and Gemini's differ within the noise.")
 
     # DeepSeek beside its board: the paper's flags and ours, then the paper's answers relabelled by our labeller
     tl.keep("ground")
@@ -242,8 +256,8 @@ def rerun(tl):
     chart(tl, "ds_three")
     stage(tl, "side", POINT_R, ("sweat",), who="deepseek", c=DS_C)
     hx, hy = hand(tl, "R", POINT_R)
-    x, y, w, h = chart_pos("ds_three", "dsn1")              # the stick ends just left of "our labeller"
-    hold(tl, "stick", hx, hy, round(x - 4), round(y + h / 2))
+    x, y, w, h = chart_pos("ds_three", "dsn1")              # the stick ends a little short of "our labeller"
+    hold(tl, "stick", hx, hy, round(x - 10), round(y + h / 2))
     cue(tl, "part of it: our labeller")
     tl.beat("Part of that is our labeller.")
 
@@ -267,8 +281,8 @@ def rerun(tl):
     pa = run_panel("paper", (("NNNNNNNNYN", "N"), ("NNYNNNYNNN", "Y")))
     ou = run_panel("ours", (("NNNNNNYNNN", "N"), ("NNNYNNNNNY", "Y")))
     PXL = 376 - pa.width
-    tl.put("panel_p", pa, PXL, 8, z=10, screen=True)
-    tl.put("panel_o", P.faint(ou), PXL, 98, z=10, screen=True)
+    tl.put("panel_p", pa, PXL, 14, z=10, screen=True)          # the two panels centred above the cue plate
+    tl.put("panel_o", P.faint(ou), PXL, 100, z=10, screen=True)
     RC = PXL - 44                             # the robot's hand just reaches the panels
     stage(tl, "focus", POINT_R, who="gpt", c=RC)
     t = ui.tag("GPT-4o mini", "white", "ink")
