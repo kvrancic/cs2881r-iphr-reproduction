@@ -14,7 +14,7 @@ def _key(kw):
     return tuple(sorted((k, v if not isinstance(v, list) else tuple(v)) for k, v in kw.items()))
 
 
-SEARCH = {}   # module aliases; every sprite module is named directly (people, cells, castle, things, deckui)
+SEARCH = {}   # module aliases; every sprite module is named directly (robot, props, deckui)
 ERRORS = {}
 
 

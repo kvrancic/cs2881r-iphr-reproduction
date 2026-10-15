@@ -622,7 +622,7 @@ BCW, BCH = 112, 86       # canvas of the big robot; the body's origin is (BOX, 2
 BOX = 18
 
 
-def big(face="neutral", arms=("down", "down"), acc=(), grey=False):
+def big(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", hat=None, tint=None):
     """The same robot drawn at twice the size (not upscaled: 1px outlines, more detail), for slides where the
     robot is the subject. The face is the CRT screen, so its glyphs are drawn as 2x2 screen dots."""
     acc = set(acc or ())
@@ -632,8 +632,11 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False):
         arms = ("out", "out")
     # antenna
     _R(img, ox + 30, oy + 6, 4, 6, "ink"); _R(img, ox + 31, oy + 6, 2, 6, "steel")
-    _R(img, ox + 27, oy, 10, 7, "ink"); _R(img, ox + 28, oy + 1, 8, 5, "red"); _R(img, ox + 29, oy + 1, 3, 2, "white")
-    _R(img, ox + 28, oy + 4, 8, 2, "wine")
+    ANT = {"red": ("red", "wine"), "gold": ("gold", "orange"), "pink": ("pink", "grape"), "cyan": ("cyan", "sky"),
+           "green": ("green", "leaf"), "rose": ("rose", "pink"), "grape": ("pink", "grape"), "steel": ("ice", "steel")}
+    a1, a2 = ANT.get(ant, (ant, "ink"))
+    _R(img, ox + 27, oy, 10, 7, "ink"); _R(img, ox + 28, oy + 1, 8, 5, a1); _R(img, ox + 29, oy + 1, 3, 2, "white")
+    _R(img, ox + 28, oy + 4, 8, 2, a2)
     # head: bevelled case
     hx, hy, hw, hh = ox + 6, oy + 11, 52, 38
     _R(img, hx, hy, hw, hh, "ink")
@@ -656,6 +659,9 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False):
                     p[x, y] = rgba("ink")
     if True:
         f = face_img(face)
+        if tint:
+            from px import recolor
+            f = recolor(f, {"cyan": tint})
         f2 = f.resize((f.width * 2, f.height * 2))
         paste(img, f2, sx + 5, sy + 4)
     if "zip" in acc:
@@ -724,6 +730,31 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False):
         _R(img, s0, t0, 10, 7, "ink"); _R(img, s0 + 1, t0 + 1, 8, 5, "clay"); _R(img, s0 + 1, t0 + 1, 8, 1, "peach")
         _R(img, s0 + 3, t0 + 7, 4, 7, "ink"); _R(img, s0 + 4, t0 + 7, 2, 7, "brown")
         _R(img, s0 - 3, t0 + 14, 16, 6, "ink"); _R(img, s0 - 2, t0 + 15, 14, 2, "slate"); _R(img, s0 - 2, t0 + 17, 14, 2, "red")
+    if "card" in acc:            # the aqua fact card held up in the right hand (arms=(..., "up"))
+        c0, c1 = hx2 - 9, hy2 - 16
+        _R(img, c0, c1, 20, 14, "ink"); _R(img, c0 + 1, c1 + 1, 18, 12, "cyan"); _R(img, c0 + 1, c1 + 1, 18, 1, "white")
+        _R(img, c0 + 3, c1 + 4, 12, 1, "deep"); _R(img, c0 + 3, c1 + 8, 9, 1, "deep")
+    if "sweat" in acc:
+        for (dx, dy) in ((hx + hw + 3, hy + 2), (hx + hw + 7, hy + 9)):
+            _R(img, dx + 1, dy, 1, 1, "cyan"); _R(img, dx, dy + 1, 3, 3, "cyan"); _R(img, dx, dy + 1, 1, 1, "white")
+            _R(img, dx + 1, dy + 4, 1, 1, "sky")
+    if hat == "beanie":
+        _R(img, hx + 6, hy - 9, 40, 10, "ink"); _R(img, hx + 7, hy - 8, 38, 8, "clay")
+        for x in range(hx + 8, hx + 45, 3):
+            _R(img, x, hy - 7, 1, 6, "brown")
+        _R(img, hx + 4, hy - 1, 44, 4, "ink"); _R(img, hx + 5, hy, 42, 2, "peach")
+        _R(img, hx + 22, hy - 14, 8, 6, "ink"); _R(img, hx + 23, hy - 13, 6, 4, "white")
+    if hat == "beret":           # a flat brown beret worn tilted to the left, clear of the antenna
+        _R(img, hx - 3, hy - 5, 27, 7, "ink"); _R(img, hx - 2, hy - 4, 25, 5, "brown"); _R(img, hx - 1, hy - 4, 18, 1, "clay")
+        _R(img, hx + 1, hy - 8, 19, 4, "ink"); _R(img, hx + 2, hy - 7, 17, 3, "brown"); _R(img, hx + 3, hy - 7, 10, 1, "clay")
+        _R(img, hx + 9, hy - 11, 3, 4, "ink"); _R(img, hx + 10, hy - 10, 1, 2, "brown")
+    if hat == "cap":
+        _R(img, hx + 8, hy - 8, 36, 9, "ink"); _R(img, hx + 9, hy - 7, 34, 7, "sky" if False else "grape")
+        _R(img, hx + 9, hy - 7, 34, 1, "pink")
+        _R(img, hx + 30, hy - 1, 26, 3, "ink"); _R(img, hx + 31, hy, 24, 1, "pink")
+    if hat == "bow":
+        _R(img, hx + 36, hy - 6, 14, 8, "ink"); _R(img, hx + 37, hy - 5, 5, 6, "gold"); _R(img, hx + 44, hy - 5, 5, 6, "gold")
+        _R(img, hx + 42, hy - 4, 2, 4, "orange")
     if "judge" in acc:
         _R(img, hx + 4, hy - 7, 44, 8, "ink"); _R(img, hx + 5, hy - 6, 42, 6, "night"); _R(img, hx + 5, hy - 6, 42, 1, "dusk")
         _R(img, hx - 2, hy - 1, 56, 3, "ink"); _R(img, hx - 1, hy, 54, 1, "gold")

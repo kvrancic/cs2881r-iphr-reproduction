@@ -22,3 +22,4 @@ data/paper_answers/raw/
 data/paper/*-T*.pkl.gz
 !figures/*.pdf
 !deck/review/qa/*.pdf
+!deck/IPHR_Reproduction.pdf

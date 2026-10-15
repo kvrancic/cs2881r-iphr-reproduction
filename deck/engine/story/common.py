@@ -19,9 +19,20 @@ BACKDROP_PREFIX = ("win_", "slot", "frame", "map", "wall", "panel", "card_", "c_
 RB_W, RB_H, RB_CX = 112, 86, 50      # the big robot's canvas and the x of its body's centre in it
 
 
-def robot(face="neutral", arms=("down", "down"), acc=(), grey=False):
+def robot(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", hat=None, tint=None):
     """The model under test, drawn big (112x86 canvas, body centred at x 50, feet on the last row)."""
-    return spr("robot.big", _w=RB_W, _h=RB_H, face=face, arms=tuple(arms), acc=tuple(acc), grey=grey)
+    return spr("robot.big", _w=RB_W, _h=RB_H, face=face, arms=tuple(arms), acc=tuple(acc), grey=grey,
+               ant=ant, hat=hat, tint=tint)
+
+
+def bot(face="neutral", arms=("down", "down"), acc=(), flip=False):
+    """The same robot at 1x (58x50 canvas, feet on the last row): the persistent corner character of chart scenes.
+    flip=True turns it to face left (pointing at the board)."""
+    img = spr("robot.robot", _w=58, _h=50, face=face, arms=tuple(arms), acc=tuple(acc))
+    if flip:
+        from px import flip as _flip
+        img = _flip(img)
+    return img
 
 
 def at(cx_):
@@ -37,8 +48,26 @@ def judge(face="focus"):
     return robot(face, ("down", "out"), ("stamp", "judge"))
 
 
-def scale(tilt=0, grey=False):
-    return spr("props.scale", _w=86, _h=72, tilt=tilt, grey=grey)
+def scale(tilt=0, grey=False, s=1.0, load=None):
+    return spr("props.scale", _w=86, _h=72, tilt=tilt, grey=grey, s=s, load=load)
+
+
+# --- chart scenes: the board at the left, the big robot (the model under test) standing beside it ---------------
+CHART_RX = 330                      # x of the big robot's body centre in chart scenes
+CHART_ROBOT = (at(CHART_RX), ROBOT_Y)
+POINT = ("out", "down")             # the left arm held out towards the board
+
+
+def stage(tl, face="neutral", arms=("down", "down"), acc=(), robot_on=True):
+    """The model under test at 2x, standing on the ground line beside the chart board, reacting. The scale is
+    not part of chart scenes."""
+    tl.drop("scale")
+    if robot_on:
+        tl.put("robot", robot(face, arms, acc), *CHART_ROBOT, z=30, screen=True)
+        tl.put("cfloor", floor(100), CHART_RX - 50, GY, z=2, screen=True)
+    else:
+        tl.drop("robot", "cfloor")
+    return tl
 
 
 # --- text ------------------------------------------------------------------------------------------
@@ -76,14 +105,12 @@ def put_ground(tl):
     return tl
 
 
-def cue(tl, s, x=8, y=8, align="left"):
-    """The orientation cue: a few of the speaker's keywords, white on ink with a yellow bar, in screen space."""
-    c = ui.cue(s)
-    if align == "right":
-        x = W - x - c.width
-    elif align == "center":
-        x = (W - c.width) // 2
-    tl.put("cue", c, x, y, z=90, screen=True)
+CUE_XY = (8, 194)
+
+
+def cue(tl, s):
+    """The orientation cue: a few of the speaker's keywords, white on ink with a yellow bar, always bottom left."""
+    tl.put("cue", ui.cue(s), *CUE_XY, z=90, screen=True)
     return tl
 
 
@@ -101,24 +128,59 @@ _CH = None
 CHART_IDS = set()
 
 
-def chart(tl, slide, z=20):
-    """Place every element of a chart state (960 grid, scale 0.4) and drop chart elements of other states."""
+def _charts():
     global _CH
     if _CH is None:
         _CH = charts.render()
         for items in _CH.values():
             CHART_IDS.update("ch_" + i for i in items)
-    items = _CH[slide]
+    return _CH
+
+
+def chart_pos(slide, i):
+    """(x, y, w, h) in native pixels of chart element i on a chart state."""
+    img, x, y = _charts()[slide][i]
+    return x * charts.SCALE, y * charts.SCALE, img.width * charts.SCALE, img.height * charts.SCALE
+
+
+def put_stand(tl, slide, z=16):
+    """The stand of the board the chart is drawn on (legs, monitor stand, lab bench or map table), down to the
+    ground line."""
+    style, x0, w, yb = charts.stand_of(slide)
+    x0, w, yb = round(x0), round(w), round(yb)
+    if style == "paper":
+        tl.put("stand", P.stand(w, GY - yb), x0, yb, z=z, screen=True)
+    elif style == "term":
+        tl.put("stand", P.monitor(w, GY - yb - 1), x0, yb + 1, z=z, screen=True)
+    elif style == "bench":
+        b = P.bench(w + 24, GY - yb - 2)
+        tl.put("stand", b, x0 - 18, yb + 2 - 18, z=z, screen=True)
+    else:
+        tl.put("stand", P.table(w, GY - yb - 1), x0, yb + 1, z=z, screen=True)
+    return tl
+
+
+def chart(tl, slide, z=20, alias=None):
+    """Place every element of a chart state (960 grid, scale 0.4) on its board and stand, and drop the chart
+    elements of other states. alias maps a chart element id to a stage id, so it can Morph from or into a picture
+    of another scene."""
+    alias = alias or {}
+    put_stand(tl, slide)
+    items = _charts()[slide]
+    CHART_IDS.update(alias.values())
+    keep = {alias.get(i, "ch_" + i) for i in items}
     for oid in [o for o in tl.objs if o in CHART_IDS]:
-        if oid[3:] not in items:
+        if oid not in keep:
             tl.drop(oid)
     for k, (i, (img, x, y)) in enumerate(items.items()):
-        zz = z - 5 if i in charts.PANELS else z + k / 1000   # HTML order: later elements on top
-        tl.put("ch_" + i, img, x * charts.SCALE, y * charts.SCALE, z=zz, screen=True, scale=charts.SCALE)
+        zz = (z - 5 if i in charts.PANELS else z - 4 if i in charts.GRIDS else z - 3 if i in charts.PLATES
+              else z + k / 1000)   # board, gridlines, plates, then the rest in HTML order (later on top)
+        tl.put(alias.get(i, "ch_" + i), img, x * charts.SCALE, y * charts.SCALE, z=zz, screen=True, scale=charts.SCALE)
     return tl
 
 
 def clear_charts(tl):
     for oid in [o for o in tl.objs if o in CHART_IDS]:
         tl.drop(oid)
+    tl.drop("stand")
     return tl

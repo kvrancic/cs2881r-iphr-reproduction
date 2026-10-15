@@ -67,7 +67,7 @@ def check_layout(beats):
     from story.common import BACKDROPS, BACKDROP_PREFIX
     import charts
     textish = lambda i: i == "cue" or i.startswith("t_") or (i.startswith("ch_") and i[3:] in charts.TEXTS)
-    backdrop = lambda i: i in BACKDROPS or i.startswith(BACKDROP_PREFIX) or (i.startswith("ch_") and i[3:] in charts.PANELS)
+    backdrop = lambda i: i in BACKDROPS or i.startswith(BACKDROP_PREFIX) or (i.startswith("ch_") and i[3:] in charts.PANELS | charts.GRIDS | charts.PLATES)
     issues = [f"chart element runs past the 960x540 grid: {x}" for x in charts.OVERFLOW]
     for n, b in enumerate(beats, 1):
         objs = {i: o for i, o in b.objs.items() if o.alpha > 0.05}
@@ -123,24 +123,70 @@ def validate_pptx(path, beats):
 
 # ------------------------------------------------------------------------------------------------ claims
 def claims():
-    """The numbers the speaker says, checked against the result files the charts read. Returns [(ok, text)]."""
+    """Every number and checkable statement the speaker makes, checked against the result files. Returns [(ok, text)]."""
+    import json, os
     import charts as ch
-    c = ch.CHECKS
+    c, R, N, G = ch.CHECKS, ch.RUNS, ch.NOISE, ch.GEO["conditions"]
+    CF = ch.J("cited_facts.json")
+    f2 = c["figure2"]
     out = []
-    rec = [k for k, v in c["figure2"].items() if v["source"] == "recomputed"]
-    same = sum(c["figure2"][k]["paper_count"] == c["figure2"][k]["our_count"] for k in rec)
+    n = ch.N_PAIRS
+    out.append((4500 <= n < 5000 and n == 4834, f"'almost five thousand pairs' / 'the data hold 4,834': {n:,} pairs"))
+    out.append((len(ch.FIG2) == 16, f"'sixteen models': {len(ch.FIG2)} bars"))
+    g = f2["openai/gpt-4o-mini"]["paper_pct"]
+    out.append((12.5 <= g < 14.5 and g == max(v["paper_pct"] for v in f2.values()),
+                f"'GPT-4o mini is the highest at about thirteen percent': {g}%"))
+    th = [f2[k]["paper_pct"] for k, _, t in ch.FIG2 if t]
+    out.append((sum(v < 0.5 for v in th) * 2 > len(th), f"'most thinking models below half a percent': {sum(v < 0.5 for v in th)} of {len(th)}"))
+    rec = [k for k, v in f2.items() if v["source"] == "recomputed"]
+    same = sum(f2[k]["paper_count"] == f2[k]["our_count"] for k in rec)
     out.append((len(rec) == 8 and same == 8, f"'eight models ... exactly their numbers': {same} of {len(rec)} recomputed counts match"))
-    g = c["figure2"]["openai/gpt-4o-mini"]["paper_pct"]
-    out.append((12.5 <= g < 14.5, f"'GPT-4o mini ... about thirteen percent': {g}%"))
-    t = c["retest_mean_of_models"]["thr05"]
-    out.append((0.55 <= t < 0.65, f"'about sixty percent of flags survive': {t:.1%}"))
-    p, n = ch.judge_pct()
-    out.append((p == 99, f"'ninety-nine percent of their answers': {p}% over {n} answers"))
-    a, na = ch.inside("paper")
-    b, nb = ch.inside("ours")
-    out.append((a * 2 == na, f"'predicts their number for half of the paper's models': {a} of {na} inside the predicted range"))
-    out.append((b == nb == 8, f"'and for all eight of our runs': {b} of {nb} inside the predicted range"))
-    cw = ch.COORD
-    out.append((cw["base"]["flags"] == 131 and cw["coordwording"]["flags"] == 24,
-                f"'fell from 131 to 24': {cw['base']['flags']} -> {cw['coordwording']['flags']}"))
+    bad = [k for k, v in f2.items() if round(100 * v["paper_count"] / ch.PLOT_DIVISOR, 2) != v["paper_pct"]]
+    out.append((not bad, f"'divides by 4,892 pairs': count / 4,892 gives every plotted bar ({len(f2) - len(bad)} of {len(f2)})"))
+    m = c["retest_mean_of_models"]
+    out.append((abs(m["thr04"] - 0.765) < abs(m["thr05"] - 0.765),
+                f"'the retest uses a looser cutoff': 0.4 keeps {m['thr04']:.1%}, nearer the paper's 76.5% than 0.5 ({m['thr05']:.1%})"))
+    rs = N["rank_stability"]
+    out.append((rs["settings_with_any_swap"] > 0, f"'its own table shows that it does [change]': swaps in {rs['settings_with_any_swap']} of {rs['settings'] - 1} other settings"))
+    out.append((0.18 <= R["base"]["openai/gpt-4o-mini"]["n_pairs"] / n < 0.23, f"'a fifth of the pairs': {R['base']['openai/gpt-4o-mini']['n_pairs']:,} of {n:,}"))
+    p, nj = ch.judge_pct()
+    out.append((p == 99, f"'about ninety-nine percent of their answers': {p}% over {nj} answers"))
+    lg = {lab: N["paired"][k]["lean_gap"] for k, lab in ch.FOUR}
+    out.append((all(abs(v["ours"] / v["paper"] - 1) < 0.25 for v in lg.values()),
+                "'leans about as strongly': " + ", ".join(f"{l} {v['paper']:.3f}/{v['ours']:.3f}" for l, v in lg.items())))
+    sm = {lab: (R["paper_same_pairs"][k]["n_unf"], R["base"][k]["n_unf"]) for k, lab in ch.FOUR[:2]}
+    out.append((all(abs(b / a - 1) < 0.3 for a, b in sm.values()), f"'GPT-4o mini and Llama about the same number of flags': {sm}"))
+    d = N["paired"][ch.DS]
+    ds = (d["paper_run_vs_ours"]["flags"], d["paper_answers_our_labels_vs_ours"]["flags"], R["base"][ch.DS]["n_unf"])
+    out.append((ds[0] > ds[1] > ds[2], f"'DeepSeek gets fewer, part of that our labeller': paper {ds[0]}, paper's answers with our labels {ds[1]}, ours {ds[2]}"))
+    ex = {lab: N["paired"][k]["one_sided_lean_recurrence"] for k, lab in ch.FOUR}
+    gx = ex["GPT-4o mini"]
+    others = [v for l, v in ex.items() if l != "GPT-4o mini"]
+    out.append((gx["mean_in_other_run"] > 2 * gx["null_975"] and all(v["mean_in_other_run"] < gx["mean_in_other_run"] / 2 for v in others),
+                "'for GPT-4o mini ... beyond its general lean; for the others small': " +
+                ", ".join(f"{l} {v['mean_in_other_run']:.2f} (noise {v['null_975']:.2f})" for l, v in ex.items())))
+    rk = N["rate_by_kind_paper_full"]
+    gm = rk["openai/gpt-4o-mini"]
+    out.append((0.18 <= gm["geography"]["rate"] < 0.22 and 0.005 <= gm["other"]["rate"] < 0.02,
+                f"'GPT-4o mini a fifth of geography, one percent of the rest': {gm['geography']['rate']:.1%}, {gm['other']['rate']:.1%}"))
+    rev = [k for k in ("qwen/qwq-32b", "meta-llama/Llama-3.3-70B-Instruct", "meta-llama/Llama-3.1-70B") if rk[k]["geography"]["rate"] < rk[k]["other"]["rate"]]
+    out.append((len(rev) == 3, f"'QwQ and Llama the other way round': {len(rev)} of 3 higher on the other questions"))
+    rg, ro = N["ranking_geography"], N["ranking_other"]
+    out.append((rg[0] in ro[len(ro) // 2:] and rg[-1] in ro[:len(ro) // 2],
+                f"'the top and bottom of the ranking swap': top on geography {rg[0]} is in the bottom half on the rest; bottom {rg[-1]} in the top half"))
+    lt = c["lean_by_kind_total"]
+    out.append((lt["geography_NO"] > 5 * lt["geography_YES"] and lt["other_YES"] > 5 * lt["other_NO"],
+                f"'geography leans no, dates/sizes/ages lean yes': {lt}"))
+    a, b = ch.nongeo_total()
+    out.append((a == 57 and b == 0, f"'from fifty-seven to zero across four models': {a} -> {b} over {len(ch.FACT4)} models"))
+    lr = ch.J("recall_probe.json")["meta-llama/llama-3.3-70b-instruct"]   # checks the spoken figure only; not shown on screen
+    out.append((0.65 <= lr["known_order_flagged"] < 0.75, f"'Llama ordered about seven in ten of its flagged pairs correctly': {lr['known_order_flagged']:.0%} of {lr['flagged']}"))
+    lc = CF["meta-llama/llama-3.3-70b-instruct | other"]
+    out.append((lc["wrong_states_wrong_order"] > 0.5, f"'in its wrong answers the numbers it writes support the wrong answer': {lc['wrong_states_wrong_order']:.0%} of {lc['wrong_answers']}"))
+    q = ch.GEO["distances"]["paper | openai/gpt-4o-mini"]["flag_rate_by_asked_quartile"]
+    out.append((q[-1] == max(q), f"'flags most common for places far apart': by distance quarter {', '.join(f'{v:.1%}' for v in q)}"))
+    out.append((135 <= G["paraphrase"]["flags"] <= 145, f"'left the flags at about 140': {G['paraphrase']['flags']} (paper's wording {G['base']['flags']})"))
+    out.append((G["clarified"]["flags"] == 31, f"'cut them to 31': {G['clarified']['flags']}"))
+    out.append((G["strict"]["flags"] == 667 and G["strict"]["pairs"] == 684, f"'raised them to 667 of 684': {G['strict']['flags']} of {G['strict']['pairs']}"))
+    out.append((lc["wrong_says_unsure"] > 0.5, f"'Llama often says it is unsure and answers anyway': {lc['wrong_says_unsure']:.0%} of its wrong answers"))
     return out
