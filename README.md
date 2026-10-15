@@ -19,13 +19,13 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
 | Flagged with both true values in the prompt | 2 | 0 | 0 | not run |
 
 - **Newer models on the same pairs:** GPT-5.6 Luna 13 flags (0 with values), Qwen 3.8 Flash 3, Claude Haiku 5.5 2, DeepSeek V4 Flash 1.
-- **Tie cards** (one rounded value printed for both entities, 330 non-geography pairs): GPT-4o-mini and Llama 3.3 answer UNKNOWN 98% and 89% of the time, with no lean and no flags.
-- **Closed-book recall:** Llama 3.3 knows the order for 72% of its 32 flagged non-geography pairs (85% of unflagged pairs).
+- **Tie cards** (one rounded value printed for both entities, 330 non-geography pairs): GPT-4o-mini and Llama 3.3 answer UNKNOWN 98% and 89% of the time, as the card invites; too few answers remain to measure a lean.
+- **Closed-book recall:** asked for each value alone, Llama 3.3 orders 72% of its 32 flagged non-geography pairs correctly (85% of unflagged pairs; chance is 50%).
 - **GPT-4o-mini's 684 geography pairs:** 131 flags with the paper's wording, 140 with a paraphrase, 31 with one sentence saying that anywhere further west counts, 667 with one sentence saying only directly west counts, 24 with "a more western longitude", 0 with both coordinates of both places, 2 with the asked coordinate.
 - **From the authors' released counts alone:**
-  - our code gives the plotted count exactly for the 8 models with 10-answer data, as well as all 64 values of the paper's Table 10;
+  - our code gives the plotted count exactly for the 8 models with 10-answer data, as well as their 64 values in the paper's Table 10;
   - the plot divides by 4,892 where the data hold 4,834 pairs;
-  - the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%);
+  - averaged over models, the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%, also averaged over models);
   - the model ranking changes in 8 of 11 alternative cutoff settings, as the paper's own Table 10 also shows;
   - by kind of question the ranking nearly reverses: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
 
@@ -101,7 +101,7 @@ Cost of our runs at October 2026 OpenRouter prices: $96 in total (answers, label
 
 ## Use of AI tools
 
-Claude (Anthropic) wrote most of the code, ran the experiments and drafted the report, the talk script and the slides under our direction. Two rounds of AI reviewers (Claude agents asked to grade, fact-check, edit and attack the work) critiqued drafts; we changed the analysis and the text in response. We checked the reported numbers against the result files.
+Claude (Anthropic) wrote most of the code, ran the experiments and drafted the report, the talk script and the slides under our direction. Three rounds of AI reviewers and a final check (Claude agents asked to grade, fact-check, edit and attack the work) critiqued drafts; we changed the analysis and the text in response. We checked the reported numbers against the result files.
 
 ## Worklog
 
@@ -112,4 +112,4 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **03:30–04:00.** Claude Haiku 5.5's own thinking used up the judge's 600-token limit on up to 8% of calls. We deleted those replies and re-judged with 2,000 tokens. Built the fact reader; reading samples showed it counted north/south statements on east/west questions, so we limited it to the asked property. Found that flags split into geography leaning NO and everything else leaning YES.
 - **04:00–04:30.** First report. The first AI review found overclaims, no noise baseline and a judge check limited to easy answers. Added the expected recurrence, relabelling of the paper's own answers and the "more western longitude" run.
 - **04:30–05:15.** The second AI review found that comparing flag counts had little power and that the coordinate wording mixed a clearer reading with coordinate recall. Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates). The residual test reversed our earlier reading: pair-specific order effects exist and repeat. Rewrote the report and the talk.
-- **05:15–06:15.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Table 1 is now generated from the result files. The knowledge claim changed: for geography the flags sit on the easiest pairs and track the reading of the direction word.
+- **05:15–06:10.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Table 1 is now generated from the result files. The knowledge claim changed: for geography the flags sit on the easiest pairs and track the reading of the direction word.
