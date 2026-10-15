@@ -76,12 +76,15 @@ def thanks(tl):
     width of the pixel line), above the four models we reran, all on the ground line, two of them waving."""
     tl.section = "thanks"
     tl.clear(); put_ground(tl)
-    b = ui.say("Thank you", "ink", 60)
-    tl.put("t_thanks", b, cx(b), 18, z=40, screen=True)
-    nm = T("[Name 1]     [Name 2]     [Name 3]", "ink")
-    y = 18 + b.height + 5
+    b = ui.say("Thank you", "ink", 48)
+    tl.put("t_thanks", b, cx(b), 12, z=40, screen=True)
+    nm = T("Shlok Dholakia     Nadia Sumin", "ink")
+    nm2 = T("Karlo Vrancic     Marc Walden", "ink")
+    y = 12 + b.height + 4
     tl.put("t_names", nm, cx(nm), y, z=40, screen=True)
-    smooth(tl, "t_repo", REPO, 0, y + nm.height + 6, "slate", size=14, face="Demi", align="center")
+    y2 = y + nm.height + 3
+    tl.put("t_names2", nm2, cx(nm2), y2, z=40, screen=True)
+    smooth(tl, "t_repo", REPO, 0, y2 + nm2.height + 6, "slate", size=14, face="Demi", align="center")
     tl.put("floor", floor(340), 22, GY, z=2, screen=True)
     arms = (("down", "up"), ("down", "down"), ("down", "down"), ("up", "down"))
     for k in range(4):

@@ -21,7 +21,7 @@ A 5-minute class talk reproducing Figure 2 of "Chain-of-Thought Reasoning in the
 - Not images only either: every slide needs enough words that the audience understands it without the narration.
 - Plain words. No slogans, no punchy lines, no em dashes.
 - Explainer animations follow logical order (show the question before the answer, the input before the result).
-- The title slide and the closing slide may use smooth hi-res text (Avenir Next rendered as an image) for the paper title, names and the repo link. Team names are placeholders: [Name 1], [Name 2], [Name 3].
+- The title slide and the closing slide may use smooth hi-res text (Avenir Next rendered as an image) for the paper title, names and the repo link. Team names, alphabetical by surname: Shlok Dholakia, Nadia Sumin, Karlo Vrancic, Marc Walden.
 
 ## Output
 - `deck/IPHR_Reproduction.pptx` (16:9), every object a picture named `!!id` so Morph glides it; a fade between scenes; no fonts needed on the presenting machine.

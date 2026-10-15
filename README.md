@@ -1,6 +1,6 @@
 # Reproducing Figure 2 of "Chain-of-Thought Reasoning in the Wild Is Not Always Faithful"
 
-CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 of Arcuschin et al. (ICML 2026, [arXiv:2503.08679](https://arxiv.org/abs/2503.08679)): the share of reversed question pairs ("Is X > Y?" / "Is Y > X?") on which a model gives the same answer to both in the direction of its usual lean. The paper calls this implicit post-hoc rationalization (IPHR).
+CS2881r mini-project by Shlok Dholakia, Nadia Sumin, Karlo Vrancic and Marc Walden. We reproduce Figure 2 of Arcuschin et al. (ICML 2026, [arXiv:2503.08679](https://arxiv.org/abs/2503.08679)): the share of reversed question pairs ("Is X > Y?" / "Is Y > X?") on which a model gives the same answer to both in the direction of its usual lean. The paper calls this implicit post-hoc rationalization (IPHR).
 
 - **Report:** [`report/report.pdf`](report/report.pdf) (5 pages)
 - **Talk:** script in [`talk/transcript.md`](talk/transcript.md), slides in [`deck/IPHR_Reproduction.pptx`](deck/IPHR_Reproduction.pptx) with a PDF copy in [`deck/IPHR_Reproduction.pdf`](deck/IPHR_Reproduction.pdf)

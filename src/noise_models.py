@@ -1,7 +1,7 @@
 """Zero-cost checks on how stable the flags are and what produces them.
 
 1. Expected recurrence if unchanged. Take each question's answer rates in the
-   paper's run (half a pseudo-count per label) as the truth, draw two
+   paper's answers under our labels (half a pseudo-count per label) as the truth, draw two
    independent 10-answer runs, recompute template leans in each, and measure
    how many flags of the first run recur in the second (200 simulations, with
    a 95% interval). Observed recurrence is computed two ways: the paper's run
