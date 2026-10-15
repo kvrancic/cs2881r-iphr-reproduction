@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).parent))
-from openrouter import run_requests  # noqa: E402
+from openrouter import complete_reply, run_requests  # noqa: E402
 import judge  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,7 +64,7 @@ def main():
             for _, rid, text, _ in items]
     import asyncio
     out = asyncio.run(run_requests(reqs, OUT / "judge_cache.jsonl", judge.JUDGE_MODEL,
-                                   {"temperature": 0.0, "max_tokens": 2000}, tag="judge-validation"))
+                                   {"temperature": 0.0, "max_tokens": 2000}, tag="judge-validation", valid=complete_reply))
     rows = []
     for model, rid, text, gold in items:
         p = judge.parse(text)

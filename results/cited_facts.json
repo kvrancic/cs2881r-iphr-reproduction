@@ -1,28 +1,50 @@
 {
-  "meta-llama/llama-3.3-70b-instruct": {
-    "answers": 700,
-    "wrong_answers": 250,
-    "wrong_with_wrong_facts": 0.728,
-    "wrong_ignoring_right_facts": 0.072,
-    "wrong_with_no_comparison": 0.2,
-    "wrong_saying_uncertain": 0.836,
-    "wrong_using_other_property": 0.084,
-    "facts_right_low_acc_question": 0.2,
-    "facts_wrong_low_acc_question": 0.5114285714285715,
-    "facts_right_high_acc_question": 0.6914285714285714,
-    "facts_wrong_high_acc_question": 0.04857142857142857
+  "meta-llama/llama-3.3-70b-instruct | geography": {
+    "pairs": 3,
+    "answers": 60,
+    "wrong_answers": 20,
+    "wrong_states_wrong_order": 0.1,
+    "wrong_states_right_order": 0.75,
+    "wrong_states_no_order": 0.15,
+    "wrong_uses_other_property": 0.5,
+    "wrong_says_unsure": 0.2,
+    "all_answers_wrong_order_on_question_it_gets_wrong": 0.06666666666666667,
+    "all_answers_wrong_order_on_question_it_gets_right": 0.0
   },
-  "openai/gpt-4o-mini": {
-    "answers": 2780,
-    "wrong_answers": 988,
-    "wrong_with_wrong_facts": 0.3431174089068826,
-    "wrong_ignoring_right_facts": 0.409919028340081,
-    "wrong_with_no_comparison": 0.24696356275303644,
-    "wrong_saying_uncertain": 0.024291497975708502,
-    "wrong_using_other_property": 0.4493927125506073,
-    "facts_right_low_acc_question": 0.5546762589928057,
-    "facts_wrong_low_acc_question": 0.2237410071942446,
-    "facts_right_high_acc_question": 0.8122302158273381,
-    "facts_wrong_high_acc_question": 0.04892086330935252
+  "meta-llama/llama-3.3-70b-instruct | other": {
+    "pairs": 32,
+    "answers": 640,
+    "wrong_answers": 230,
+    "wrong_states_wrong_order": 0.782608695652174,
+    "wrong_states_right_order": 0.013043478260869565,
+    "wrong_states_no_order": 0.20434782608695654,
+    "wrong_uses_other_property": 0.04782608695652174,
+    "wrong_says_unsure": 0.8913043478260869,
+    "all_answers_wrong_order_on_question_it_gets_wrong": 0.553125,
+    "all_answers_wrong_order_on_question_it_gets_right": 0.053125
+  },
+  "openai/gpt-4o-mini | geography": {
+    "pairs": 131,
+    "answers": 2620,
+    "wrong_answers": 924,
+    "wrong_states_wrong_order": 0.2976190476190476,
+    "wrong_states_right_order": 0.4383116883116883,
+    "wrong_states_no_order": 0.26406926406926406,
+    "wrong_uses_other_property": 0.4805194805194805,
+    "wrong_says_unsure": 0.025974025974025976,
+    "all_answers_wrong_order_on_question_it_gets_wrong": 0.1900763358778626,
+    "all_answers_wrong_order_on_question_it_gets_right": 0.04961832061068702
+  },
+  "openai/gpt-4o-mini | other": {
+    "pairs": 8,
+    "answers": 160,
+    "wrong_answers": 64,
+    "wrong_states_wrong_order": 1.0,
+    "wrong_states_right_order": 0.0,
+    "wrong_states_no_order": 0.0,
+    "wrong_uses_other_property": 0.0,
+    "wrong_says_unsure": 0.0,
+    "all_answers_wrong_order_on_question_it_gets_wrong": 0.775,
+    "all_answers_wrong_order_on_question_it_gets_right": 0.0375
   }
 }

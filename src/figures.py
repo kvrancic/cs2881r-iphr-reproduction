@@ -3,9 +3,10 @@
 fig_reproduction: (a) Figure 2 recomputed over 4,834 pairs from the released
   counts; (b) the same 1,014 pairs, the paper's run against our run, plus newer
   models.
-fig_factcards: unfaithful-pair rate with and without the true values in the
-  prompt.
-fig_templates: per-template YES rate, paper's run against ours, GPT-4o-mini.
+fig_extensions: (a) unfaithful-pair rate with and without the true values in
+  the prompt; (b) GPT-4o-mini geography flags under three wordings.
+fig_mechanism: (a) observed flags against the guess-with-a-lean model;
+  (b) recurrence of the paper's flags in our run against a no-change ceiling.
 """
 
 import json
@@ -19,11 +20,11 @@ ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
 FIG = ROOT / "figures"
 
-BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
+BLUE, ORANGE, AQUA, VIOLET = "#2a78d6", "#eb6834", "#1baf7a", "#6250d6"
 INK, INK2, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 
 plt.rcParams.update({
-    "font.family": "Helvetica", "font.size": 8.5, "axes.edgecolor": INK2,
+    "font.family": "DejaVu Sans", "font.size": 8.5, "axes.edgecolor": INK2,
     "axes.labelcolor": INK, "xtick.color": INK2, "ytick.color": INK2,
     "axes.spines.top": False, "axes.spines.right": False, "axes.linewidth": 0.6,
     "xtick.major.width": 0.6, "ytick.major.width": 0.6, "legend.frameon": False,
@@ -66,7 +67,8 @@ def fig_reproduction(checks, runs):
     f2 = checks["figure2"]
     order = list(PAPER_NAMES)
     for i, m in enumerate(order):
-        c = f2[m]["paper_count"]
+        c = f2[m]["our_count"]
+        assert c == f2[m]["paper_count"], m
         r = 100 * c / 4834
         lo, hi = 100 * boot(c, 4834)
         bar_ci(ax, i, r, lo, hi, BLUE, 0.7)
@@ -116,10 +118,11 @@ def fig_reproduction(checks, runs):
         fig.savefig(FIG / f"fig_reproduction.{ext}", dpi=300)
 
 
-def fig_factcards(runs):
+def fig_extensions(runs, coord):
     models = [m for m in ["openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct",
                           "deepseek/deepseek-chat", "openai/gpt-5.6-luna"] if m in runs["factcard"]]
-    fig, ax = plt.subplots(figsize=(3.6, 2.4))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.4), gridspec_kw={"width_ratios": [1.5, 1]})
+    ax = axes[0]
     for i, m in enumerate(models):
         b, f = runs["base"][m], runs["factcard"][m]
         bar_ci(ax, i - 0.2, 100 * b["rate"], 100 * b["lo"], 100 * b["hi"], ORANGE, 0.38,
@@ -129,40 +132,70 @@ def fig_factcards(runs):
         ax.text(i - 0.2, 100 * b["hi"] + 0.3, f"{b['n_unf']}", ha="center", fontsize=6.5, color=INK2)
         ax.text(i + 0.2, 100 * f["hi"] + 0.3, f"{f['n_unf']}", ha="center", fontsize=6.5, color=INK2)
     ax.set_xticks(range(len(models)))
-    ax.set_xticklabels([OUR_NAMES[m].replace(" ", "\n", 1) for m in models], fontsize=7)
+    ax.set_xticklabels([OUR_NAMES[m] for m in models], fontsize=7)
     ax.set_ylabel("Unfaithful pairs (%)")
     ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.legend(fontsize=7, loc="upper right")
-    fig.tight_layout()
+    ax.set_title("(a) Fact cards, all 1,014 pairs", fontsize=8.5, loc="left")
+
+    ax = axes[1]
+    conds = [("base", "west of /\nsouth of", ORANGE), ("coordwording", "more western\nlongitude", VIOLET),
+             ("factcard", "true values\ngiven", AQUA)]
+    for i, (c, lab, col) in enumerate(conds):
+        n = coord[c]["flags"]
+        ax.bar(i, n, 0.6, color=col, linewidth=0, zorder=2)
+        ax.text(i, n + 3, str(n), ha="center", fontsize=7, color=INK2)
+    ax.set_xticks(range(3))
+    ax.set_xticklabels([lab for _, lab, _ in conds], fontsize=6.8)
+    ax.set_ylabel("Flagged pairs")
+    ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
+    ax.set_title("(b) GPT-4o-mini, 684 geography pairs", fontsize=8.5, loc="left")
+    fig.tight_layout(w_pad=1.5)
     for ext in ["pdf", "png"]:
-        fig.savefig(FIG / f"fig_factcards.{ext}", dpi=300)
+        fig.savefig(FIG / f"fig_extensions.{ext}", dpi=300)
 
 
-def fig_templates():
-    pairs = pd.read_csv(RES / "pairs_base.csv")
-    paper = pd.read_pickle(ROOT / "data" / "paper" / "df-wm-non-ambiguous-hard-2.pkl.gz")
-    sub = pd.read_csv(ROOT / "data" / "subsample_pairs.csv")
-    qids = set(sub.qid_yes) | set(sub.qid_no)
-    fig, axes = plt.subplots(1, 2, figsize=(4.6, 2.3), sharey=True)
-    for ax, (ours, theirs, name) in zip(axes, [
-            ("openai/gpt-4o-mini", "openai/gpt-4o-mini", "GPT-4o-mini"),
-            ("meta-llama/llama-3.3-70b-instruct", "meta-llama/Llama-3.3-70B-Instruct", "Llama 3.3 70B")]):
-        p = paper[(paper.model_id == theirs) & paper.qid.isin(qids)].copy()
-        p["p_yes"] = (p.yes_count + 0.5 * p.unknown_count) / p.total_count
-        pt = p.groupby(["prop_id", "comparison"]).p_yes.mean()
-        ot = pairs[pairs.model_id == ours].groupby(["prop_id", "comparison"]).group_p_yes.first()
-        j = pd.concat([pt.rename("paper"), ot.rename("ours")], axis=1).dropna()
-        ax.plot([0.2, 0.8], [0.2, 0.8], color=GRID, linewidth=0.8, zorder=1)
-        ax.scatter(j.paper, j.ours, s=10, color=ORANGE, edgecolor="white", linewidth=0.5, zorder=2)
-        r = np.corrcoef(j.paper, j.ours)[0, 1]
-        ax.set_title(f"{name}  (r = {r:.2f})", fontsize=8, loc="left")
-        ax.set_xlabel("YES rate, paper's run")
-        ax.set_xlim(0.2, 0.8)
-        ax.set_ylim(0.2, 0.8)
-    axes[0].set_ylabel("YES rate, our run")
-    fig.tight_layout()
+def fig_mechanism(noise):
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.5), gridspec_kw={"width_ratios": [1.6, 1]})
+    ax = axes[0]
+    rows = [(PAPER_NAMES.get(m, m) + " (paper)", v) for m, v in noise["guess_with_lean_paper_full"].items()]
+    rows += [(OUR_NAMES.get(m, m) + " (ours)", v) for m, v in noise["guess_with_lean_ours"].items()]
+    rows.sort(key=lambda r: -r[1]["observed"])
+    for i, (name, v) in enumerate(rows):
+        lo, hi = v["ci"]
+        ax.plot([lo, hi], [i, i], color=GRID, linewidth=3, solid_capstyle="round", zorder=1)
+        ax.scatter([v["expected"]], [i], s=14, color=INK2, zorder=2, label="Predicted" if i == 0 else None)
+        ax.scatter([v["observed"]], [i], s=16, color=ORANGE, zorder=3, label="Observed" if i == 0 else None)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([r[0] for r in rows], fontsize=6.3)
+    ax.invert_yaxis()
+    ax.set_xscale("symlog", linthresh=10)
+    ax.set_xticks([0, 10, 30, 100, 300])
+    ax.set_xticklabels(["0", "10", "30", "100", "300"])
+    ax.set_xlim(-1, 900)
+    ax.set_xlabel("Flagged pairs")
+    ax.xaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
+    ax.legend(fontsize=7, loc="lower right")
+    ax.set_title("(a) Know it or guess with a template lean", fontsize=8.5, loc="left")
+
+    ax = axes[1]
+    names = list(noise["recurrence"])
+    for i, m in enumerate(names):
+        v = noise["recurrence"][m]
+        ax.bar(i - 0.2, 100 * v["ceiling_if_unchanged"], 0.38, color=GRID, linewidth=0, zorder=2,
+               label="If unchanged" if i == 0 else None)
+        ax.bar(i + 0.2, 100 * v["observed"], 0.38, color=ORANGE, linewidth=0, zorder=2,
+               label="Observed" if i == 0 else None)
+    ax.set_xticks(range(len(names)))
+    ax.set_xticklabels([OUR_NAMES[m].replace(" ", "\n", 1) for m in names], fontsize=6.5)
+    ax.set_ylabel("Paper's flags flagged again (%)")
+    ax.set_ylim(0, 100)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
+    ax.legend(fontsize=6.5, loc="upper right")
+    ax.set_title("(b) Do single flags recur?", fontsize=8.5, loc="left")
+    fig.tight_layout(w_pad=1.2)
     for ext in ["pdf", "png"]:
-        fig.savefig(FIG / f"fig_templates.{ext}", dpi=300)
+        fig.savefig(FIG / f"fig_mechanism.{ext}", dpi=300)
 
 
 if __name__ == "__main__":
@@ -170,6 +203,6 @@ if __name__ == "__main__":
     checks = json.load((RES / "paper_data_checks.json").open())
     runs = json.load((RES / "runs.json").open())
     fig_reproduction(checks, runs)
-    fig_factcards(runs)
-    fig_templates()
+    fig_extensions(runs, json.load((RES / "coordwording.json").open()))
+    fig_mechanism(json.load((RES / "noise_models.json").open()))
     print("figures written")

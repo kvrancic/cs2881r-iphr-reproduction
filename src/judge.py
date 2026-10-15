@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from openrouter import load_cache, run_requests
+from openrouter import complete_reply, load_cache, run_requests
 
 ROOT = Path(__file__).resolve().parents[1]
 JUDGE_PROMPT = (ROOT / "src" / "judge_prompt.txt").read_text()
@@ -85,7 +85,7 @@ def run(resp_path: Path, validate_frac=0.05, seed=0):
     judged = asyncio.run(run_requests(
         to_judge, judge_cache, JUDGE_MODEL,
         {"temperature": 0.0, "max_tokens": 2000}, concurrency=48,
-        tag=f"judge:{resp_path.stem}"))
+        tag=f"judge:{resp_path.stem}", valid=complete_reply))
 
     rows = []
     for rid in resp:

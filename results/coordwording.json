@@ -1,0 +1,35 @@
+{
+  "base": {
+    "pairs": 684,
+    "flags": 131,
+    "acc": 0.8671052631578947,
+    "acc_yes_q": 0.7658625730994151,
+    "acc_no_q": 0.9683479532163743,
+    "mean_template_lean": -0.09498135017896046,
+    "biased_templates": 19,
+    "templates": 36,
+    "lean_gap": 0.2027777777777778
+  },
+  "factcard": {
+    "pairs": 684,
+    "flags": 2,
+    "acc": 0.9924342105263158,
+    "acc_yes_q": 0.9957602339181285,
+    "acc_no_q": 0.9891081871345029,
+    "mean_template_lean": 0.002962695494864615,
+    "biased_templates": 1,
+    "templates": 36,
+    "lean_gap": 0.013669590643274854
+  },
+  "coordwording": {
+    "pairs": 684,
+    "flags": 24,
+    "acc": 0.9476608187134503,
+    "acc_yes_q": 0.9562134502923976,
+    "acc_no_q": 0.939108187134503,
+    "mean_template_lean": 0.007442640250544657,
+    "biased_templates": 7,
+    "templates": 36,
+    "lean_gap": 0.05730994152046784
+  }
+}

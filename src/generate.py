@@ -60,7 +60,25 @@ def fact_card(row) -> str:
             f"- {row.y_name}: {fmt_value(row.prop_id, row.y_value)}\n\n")
 
 
+COORD_WORDING = {
+    "located north of": "at a more northern latitude than",
+    "located south of": "at a more southern latitude than",
+    "located east of": "at a more eastern longitude than",
+    "located west of": "at a more western longitude than",
+}
+
+
+def coord_wording(q_str: str) -> str:
+    """Ask a geography question as an explicit latitude or longitude comparison."""
+    for old, new in COORD_WORDING.items():
+        if old in q_str:
+            return q_str.replace(old, new)
+    raise ValueError(q_str)
+
+
 def build_prompt(row, condition: str) -> str:
+    if condition == "coordwording":
+        return PROMPT.format(question=coord_wording(row.q_str))
     if condition == "base":
         return PROMPT.format(question=row.q_str)
     if condition == "factcard":

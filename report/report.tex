@@ -1,5 +1,5 @@
 \documentclass[10pt]{article}
-\usepackage[letterpaper,margin=0.9in]{geometry}
+\usepackage[letterpaper,margin=0.85in]{geometry}
 \usepackage{graphicx,booktabs,amsmath,microtype,xcolor,caption,enumitem}
 \usepackage[hidelinks]{hyperref}
 \usepackage{helvet}
@@ -9,111 +9,129 @@
 \setlength{\parskip}{3pt}
 \setlength{\parindent}{0pt}
 
-\title{\vspace{-1.6em}\Large Reversed questions, hidden leans and missing facts:\\a reproduction of Figure 2 of ``Chain-of-Thought Reasoning in the Wild Is Not Always Faithful''}
-\author{[Name 1], [Name 2], [Name 3] \quad CS2881r mini-project, October 2026 \\ \small Code and data: \url{https://github.com/kvrancic/cs2881r-iphr-reproduction}}
+\title{\vspace{-1.6em}\Large Implicit post-hoc rationalization, reproduced: Figure 2 of ``Chain-of-Thought Reasoning in the Wild Is Not Always Faithful'' with two extensions}
+\author{[Name 1], [Name 2], [Name 3] \quad CS2881r mini-project, October 2026\\ \small Code, data and decision log: \url{https://github.com/kvrancic/cs2881r-iphr-reproduction}}
 \date{\vspace{-2.2em}}
 
 \begin{document}
 \maketitle
 
 \section*{Summary}
-Arcuschin et al.\ (ICML 2026) ask models pairs of yes/no questions that differ only in the order of two entities, such as ``Is X south of Y?'' and ``Is Y south of X?''. Exactly one of the two is true. A model that answers both the same way, in the direction its answers lean for that kind of question, while each chain of thought looks sound on its own, shows what the authors call \emph{implicit post-hoc rationalization} (IPHR). Their Figure 2 reports the share of 4,834 pairs flagged this way for 16 models, from 13.5\% for GPT-4o-mini to 0.04\% for Claude 3.7 Sonnet with thinking. We did three things.
+Arcuschin et al.\ (ICML 2026) ask models pairs of yes/no questions that differ only in the order of two entities, such as ``Is X south of Y?'' and ``Is Y south of X?''. Exactly one is true. Some models answer both the same way, in the direction they lean for that kind of question, while each chain of thought looks sound on its own. The authors call this \emph{implicit post-hoc rationalization} (IPHR). Their Figure 2 reports the share of 4,834 pairs flagged this way for 16 models, from 13.5\% (GPT-4o-mini) to 0.04\% (Claude 3.7 Sonnet with thinking).
 \begin{enumerate}
-\item \textbf{Recomputed Figure 2 from the released data.} Our code gives the same flagged count for all 16 models. The plotting script divides by 4,892 where the dataset has 4,834 pairs, so every bar is 1.2\% (relative) too low.
-\item \textbf{Ran it again.} On a fixed fifth of the pairs (1,014) with the paper's prompt and settings, GPT-4o-mini gives 13.7\% against 14.4\% for the paper's run on the same pairs. Llama 3.3 70B gives 3.5\% against 2.8\%. DeepSeek V3 does not reproduce (0.6\% against 1.7\%). The per-template lean is very stable ($r=0.97$) but single flags are not: 72\% of GPT-4o-mini's flags recur and 6\% of DeepSeek V3's.
-\item \textbf{Gave the model the facts.} With both true values printed above the question, flagged pairs fall from 139 to 2 for GPT-4o-mini and to 0 for Llama 3.3, DeepSeek V3 and GPT-5.6 Luna. Reading the wrong answers shows two kinds of failure, both unspoken: on dates, sizes and ages the models lean YES and state wrong numbers that change with the question order; on geography they lean NO and often state the right rough position, then read the question more strictly.
+\item \textbf{Released data.} Our code reproduces the flagged counts exactly for the 8 models whose 10-answer counts were released. We found two discrepancies. The plot divides by 4,892 pairs where the data hold 4,834. The 100-answer retest uses a 0.4 cutoff where the paper states 0.5; at 0.5, 61\% of flags survive where the paper reports 76\%.
+\item \textbf{Fresh runs.} On 1,014 of the pairs with the paper's prompt and settings, the size of each model's lean reproduces for all four original models still served. The flag rate reproduces for GPT-4o-mini (13.7\% vs 14.4\%) and Llama 3.3 70B (3.5\% vs 2.8\%). DeepSeek V3's rate falls (0.6\% vs 1.7\%) because its leans sit at the cutoff. For GPT-4o-mini and Llama, single flags recur as often as 10 answers per question allow.
+\item \textbf{What produces the flags.} A model that either knows a pair or guesses with one fixed lean per template predicts the flag count for half of the paper's checkable models and for all eight of our runs. The leans split by kind of question. Geography leans NO; dates, sizes and ages lean YES.
+\item \textbf{Extensions.} With both true values printed above the question, flags fall to 0--2 for four models. Asking GPT-4o-mini's geography questions as ``a more western longitude'', with no values given, cuts its flags from 131 to 24. Most of the tallest bar in Figure 2 comes from a strict reading of ``west of'' that the model applies without saying so.
 \end{enumerate}
-Our reading is that Figure 2 measures a real and repeatable behaviour that appears only when a model lacks the facts. Its rates are sound as model-level numbers. A single flagged pair is weak evidence.
 
 \section{The metric}
-Each of the 58 templates (29 properties $\times$ ``greater'' or ``less'') holds pairs of a YES-question and its reversed NO-question. Each question is asked 10 times at temperature 0.7 with the prompt ``Here is a question with a clear YES or NO answer \ldots{} think step by step, and only then give a YES / NO answer.'' A judge labels each answer YES, NO or UNKNOWN. An UNKNOWN counts as half a YES. A pair is flagged when (i) the two questions' accuracies differ by at least 0.5, (ii) the template's mean YES rate is at least 0.05 from 0.5 and (iii) the less accurate question's correct answer is opposite to that lean. We implement the criteria from the authors' code (\texttt{make\_faithfulness\_ds.py}), which differs from the paper's prose in two places: the threshold drops to 0.4 for questions with more than 10 answers. REFUSED or ``NO because the values are equal'' also both count as UNKNOWN.
+Each of 58 templates (29 properties $\times$ ``greater'' or ``less'') holds pairs of a YES-question and its reversed NO-question. The authors ask each question 10 times at temperature 0.7 with the prompt ``Here is a question with a clear YES or NO answer \ldots{} think step by step, and only then give a YES / NO answer.'' A judge labels each answer YES, NO or UNKNOWN. An UNKNOWN counts as half a YES. A pair is flagged when (i) the two accuracies differ by at least 0.5, (ii) the template's mean YES rate is at least 0.05 from 0.5 and (iii) the less accurate question's correct answer is opposite to that lean. We implement the criteria from the authors' code (\texttt{make\_faithfulness\_ds.py}). It differs from the paper's text in two places. It lowers the accuracy cutoff to 0.4 for questions with more than 10 answers. It also counts REFUSED and ``NO because the values are equal'' as UNKNOWN.
 
-\section{Reproduction}
-\textbf{From the released data.} The repository holds per-question YES/NO/UNKNOWN counts for all 16 models. Our implementation reproduces the flagged counts exactly for the 8 models sampled 10 times per question (e.g.\ 660 for GPT-4o-mini, 363 for Claude 3.5 Haiku). For the other 8 models the authors later drew 100 answers for each flagged pair and released only those; the count of topped-up pairs equals the number plotted in every case. Figure~\ref{fig:repro}a shows the bars over the correct denominator.
-
-\textbf{Fresh samples.} We drew 21\% of the pairs from every template with a fixed seed (1,014 pairs, 20,280 answers per model). On the authors' own data this sample shifts rates by at most about 0.5 percentage points, slightly upwards, because template leans estimated from fewer questions pass the 0.05 cutoff more often. We therefore compare against the paper's run on the same 1,014 pairs. We used the authors' prompt word for word and copied what their code sent: top-p 0.9 for OpenAI models and no top-p for models served through OpenRouter. The paper's judge (Claude 3.7 Sonnet) is retired. We label answers with a strict text rule (a single bare YES or NO in the last three lines and no hedging words) and send the rest to Claude Haiku 5.5 with the authors' judge prompt. On 1,200 of the authors' own answers our labels match theirs in 98.3\% (GPT-4o-mini) and 99.8\% (Claude 3.5 Haiku) of cases. All differences are one kind: an answer that says ``south of'' does not apply across continents and then says NO, which their judge counted as NO and ours as UNKNOWN. This makes us slightly undercount geography flags.
-
-Four of the paper's models are still served (Figure~\ref{fig:repro}b, Table~\ref{tab:agree}). GPT-4o-mini and Llama 3.3 reproduce within their confidence intervals. Gemini 2.5 Flash is now the general release, not the preview the paper used. Its template leans correlate with the paper's run at only $r=0.52$, so we do not treat it as the same model. DeepSeek V3 gives a third of the paper's rate; we cannot confirm that the \texttt{deepseek-chat} endpoint serves the same weights. Four newer models, sampled the same way, range from 0.1\% to 1.3\%.
+\section{Reproduction from the released data}
+The authors' repository holds per-question YES/NO/UNKNOWN counts for all 16 models. For the 8 models sampled 10 times per question, our implementation gives exactly the plotted counts (e.g.\ 660 for GPT-4o-mini, 363 for Claude 3.5 Haiku). For the other 8 models the authors later drew 100 answers for each flagged pair and released only those. Here we can only check bookkeeping: the number of topped-up pairs equals the plotted count for all 8. Figure~\ref{fig:repro}a shows the bars over 4,834 pairs, which raises each rate by 1.2\% of its value. Changing the two cutoffs over $\{0.03, 0.05, 0.07, 0.10\}\times\{0.4, 0.5, 0.6\}$ leaves the ranking of the 8 checkable models almost unchanged (Kendall $\tau \geq 0.86$), as the paper reports. The retest is less clean. The paper reports that 76.5\% of flags survive 100 answers per question, averaged over models. Averaged the same way, we get 74\% at the code's 0.4 cutoff (two models' denominators differ from the paper's Table 4) and 61\% at the stated 0.5 cutoff.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{../figures/fig_reproduction.pdf}
 \vspace{-1.6em}
-\caption{(a) Figure 2 recomputed from the released counts, divided by 4,834 pairs. (b) The same 1,014 pairs sampled again a year later; blue is the paper's run restricted to these pairs, orange is ours. Error bars are 95\% bootstrap intervals over pairs.}
+\caption{(a) Figure 2 recomputed from the released counts over 4,834 pairs. (b) The same 1,014 pairs sampled again in October 2026; blue is the paper's run restricted to these pairs, orange is ours. Error bars are 95\% bootstrap intervals over pairs. They ignore noise in the template leans and are therefore too narrow.}
 \label{fig:repro}
 \vspace{-0.6em}
 \end{figure}
 
-\section{How stable is a flag?}
-Figure 2 is a rate over pairs, but each flag rests on 20 answers. We asked whether the same pairs are flagged when the same model is asked again. Table~\ref{tab:agree} shows that the lean of each template comes back almost unchanged for GPT-4o-mini and Llama 3.3 ($r=0.97$). Per-pair accuracy gaps correlate at 0.85 and 0.71. Flags recur less. Of the 146 pairs flagged in the paper's run of GPT-4o-mini, 105 (72\%) are flagged again; for models with low rates the overlap falls to a few pairs. The authors' own retest points the same way. Their code lowers the cutoff to 0.4 for pairs re-sampled 100 times, which gives the 76\% retention reported in the paper. At the paper's stated cutoff of 0.5, 103 of 193 flags (53\%) survive. For the high-rate models most flags are not chance events: a two-sided Fisher test on the two questions' correct counts gives $p<0.05$ for 629 of GPT-4o-mini's 660 flags and 69 of Llama 3.3's 102. Taken together, the bar heights are well measured, while a flag on one pair, especially for a model with a low rate, is close to a coin toss.
+\section{Fresh runs}
+\textbf{Setup.} We drew 21\% of each template's pairs with a fixed seed: 1,014 pairs from 56 templates (the two templates on the area of populated places have 2 pairs each and contribute none), or 20,280 answers per model. On the authors' data this sample moves rates by $-0.4$ to $+1.0$ points, because leans estimated from fewer questions cross the 0.05 cutoff more often. We therefore always compare with the paper's run on the same pairs. We used the authors' prompt word for word and copied what their code sent: top-p 0.9 for OpenAI models, none for models served through OpenRouter. Thinking models got 8,000 tokens; 3.2\% of Qwen 3.8 Flash's answers still ran out and count as UNKNOWN. Gemini 2.5 Flash is now the general release (the paper used a preview) and reported no thinking tokens.
+
+\textbf{Labels.} The paper's judge, Claude 3.7 Sonnet, is retired. We accept an answer by a strict text rule when its last three lines hold one bare YES or NO and it contains no hedging words. Everything else goes to Claude Haiku 5.5 with the authors' judge prompt. On 1,200 random answers from the authors' release our labels match theirs in 98.3\% (GPT-4o-mini) and 99.8\% (Claude 3.5 Haiku) of cases. To measure the effect on flags, we relabelled the paper's own answers on our 1,014 pairs for the four original models (Table~\ref{tab:agree}). Our labeller agrees on 98.2--99.9\% of answers and finds fewer flags. For GPT-4o-mini it finds 134 where the paper's labels give 146, all of them among the paper's. Most differences are answers such as ``I cannot verify the dates, so NO'' or ``south of does not apply across continents, NO''. The judge prompt classes these as UNKNOWN; the paper's judge often called them NO. Claude Haiku 5.5 also labels its own answers, which may flatter its rate.
 
 \begin{table}[h]
 \centering\small
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
-& \multicolumn{2}{c}{Unfaithful pairs (\%)} & \multicolumn{2}{c}{Flags} & Template & Pair gap \\
-Model & paper's run & our run & recur & of paper's & lean $r$ & $r$\\
+& \multicolumn{3}{c}{Flagged pairs (of 1,014)} & \multicolumn{2}{c}{Lean gap} & Flags recur & McNemar\\
+Model & paper & paper answers, & ours & paper & ours & (ceiling) & $p$\\
+& & our labels & & & & & \\
 \midrule
-GPT-4o-mini & 14.4 [12.3, 16.6] & 13.7 [11.6, 15.8] & 105 & 146 & 0.97 & 0.85\\
-Llama 3.3 70B & 2.8 [1.9, 3.9] & 3.5 [2.4, 4.6] & 19 & 28 & 0.97 & 0.71\\
-Gemini 2.5 Flash$^\dagger$ & 2.9 [1.9, 3.9] & 2.0 [1.1, 2.9] & 14 & 29 & 0.52 & 0.53\\
-DeepSeek V3 & 1.7 [0.9, 2.5] & 0.6 [0.2, 1.1] & 1 & 17 & 0.77 & 0.55\\
+GPT-4o-mini & 146 & 134 & 139 & 0.164 & 0.157 & 72\% (69\%) & 0.49\\
+Llama 3.3 70B & 28 & 31 & 35 & 0.059 & 0.071 & 68\% (54\%) & 0.23\\
+Gemini 2.5 Flash$^\dagger$ & 29 & 25 & 20 & 0.059 & 0.057 & 48\% (63\%) & 0.08\\
+DeepSeek V3 & 17 & 12 & 6 & 0.038 & 0.035 & 6\% (45\%) & 0.03\\
 \bottomrule
 \end{tabular}
-\caption{The paper's run and ours on the same 1,014 pairs. ``Flags recur'' counts pairs flagged in both runs. ``Template lean $r$'' correlates the mean YES rate of each template across runs; ``pair gap $r$'' correlates each pair's accuracy difference. $^\dagger$Preview checkpoint in the paper, general release in ours.}
+\caption{The paper's run and ours on the same pairs. ``Paper answers, our labels'' relabels the paper's own answers with our labeller, which separates the judge from the model. The lean gap is the mean accuracy difference between the question whose answer matches the template's lean and its reversal; it needs no cutoff. ``Flags recur'' is the share of the paper's flags flagged again in our run; the ceiling is the expected share if the model had not changed, from two simulated 10-answer runs. McNemar compares the pairs flagged in only one run. $^\dagger$Preview in the paper, general release in ours.}
 \label{tab:agree}
 \vspace{-0.6em}
 \end{table}
 
-\section{Extension: give the model the facts}
-The paper names one alternative explanation and leaves it open: reversing the question may change which facts the model recalls, so the recalled facts drive the answer. We tested it by printing both entities' true values from the dataset above the unchanged question, for example ``Lord Sunday: 2010-01-30; The Scarlet Gospels: 2015-05-17'' (dates, page counts, runtimes, areas, ages, latitudes or longitudes in degrees). We ran all 1,014 pairs again on three original models and one new one.
+\textbf{Results.} The lean gap, which needs no cutoff, matches within 0.012 for all four models (Table~\ref{tab:agree}). Flag counts match for GPT-4o-mini and Llama 3.3 (McNemar $p = 0.49$ and $0.23$). DeepSeek V3's lean is unchanged but its templates sit near the 0.05 cutoff. At 0.10 the two runs give 2 and 3 flags; at 0.05 they give 17 and 6. The judge accounts for 5 of those 11 pairs (17 to 12 on the paper's own answers). Four newer models give 0.1--1.3\% (Figure~\ref{fig:repro}b).
 
-The effect disappears (Figure~\ref{fig:facts}). GPT-4o-mini goes from 139 flagged pairs to 2. Llama 3.3, DeepSeek V3 and GPT-5.6 Luna go to 0, with accuracy between 99.5\% and 100\%. The lean also disappears: GPT-4o-mini keeps a lean of at least 0.05 in 1 template out of 56, down from 22. Whatever drives IPHR does not override facts the model can read.
+\textbf{Do single flags recur?} Each flag rests on 20 answers, so even an unchanged model would not flag the same pairs twice. We simulated two independent 10-answer runs from the paper's per-question rates to get a ceiling. GPT-4o-mini's flags recur at the ceiling (72\% vs 69\%) and Llama's above it (68\% vs 54\%). DeepSeek V3 (6\% vs 45\%) and Gemini 2.5 Flash (48\% vs 63\%) fall below, which fits a changed checkpoint or provider. A single flag is a noisy reading of a stable property.
+
+\section{What produces the flags}
+\textbf{A model with no order effect.} Suppose a model knows a pair with probability $k$ and then answers both orders correctly. Otherwise it guesses YES with probability $b$, the same for every pair in a template. The two accuracies are then $k + (1-k)b$ and $k + (1-k)(1-b)$. This model has no effect of question order beyond the template lean. We fit $k$ per pair and $b$ per template, simulated 200 runs and counted flags (Figure~\ref{fig:mech}a). It predicts the observed count for four of the paper's models (GPT-4o-mini: 660 vs 653, interval 625--679; Llama 3.1; Llama 3.3; Gemini 2.5 Flash) and for all eight of our runs. Gemini 1.5 Pro is just above its interval. Claude 3.5 Haiku (363 vs 310), QwQ (220 vs 176) and DeepSeek V3 (60 vs 37) have 15--40\% more flags than a template lean explains, so pair-specific effects may exist there.
+
+\textbf{Two kinds of lean.} Of the 1,989 pairs flagged for the 8 models with 10-answer data, 1,269 are geography questions in templates that lean NO and 590 are other questions in templates that lean YES. Gemini 1.5 Pro is the main exception, with 94 geography flags leaning YES. GPT-4o-mini's 660 flags are 638 geography and 22 other; Llama 3.3's are 7 and 95.
 
 \begin{figure}[t]
 \centering
-\begin{minipage}{0.47\textwidth}
-\includegraphics[width=\textwidth]{../figures/fig_factcards.pdf}
-\vspace{-1.8em}
-\caption{Flagged pairs (count above each bar) on the same 1,014 pairs, with only the question and with both true values above it.}
-\label{fig:facts}
-\end{minipage}\hfill
-\begin{minipage}{0.5\textwidth}
-\small\centering
-\begin{tabular}{lrr}
-\toprule
-Wrong answers in flagged pairs & GPT-4o-mini & Llama 3.3\\
-\midrule
-States wrong values & 34\% & 73\%\\
-States right values, wrong answer & 41\% & 7\%\\
-States no usable values & 25\% & 20\%\\
-Says it is unsure & 2\% & 84\%\\
-\midrule
-Values wrong, side it gets wrong & 22\% & 51\%\\
-Values wrong, side it gets right & 5\% & 5\%\\
-\bottomrule
-\end{tabular}
-\captionof{table}{What the answers in flagged pairs state about the compared property, read by an extractor model (988 and 250 wrong answers; 2,780 and 700 answers in total).}
-\label{tab:facts}
-\end{minipage}
-\vspace{-0.4em}
+\includegraphics[width=\textwidth]{../figures/fig_mechanism.pdf}
+\vspace{-1.6em}
+\caption{(a) Flag counts observed (orange) and predicted by the know-or-guess model (grey dot, 95\% interval in light grey), for the paper's 8 models with 10-answer data and our 8 runs. (b) Share of the paper's flags flagged again in our run, against the share expected if the model had not changed.}
+\label{fig:mech}
+\vspace{-0.6em}
 \end{figure}
 
-\textbf{What the model writes instead.} To see what fills the gap, we had Claude Haiku 5.5 read every answer in the flagged pairs of GPT-4o-mini and Llama 3.3 and report which entity the answer's own stated values put higher on the asked property, ignoring other properties. It also reported whether the answer says it is unsure (Table~\ref{tab:facts}). The stated values depend on the question order: for the same two entities, GPT-4o-mini states the wrong order in 22\% of answers to the question it gets wrong and in 5\% to the one it gets right (78\% against 4\% on non-geography questions). This is the ``biased fact inconsistency'' the paper describes, measured without its pattern classifier (whose agreement with humans was $\kappa\approx0.38$). The second large group, 41\% for GPT-4o-mini, states the right rough position and still answers wrong. Reading a sample showed one move repeated: ``Arizona is southwest of South Dakota \ldots{} so Sahuarita Lake is not directly west of Big Stone Lake. NO.'' GPT-4o-mini almost never says it is unsure (2\%); Llama 3.3 often hedges and then commits anyway.
+\section{Extensions}
+\textbf{1. Fact cards.} We printed both entities' true values from the dataset above the unchanged question (e.g.\ ``Lord Sunday: 2010-01-30; The Scarlet Gospels: 2015-05-17'') and ran all 1,014 pairs again on three original models and one new one. Flags fall from 139 to 2 for GPT-4o-mini and to 0 for Llama 3.3, DeepSeek V3 and GPT-5.6 Luna, with accuracy of 99.5--100\% (Figure~\ref{fig:ext}a). This does not separate the paper's two explanations, order-dependent recall and a lean applied under uncertainty, since both predict it. It shows that the lean does not act on values the model can read, as the know-or-guess model predicts for $k \to 1$.
 
-\textbf{Two kinds of failure.} These two groups line up with a split that runs through all 16 models in the paper. Of the 1,989 pairs flagged with 10 answers per question, 1,269 are geography questions in templates that lean NO and 590 are other questions in templates that lean YES; only 130 go the other way. GPT-4o-mini's 660 flags are 638 geography-NO and 22 other-YES; Llama 3.3's are 7 and 95. On dates, sizes and ages, a model that does not know leans YES and writes numbers that fit. On geography, it often knows the rough answer and applies a reading of ``west of'' (directly west) or ``south of'' (not across continents) under which NO is right for both orders. That reading is consistent with itself, so these pairs sit close to the ambiguity the authors tried to filter out, but the model never states the reading as a choice. The reading also vanishes once coordinates are given.
+\textbf{2. Coordinate wording.} Geography makes up 94\% of GPT-4o-mini's flags in our run. We asked its 684 geography pairs again with no values, replacing ``located west of'' by ``at a more western longitude than'' (and likewise for the other directions). Flags fall from 131 to 24 (Figure~\ref{fig:ext}b). Accuracy on questions whose answer is YES rises from 77\% to 96\%. The mean template lean moves from $-0.095$ to $+0.007$. The model has the same knowledge under both wordings, so most of its geography flags come from how it reads the question.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{../figures/fig_extensions.pdf}
+\vspace{-1.6em}
+\caption{(a) Flagged pairs (count above each bar) with only the question and with both true values above it. (b) GPT-4o-mini's flags on 684 geography pairs under the paper's wording, the coordinate wording and with the true values.}
+\label{fig:ext}
+\vspace{-0.6em}
+\end{figure}
+
+\textbf{What the wrong answers state.} Claude Haiku 5.5 read every answer in the flagged pairs of GPT-4o-mini and Llama 3.3. For each, it reported which entity the answer's own statements place higher on the asked property, whether the conclusion rests on a different property and whether the answer says it is unsure (Table~\ref{tab:facts}). We checked it by reading samples and narrowed its questions after a first version counted north/south statements on east/west questions. In GPT-4o-mini's geography answers, 44\% of wrong answers state the right order and conclude the opposite. A typical one reads: ``Since Sahuarita Lake is southwest of Big Stone Lake, it is not directly west of it. Based on this reasoning, the answer is NO.'' Under that reading NO is right for both orders, yet the model never says it chose the reading. On other questions the wrong answers state a wrong order: GPT-4o-mini in all 64 of its wrong answers (8 pairs), Llama 3.3 in 78\% of 230. The stated order depends on the question order. Llama states the wrong order in 55\% of answers to the question it gets wrong and in 5\% to its reversal. Llama says it is unsure in 89\% of these wrong answers and then commits; GPT-4o-mini almost never does. Most stated orders are positions or rough dates, not exact figures.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lrrr}
+\toprule
+& GPT-4o-mini, geography & GPT-4o-mini, other & Llama 3.3, other\\
+\midrule
+Flagged pairs / wrong answers & 131 / 924 & 8 / 64 & 32 / 230\\
+\emph{Share of wrong answers that:} & & & \\
+\quad state the wrong order & 30\% & 100\% & 78\%\\
+\quad state the right order & 44\% & 0\% & 1\%\\
+\quad state no order on that property & 26\% & 0\% & 20\%\\
+\quad rest on a different property & 48\% & 0\% & 5\%\\
+\quad say they are unsure & 3\% & 0\% & 89\%\\
+\emph{Share of all answers stating the wrong order:} & & & \\
+\quad on the question the model gets wrong & 19\% & 78\% & 55\%\\
+\quad on its reversal & 5\% & 4\% & 5\%\\
+\bottomrule
+\end{tabular}
+\caption{What answers in flagged pairs state about the compared property, as read by Claude Haiku 5.5. Llama 3.3 has only 3 flagged geography pairs and is left out of that column.}
+\label{tab:facts}
+\vspace{-0.6em}
+\end{table}
 
 \section{What this establishes and what remains open}
-\textbf{Established.} Figure 2's counts follow from the released data. The effect repeats a year later at similar rates for the two models we could sample unchanged. Template leans are a stable property of a model. The behaviour needs missing or coarse knowledge: with the values in view it stops. Without them the chain of thought fills the gap with invented values or a stricter reading without saying so. For chain-of-thought monitoring this narrows the risk to a known place, claims the model cannot check. It also suggests a cheap guard: supply or verify the cited facts.
+\textbf{Established.} Figure 2's counts follow from the released data. Its ranking of models survives the threshold choices. The size of each model's lean repeats more than a year later. The flags are well described as a template-level guess applied when the model does not know. They vanish when the values are in view. For GPT-4o-mini, the tallest bar, most flags come from a strict reading of ``west of'' and ``south of'' that the paper's ambiguity filter let through. In both cases the chain of thought presents reasons and leaves out the lean or the reading. A single trace cannot show either; asking the reversed question can.
 
 \textbf{Uncertain.}
 \begin{itemize}
-\item \emph{Same model, same weights.} We cannot verify what OpenRouter serves under old names; DeepSeek V3's mismatch may reflect a changed endpoint or a real failure to reproduce.
-\item \emph{Judges.} Our labels and the extractor's readings come from Claude Haiku 5.5. The labels agree with the authors' on 98--99\% of their answers; the extractor was checked by reading samples, which led us to restrict it to the asked property. A human-labelled check of the extractor is the next step.
-\item \emph{Fact cards change more than knowledge.} They also make each question a direct lookup. The result shows that the lean does not override readable facts; it does not show what the model would do with facts it holds firmly in memory.
-\item \emph{Sample size.} On 1,014 pairs, models with rates near zero show a handful of flags, so their rates and overlaps are coarse. The newer models' low rates are measured on this sample only.
+\item \emph{Faithfulness or ambiguity.} A model that reads ``west of'' as ``directly west'' in both orders is consistent, which the paper's definition would not call unfaithful. In GPT-4o-mini's flagged geography pairs, phrases such as ``directly west'' or ``different continents'' appear in 23\% of answers to the question whose answer is YES and in 15\% of answers to its reversal (4--5\% in unflagged pairs). So the model uses the reading in both orders, more often where it changes the answer. The paper's same-longitude ablation (9.1\% for GPT-4o-mini) suggests the reading is not the whole story.
+\item \emph{Same model, same weights.} OpenRouter routed our DeepSeek V3 calls to two providers and our Llama calls to nine. We cannot verify that the weights match the paper's.
+\item \emph{Judges.} Labels and fact readings come from Claude Haiku 5.5. Labels were checked against the authors' on 20,280 of their answers for each original model. The fact reader was checked only by reading samples, not by blind human labels.
+\item \emph{Scope.} One prompt, one dataset of obscure entities, 1,014 pairs. Low rates rest on a few flags. The paper's other result, on math shortcuts, is untouched.
 \end{itemize}
-Our runs cost \$70 on OpenRouter. The repository contains the code, labels, per-pair results, the judge check and a decision log (\texttt{DECISIONS.md}) explaining each choice.
+The runs cost \$76 on OpenRouter: \$61 for answers, \$14 for labels and \$2 for the fact reader. The repository holds the code, all labels, per-pair results, the decision log and the raw answers as a release.
 
 \vspace{0.3em}
 \small\textbf{Reference.} I.~Arcuschin, J.~Janiak, R.~Krzyzanowski, S.~Rajamanoharan, N.~Nanda, A.~Conmy. Chain-of-Thought Reasoning in the Wild Is Not Always Faithful. ICML 2026, arXiv:2503.08679v6. Code and data: \url{https://github.com/jettjaniak/chainscope}.

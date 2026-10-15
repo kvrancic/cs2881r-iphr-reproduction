@@ -1,0 +1,23 @@
+  [gen:deepseek/deepseek-chat] 500/20074 total spend $3.84
+Traceback (most recent call last):
+  File "/Users/karlovrancic/Documents/projects/cs2881r/mini-project/src/generate.py", line 116, in <module>
+    main()
+  File "/Users/karlovrancic/Documents/projects/cs2881r/mini-project/src/generate.py", line 111, in main
+    asyncio.run(run_requests(requests, cache, args.model, params,
+  File "/opt/anaconda3/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/karlovrancic/Documents/projects/cs2881r/mini-project/src/openrouter.py", line 117, in run_requests
+    await asyncio.gather(*(one(rid, m) for rid, m in todo))
+  File "/Users/karlovrancic/Documents/projects/cs2881r/mini-project/src/openrouter.py", line 89, in one
+    d = await _call(client, sem, model, messages, params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/karlovrancic/Documents/projects/cs2881r/mini-project/src/openrouter.py", line 55, in _call
+    raise RuntimeError(f"{r.status_code}: {r.text[:300]}")
+RuntimeError: 402: {"error":{"message":"This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.","code":402,"metadata":{"reason":"in_flight_budget_exhausted","limit_source":"openrouter_in_flight_budget","remedy_hint":"Retry after yo

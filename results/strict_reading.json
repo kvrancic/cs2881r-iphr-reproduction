@@ -1,0 +1,18 @@
+{
+  "flagged_YES_question": {
+    "answers": 1310,
+    "strict_rate": 0.23435114503816795
+  },
+  "flagged_NO_question": {
+    "answers": 1310,
+    "strict_rate": 0.1480916030534351
+  },
+  "unflagged_YES_question": {
+    "answers": 5530,
+    "strict_rate": 0.03905967450271248
+  },
+  "unflagged_NO_question": {
+    "answers": 5530,
+    "strict_rate": 0.05009041591320072
+  }
+}

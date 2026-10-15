@@ -10,5 +10,15 @@ data/responses/**/*.jsonl
 !data/responses/**/*.labels.jsonl
 data/judge_validation/raw/
 data/spend.jsonl
-logs/
 deck/build/
+*.pdf
+!report/report.pdf
+!deck/*.pdf
+cs2881r_miniproject_research&directions.md
+report/*.aux
+report/*.log
+report/*.out
+data/paper_answers/raw/
+data/paper/*-T*.pkl.gz
+!figures/*.pdf
+!deck/review/qa/*.pdf

@@ -1,15 +1,20 @@
 #!/bin/bash
-# Label every run, then recompute all results and figures. Cached calls are not repeated.
-set -e
+# Label every run, then recompute all results and figures.
+# Calls already in the caches are not repeated, so with the release tarball
+# unpacked (see README) this makes no paid API calls.
+set -euo pipefail
 cd "$(dirname "$0")/src"
 PY=../.venv/bin/python
-for f in ../data/responses/base/*.jsonl ../data/responses/factcard/*.jsonl; do
+for f in ../data/responses/*/*.jsonl; do
   case "$f" in *.labels.jsonl|*.judge.jsonl) continue;; esac
   case "$f" in *sonnet-5.5*|*gemini-3.8*) continue;; esac   # 10-pair cost pilots only
-  $PY judge.py "$f" | tail -1
+  $PY judge.py "$f"
 done
-$PY validate_judge.py | grep -v "^\s*\["
-$PY analyze_paper_data.py > /dev/null
-$PY analyze_runs.py 2>&1 | grep -v Warning
-$PY cited_facts.py openai/gpt-4o-mini meta-llama/llama-3.3-70b-instruct | grep -v "^\s*\["
-$PY figures.py 2>&1 | grep -v findfont
+$PY validate_judge.py
+$PY relabel_paper.py
+$PY analyze_paper_data.py
+$PY analyze_runs.py
+$PY noise_models.py
+$PY cited_facts.py openai/gpt-4o-mini meta-llama/llama-3.3-70b-instruct
+$PY strict_reading.py
+$PY figures.py

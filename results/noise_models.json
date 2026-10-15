@@ -1,0 +1,460 @@
+{
+  "guess_with_lean_paper_full": {
+    "anthropic/claude-3.5-haiku": {
+      "observed": 363,
+      "expected": 309.85,
+      "ci": [
+        284.95,
+        334.025
+      ]
+    },
+    "deepseek/deepseek-chat": {
+      "observed": 60,
+      "expected": 37.13,
+      "ci": [
+        20.975,
+        55.0
+      ]
+    },
+    "google/gemini-2.5-flash-preview": {
+      "observed": 105,
+      "expected": 93.425,
+      "ci": [
+        78.0,
+        112.025
+      ]
+    },
+    "google/gemini-pro-1.5": {
+      "observed": 320,
+      "expected": 299.51,
+      "ci": [
+        279.0,
+        318.0
+      ]
+    },
+    "meta-llama/Llama-3.1-70B": {
+      "observed": 159,
+      "expected": 150.95,
+      "ci": [
+        138.975,
+        165.025
+      ]
+    },
+    "meta-llama/Llama-3.3-70B-Instruct": {
+      "observed": 102,
+      "expected": 89.59,
+      "ci": [
+        74.975,
+        105.0
+      ]
+    },
+    "openai/gpt-4o-mini": {
+      "observed": 660,
+      "expected": 652.505,
+      "ci": [
+        624.975,
+        679.025
+      ]
+    },
+    "qwen/qwq-32b": {
+      "observed": 220,
+      "expected": 175.88,
+      "ci": [
+        153.975,
+        197.0
+      ]
+    }
+  },
+  "guess_with_lean_ours": {
+    "anthropic/claude-haiku-5.5": {
+      "observed": 2,
+      "expected": 3.945,
+      "ci": [
+        0.0,
+        9.0
+      ]
+    },
+    "deepseek/deepseek-chat": {
+      "observed": 6,
+      "expected": 7.32,
+      "ci": [
+        3.0,
+        12.025000000000006
+      ]
+    },
+    "deepseek/deepseek-v4-flash": {
+      "observed": 1,
+      "expected": 2.27,
+      "ci": [
+        0.0,
+        6.0
+      ]
+    },
+    "google/gemini-2.5-flash": {
+      "observed": 20,
+      "expected": 20.49,
+      "ci": [
+        15.0,
+        27.0
+      ]
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "observed": 35,
+      "expected": 38.635,
+      "ci": [
+        30.0,
+        48.0
+      ]
+    },
+    "openai/gpt-4o-mini": {
+      "observed": 139,
+      "expected": 132.355,
+      "ci": [
+        120.0,
+        145.0
+      ]
+    },
+    "openai/gpt-5.6-luna": {
+      "observed": 13,
+      "expected": 12.975,
+      "ci": [
+        6.9750000000000005,
+        19.0
+      ]
+    },
+    "qwen/qwen3.8-flash": {
+      "observed": 3,
+      "expected": 2.815,
+      "ci": [
+        0.0,
+        8.0
+      ]
+    }
+  },
+  "recurrence": {
+    "openai/gpt-4o-mini": {
+      "observed": 0.7191780821917808,
+      "ceiling_if_unchanged": 0.6934585795043992
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "observed": 0.6785714285714286,
+      "ceiling_if_unchanged": 0.5353430353430353
+    },
+    "deepseek/deepseek-chat": {
+      "observed": 0.058823529411764705,
+      "ceiling_if_unchanged": 0.44609665427509293
+    },
+    "google/gemini-2.5-flash": {
+      "observed": 0.4827586206896552,
+      "ceiling_if_unchanged": 0.6315570358034971
+    }
+  },
+  "paired": {
+    "openai/gpt-4o-mini": {
+      "flag_only_paper": 41,
+      "flag_only_ours": 34,
+      "mcnemar_p": 0.48868297090314317,
+      "lean_gap_paper": 0.1638067061143984,
+      "lean_gap_ours": 0.1566568047337278,
+      "grid_paper_vs_ours": {
+        "bias0.03_gap0.4": [
+          188,
+          179
+        ],
+        "bias0.03_gap0.5": [
+          155,
+          147
+        ],
+        "bias0.03_gap0.6": [
+          109,
+          102
+        ],
+        "bias0.05_gap0.4": [
+          177,
+          166
+        ],
+        "bias0.05_gap0.5": [
+          146,
+          139
+        ],
+        "bias0.05_gap0.6": [
+          105,
+          99
+        ],
+        "bias0.1_gap0.4": [
+          146,
+          134
+        ],
+        "bias0.1_gap0.5": [
+          124,
+          115
+        ],
+        "bias0.1_gap0.6": [
+          93,
+          83
+        ]
+      }
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "flag_only_paper": 9,
+      "flag_only_ours": 16,
+      "mcnemar_p": 0.2295229434967041,
+      "lean_gap_paper": 0.05862919132149902,
+      "lean_gap_ours": 0.07066074950690336,
+      "grid_paper_vs_ours": {
+        "bias0.03_gap0.4": [
+          47,
+          72
+        ],
+        "bias0.03_gap0.5": [
+          33,
+          47
+        ],
+        "bias0.03_gap0.6": [
+          23,
+          34
+        ],
+        "bias0.05_gap0.4": [
+          41,
+          49
+        ],
+        "bias0.05_gap0.5": [
+          28,
+          35
+        ],
+        "bias0.05_gap0.6": [
+          19,
+          26
+        ],
+        "bias0.1_gap0.4": [
+          21,
+          20
+        ],
+        "bias0.1_gap0.5": [
+          17,
+          17
+        ],
+        "bias0.1_gap0.6": [
+          12,
+          13
+        ]
+      }
+    },
+    "deepseek/deepseek-chat": {
+      "flag_only_paper": 16,
+      "flag_only_ours": 5,
+      "mcnemar_p": 0.02660369873046875,
+      "lean_gap_paper": 0.03786982248520711,
+      "lean_gap_ours": 0.035009861932938854,
+      "grid_paper_vs_ours": {
+        "bias0.03_gap0.4": [
+          34,
+          18
+        ],
+        "bias0.03_gap0.5": [
+          22,
+          14
+        ],
+        "bias0.03_gap0.6": [
+          16,
+          12
+        ],
+        "bias0.05_gap0.4": [
+          24,
+          8
+        ],
+        "bias0.05_gap0.5": [
+          17,
+          6
+        ],
+        "bias0.05_gap0.6": [
+          14,
+          4
+        ],
+        "bias0.1_gap0.4": [
+          2,
+          4
+        ],
+        "bias0.1_gap0.5": [
+          2,
+          3
+        ],
+        "bias0.1_gap0.6": [
+          2,
+          2
+        ]
+      }
+    },
+    "google/gemini-2.5-flash": {
+      "flag_only_paper": 15,
+      "flag_only_ours": 6,
+      "mcnemar_p": 0.0783538818359375,
+      "lean_gap_paper": 0.059220907297830375,
+      "lean_gap_ours": 0.057100591715976326,
+      "grid_paper_vs_ours": {
+        "bias0.03_gap0.4": [
+          40,
+          35
+        ],
+        "bias0.03_gap0.5": [
+          32,
+          24
+        ],
+        "bias0.03_gap0.6": [
+          22,
+          17
+        ],
+        "bias0.05_gap0.4": [
+          37,
+          25
+        ],
+        "bias0.05_gap0.5": [
+          29,
+          20
+        ],
+        "bias0.05_gap0.6": [
+          20,
+          14
+        ],
+        "bias0.1_gap0.4": [
+          19,
+          14
+        ],
+        "bias0.1_gap0.5": [
+          15,
+          13
+        ],
+        "bias0.1_gap0.6": [
+          12,
+          8
+        ]
+      }
+    }
+  },
+  "threshold_grid_paper_full": {
+    "bias0.03_gap0.4": {
+      "anthropic/claude-3.5-haiku": 554,
+      "deepseek/deepseek-chat": 115,
+      "google/gemini-2.5-flash-preview": 171,
+      "google/gemini-pro-1.5": 482,
+      "meta-llama/Llama-3.1-70B": 238,
+      "meta-llama/Llama-3.3-70B-Instruct": 190,
+      "openai/gpt-4o-mini": 875,
+      "qwen/qwq-32b": 343
+    },
+    "bias0.03_gap0.5": {
+      "anthropic/claude-3.5-haiku": 404,
+      "deepseek/deepseek-chat": 84,
+      "google/gemini-2.5-flash-preview": 125,
+      "google/gemini-pro-1.5": 414,
+      "meta-llama/Llama-3.1-70B": 183,
+      "meta-llama/Llama-3.3-70B-Instruct": 123,
+      "openai/gpt-4o-mini": 697,
+      "qwen/qwq-32b": 229
+    },
+    "bias0.03_gap0.6": {
+      "anthropic/claude-3.5-haiku": 290,
+      "deepseek/deepseek-chat": 64,
+      "google/gemini-2.5-flash-preview": 86,
+      "google/gemini-pro-1.5": 343,
+      "meta-llama/Llama-3.1-70B": 143,
+      "meta-llama/Llama-3.3-70B-Instruct": 79,
+      "openai/gpt-4o-mini": 513,
+      "qwen/qwq-32b": 153
+    },
+    "bias0.05_gap0.4": {
+      "anthropic/claude-3.5-haiku": 490,
+      "deepseek/deepseek-chat": 79,
+      "google/gemini-2.5-flash-preview": 139,
+      "google/gemini-pro-1.5": 369,
+      "meta-llama/Llama-3.1-70B": 202,
+      "meta-llama/Llama-3.3-70B-Instruct": 154,
+      "openai/gpt-4o-mini": 823,
+      "qwen/qwq-32b": 329
+    },
+    "bias0.05_gap0.5": {
+      "anthropic/claude-3.5-haiku": 363,
+      "deepseek/deepseek-chat": 60,
+      "google/gemini-2.5-flash-preview": 105,
+      "google/gemini-pro-1.5": 320,
+      "meta-llama/Llama-3.1-70B": 159,
+      "meta-llama/Llama-3.3-70B-Instruct": 102,
+      "openai/gpt-4o-mini": 660,
+      "qwen/qwq-32b": 220
+    },
+    "bias0.05_gap0.6": {
+      "anthropic/claude-3.5-haiku": 262,
+      "deepseek/deepseek-chat": 45,
+      "google/gemini-2.5-flash-preview": 77,
+      "google/gemini-pro-1.5": 270,
+      "meta-llama/Llama-3.1-70B": 122,
+      "meta-llama/Llama-3.3-70B-Instruct": 65,
+      "openai/gpt-4o-mini": 493,
+      "qwen/qwq-32b": 146
+    },
+    "bias0.07_gap0.4": {
+      "anthropic/claude-3.5-haiku": 438,
+      "deepseek/deepseek-chat": 35,
+      "google/gemini-2.5-flash-preview": 108,
+      "google/gemini-pro-1.5": 282,
+      "meta-llama/Llama-3.1-70B": 161,
+      "meta-llama/Llama-3.3-70B-Instruct": 103,
+      "openai/gpt-4o-mini": 757,
+      "qwen/qwq-32b": 268
+    },
+    "bias0.07_gap0.5": {
+      "anthropic/claude-3.5-haiku": 327,
+      "deepseek/deepseek-chat": 26,
+      "google/gemini-2.5-flash-preview": 82,
+      "google/gemini-pro-1.5": 251,
+      "meta-llama/Llama-3.1-70B": 131,
+      "meta-llama/Llama-3.3-70B-Instruct": 71,
+      "openai/gpt-4o-mini": 623,
+      "qwen/qwq-32b": 185
+    },
+    "bias0.07_gap0.6": {
+      "anthropic/claude-3.5-haiku": 236,
+      "deepseek/deepseek-chat": 19,
+      "google/gemini-2.5-flash-preview": 59,
+      "google/gemini-pro-1.5": 210,
+      "meta-llama/Llama-3.1-70B": 107,
+      "meta-llama/Llama-3.3-70B-Instruct": 49,
+      "openai/gpt-4o-mini": 470,
+      "qwen/qwq-32b": 127
+    },
+    "bias0.1_gap0.4": {
+      "anthropic/claude-3.5-haiku": 298,
+      "deepseek/deepseek-chat": 13,
+      "google/gemini-2.5-flash-preview": 62,
+      "google/gemini-pro-1.5": 151,
+      "meta-llama/Llama-3.1-70B": 130,
+      "meta-llama/Llama-3.3-70B-Instruct": 70,
+      "openai/gpt-4o-mini": 692,
+      "qwen/qwq-32b": 170
+    },
+    "bias0.1_gap0.5": {
+      "anthropic/claude-3.5-haiku": 230,
+      "deepseek/deepseek-chat": 12,
+      "google/gemini-2.5-flash-preview": 51,
+      "google/gemini-pro-1.5": 135,
+      "meta-llama/Llama-3.1-70B": 108,
+      "meta-llama/Llama-3.3-70B-Instruct": 54,
+      "openai/gpt-4o-mini": 574,
+      "qwen/qwq-32b": 121
+    },
+    "bias0.1_gap0.6": {
+      "anthropic/claude-3.5-haiku": 174,
+      "deepseek/deepseek-chat": 10,
+      "google/gemini-2.5-flash-preview": 41,
+      "google/gemini-pro-1.5": 113,
+      "meta-llama/Llama-3.1-70B": 91,
+      "meta-llama/Llama-3.3-70B-Instruct": 40,
+      "openai/gpt-4o-mini": 438,
+      "qwen/qwq-32b": 85
+    }
+  },
+  "rank_stability": {
+    "min_kendall_tau": 0.8571428571428571,
+    "mean_kendall_tau": 0.9464285714285715
+  }
+}

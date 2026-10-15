@@ -64,8 +64,13 @@ async def _call(client, sem, model, messages, params, retries=12):
     return None
 
 
+def complete_reply(rec) -> bool:
+    """A judge or extractor reply that was not cut off by the token limit."""
+    return bool(rec["content"].strip()) and rec.get("finish_reason") != "length"
+
+
 async def run_requests(requests, cache_path: Path, model: str, params: dict,
-                       concurrency: int = 32, tag: str = ""):
+                       concurrency: int = 32, tag: str = "", valid=None):
     """requests: list of (request_id, messages). Returns {request_id: record}.
 
     A record holds the response text, the reasoning text (if any), token usage
@@ -74,7 +79,8 @@ async def run_requests(requests, cache_path: Path, model: str, params: dict,
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     SPEND_LOG.parent.mkdir(parents=True, exist_ok=True)
     cache = load_cache(cache_path)
-    todo = [(rid, m) for rid, m in requests if rid not in cache]
+    todo = [(rid, m) for rid, m in requests
+            if rid not in cache or (valid is not None and not valid(cache[rid]))]
     if not todo:
         return cache
     spent = total_spend()

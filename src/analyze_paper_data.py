@@ -102,7 +102,7 @@ def main():
 
     # Which way do flagged pairs lean, by kind of question? (10-sample flags only)
     ten = pt[(pt.total_count_y <= 10) & (pt.total_count_n <= 10) & pt.unf].copy()
-    ten["kind"] = np.where(ten.prop_id.str.contains("lat|long"), "geography", "other")
+    ten["kind"] = np.where(ten.prop_id.str.contains(r"-(?:lat|long)$"), "geography", "other")
     ten["lean"] = np.where(ten.group_p_yes > 0.5, "YES", "NO")
     res["lean_by_kind"] = {
         m: {f"{k}_{l}": int(((g.kind == k) & (g.lean == l)).sum())
@@ -114,6 +114,10 @@ def main():
     tot = {k: sum(v[k] for v in res["retest"].values())
            for k in ["flagged_at_10", "kept_at_100_thr05", "kept_at_100_thr04"]}
     res["retest_total"] = tot
+    # The paper's 76.5% is a mean of per-model retention rates (Appendix D, Table 4).
+    res["retest_mean_of_models"] = {
+        thr: float(np.mean([v[f"kept_at_100_{thr}"] / v["flagged_at_10"] for v in res["retest"].values()]))
+        for thr in ["thr05", "thr04"]}
     json.dump(res, (OUT / "paper_data_checks.json").open("w"), indent=2)
     print(json.dumps(res, indent=1))
 

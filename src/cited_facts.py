@@ -24,7 +24,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from openrouter import load_cache, run_requests
+from openrouter import complete_reply, load_cache, run_requests
 from questions import load_questions
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,7 +103,7 @@ def main(models):
         cache = ROOT / "data" / "cited_facts" / f"{slug}.v2.jsonl"
         got = asyncio.run(run_requests(reqs, cache, EXTRACTOR,
                                        {"temperature": 0.0, "max_tokens": 1500},
-                                       concurrency=100, tag=f"facts:{model}"))
+                                       concurrency=100, tag=f"facts:{model}", valid=complete_reply))
         for rid, (pr, q, qid) in meta.items():
             if rid not in got:
                 continue
@@ -118,7 +118,7 @@ def main(models):
             low_q = pr.qid_y if pr.p_correct_y < pr.p_correct_n else pr.qid_n
             label = labels.get(rid, "UNKNOWN")
             out_rows.append({
-                "model": model, "pair": pr.pair_key, "qid": qid, "rid": rid,
+                "model": model, "pair": f"{pr.prop_id}|{pr.comparison}|{pr.pair_key}", "qid": qid, "rid": rid,
                 "low_accuracy_question": qid == low_q, "answer": q.answer, "label": label,
                 "correct": label == q.answer, "true_higher": higher_entity(q),
                 "stated_higher": stated, "uncertain": bool(d.get("uncertain", False)),
@@ -129,22 +129,21 @@ def main(models):
     df["facts_wrong"] = df.stated_higher.isin(["x", "y"]) & ~df.facts_right
     df.to_csv(ROOT / "results" / "cited_facts.csv", index=False)
 
+    df["kind"] = df.prop_id.str.contains(r"-(?:lat|long)$").map({True: "geography", False: "other"})
     summary = {}
-    for model, g in df.groupby("model"):
+    for (model, kind), g in df.groupby(["model", "kind"]):
         wrong = g[(~g.correct) & g.label.isin(["YES", "NO"])]
-        s = {
-            "answers": int(len(g)), "wrong_answers": int(len(wrong)),
-            "wrong_with_wrong_facts": float(wrong.facts_wrong.mean()),
-            "wrong_ignoring_right_facts": float(wrong.facts_right.mean()),
-            "wrong_with_no_comparison": float((~wrong.facts_wrong & ~wrong.facts_right).mean()),
-            "wrong_saying_uncertain": float(wrong.uncertain.mean()),
-            "wrong_using_other_property": float(wrong.other_property.mean()),
+        lo, hi = g[g.low_accuracy_question], g[~g.low_accuracy_question]
+        summary[f"{model} | {kind}"] = {
+            "pairs": int(g.pair.nunique()), "answers": int(len(g)), "wrong_answers": int(len(wrong)),
+            "wrong_states_wrong_order": float(wrong.facts_wrong.mean()),
+            "wrong_states_right_order": float(wrong.facts_right.mean()),
+            "wrong_states_no_order": float((~wrong.facts_wrong & ~wrong.facts_right).mean()),
+            "wrong_uses_other_property": float(wrong.other_property.mean()),
+            "wrong_says_unsure": float(wrong.uncertain.mean()),
+            "all_answers_wrong_order_on_question_it_gets_wrong": float(lo.facts_wrong.mean()),
+            "all_answers_wrong_order_on_question_it_gets_right": float(hi.facts_wrong.mean()),
         }
-        for side, name in [(True, "low_acc_question"), (False, "high_acc_question")]:
-            h = g[g.low_accuracy_question == side]
-            s[f"facts_right_{name}"] = float(h.facts_right.mean())
-            s[f"facts_wrong_{name}"] = float(h.facts_wrong.mean())
-        summary[model] = s
     json.dump(summary, (ROOT / "results" / "cited_facts.json").open("w"), indent=2)
     print(json.dumps(summary, indent=1))
 

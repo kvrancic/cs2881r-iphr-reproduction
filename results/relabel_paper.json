@@ -1,0 +1,63 @@
+{
+  "openai/gpt-4o-mini": {
+    "answers": 20280,
+    "label_agreement": 0.9898915187376726,
+    "routed_to_judge": 3293,
+    "flags_paper_labels": 146,
+    "flags_our_labels": 134,
+    "flags_in_both": 134,
+    "unknown_rate_paper_labels": 0.02642998027613412,
+    "unknown_rate_our_labels": 0.03496055226824458,
+    "confusion": {
+      "NO->UNKNOWN": 189,
+      "UNKNOWN->NO": 16
+    }
+  },
+  "meta-llama/llama-3.3-70b-instruct": {
+    "answers": 20280,
+    "label_agreement": 0.982051282051282,
+    "routed_to_judge": 3893,
+    "flags_paper_labels": 28,
+    "flags_our_labels": 31,
+    "flags_in_both": 22,
+    "unknown_rate_paper_labels": 0.010207100591715977,
+    "unknown_rate_our_labels": 0.02687376725838264,
+    "confusion": {
+      "NO->UNKNOWN": 316,
+      "UNKNOWN->NO": 10,
+      "UNKNOWN->YES": 3,
+      "YES->UNKNOWN": 35
+    }
+  },
+  "deepseek/deepseek-chat": {
+    "answers": 20280,
+    "label_agreement": 0.998767258382643,
+    "routed_to_judge": 953,
+    "flags_paper_labels": 17,
+    "flags_our_labels": 12,
+    "flags_in_both": 12,
+    "unknown_rate_paper_labels": 0.005917159763313609,
+    "unknown_rate_our_labels": 0.006755424063116371,
+    "confusion": {
+      "NO->UNKNOWN": 21,
+      "UNKNOWN->NO": 4
+    }
+  },
+  "google/gemini-2.5-flash": {
+    "answers": 20280,
+    "label_agreement": 0.9945266272189349,
+    "routed_to_judge": 3367,
+    "flags_paper_labels": 29,
+    "flags_our_labels": 25,
+    "flags_in_both": 25,
+    "unknown_rate_paper_labels": 0.008431952662721894,
+    "unknown_rate_our_labels": 0.009220907297830375,
+    "confusion": {
+      "NO->UNKNOWN": 61,
+      "NO->YES": 1,
+      "UNKNOWN->NO": 29,
+      "UNKNOWN->YES": 18,
+      "YES->UNKNOWN": 2
+    }
+  }
+}
