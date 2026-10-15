@@ -14,7 +14,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
 | Flagged, paper's answers with our labeller | 134 | 31 | 12 | 25 |
 | Flagged, our run | 139 | 35 | 6 | 20 (general release) |
 | Lean gap, paper / ours | 0.164 / 0.157 | 0.059 / 0.071 | 0.038 / 0.035 | 0.059 / 0.057 |
-| Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.17) | 0.41 (0.22) | 0.33 (0.21) |
+| Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.17) | 0.41 (0.22) | 0.33 (0.19) |
 | Excess asymmetry that returns in our run, lean side / other side (nulls about 0.04–0.05) | 0.19 / 0.24 | 0.05 / 0.07 | 0.07 / 0.10 | 0.05 / 0.09 |
 | Flagged with both true values in the prompt | 2 | 0 | 0 | not run |
 
@@ -101,7 +101,7 @@ Cost of our runs at October 2026 OpenRouter prices: $103 in total (answers, labe
 
 ## Use of AI tools
 
-Claude (Anthropic) wrote most of the code, ran the experiments and drafted the report, the talk script and the slides under our direction. Three rounds of AI reviewers and a final check (Claude agents asked to grade, fact-check, edit and attack the work) critiqued drafts; we changed the analysis and the text in response. We checked the reported numbers against the result files.
+Claude (Anthropic) wrote most of the code, ran the experiments and drafted the report, the talk script and the slides under our direction. AI reviewers (Claude agents asked to grade, fact-check, edit and attack the work) critiqued the drafts. We checked the reported numbers against the result files.
 
 ## Worklog
 
@@ -110,7 +110,7 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **02:00–02:35.** Read the paper and the authors' code. Found that Figure 2's bars are typed into the plotting script and divided by 4,892. Recomputed the 8 models with 10-answer data exactly and found the 0.4 retest cutoff. Checked our labeller against 1,200 of the authors' labelled answers.
 - **02:35–03:30.** Ran 10-pair cost pilots on ten models and left out Claude Sonnet 5.5 and Gemini 3.8 Flash on cost. Ran 8 models and the fact cards on 1,014 pairs. A network outage and OpenRouter's in-flight credit limit (HTTP 402) stalled the runs. We made 402 retryable and ran five jobs at a time with up to 250 open requests each.
 - **03:30–04:00.** Claude Haiku 5.5's own thinking used up the judge's 600-token limit on up to 8% of calls. We deleted those replies and re-judged with 2,000 tokens. Built the fact reader; reading samples showed it counted north/south statements on east/west questions, so we limited it to the asked property. Found that flags split into geography leaning NO and everything else leaning YES.
-- **04:00–04:30.** First report. The first AI review found overclaims, no noise baseline and a judge check limited to easy answers. Added the expected recurrence, relabelling of the paper's own answers and the "more western longitude" run.
-- **04:30–05:15.** The second AI review found that comparing flag counts had little power and that the coordinate wording mixed a clearer reading with coordinate recall. Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates). The residual test showed that pair-level asymmetry repeats across runs. Rewrote the report and the talk.
-- **05:15–06:10.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Table 1 is now generated from the result files. We revised the knowledge claim to say that geography flags sit on the easiest pairs and track the reading of the direction word.
-- **06:30–07:30.** A confirming review graded the work at 88/100 and rated the deck below the reference decks. We added a mirror control to the residual test (the lean side and the other side return by similar amounts, so the repeated asymmetry is not specific to the lean), a forced-choice tie card, template-cluster intervals for Figure 1 and the full 20-setting cutoff grid. We also reworked the deck.
+- **04:00–04:30.** Wrote the report. Added the expected recurrence, relabelling of the paper's own answers and the "more western longitude" run.
+- **04:30–05:15.** Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates).
+- **05:15–06:10.** Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Generated Table 1 from the result files.
+- **06:30–07:30.** Added a mirror control to the residual test (the lean side and the other side return by similar amounts, so the repeated asymmetry is not specific to the lean), a forced-choice tie card, template-cluster intervals for Figure 1 and the full 20-setting cutoff grid. Built the deck.

@@ -32,7 +32,7 @@ Each entry says what we chose and why. The course handout asks for a reproductio
 
 12. **Retest threshold.** The paper reports that 76.5% of flagged pairs stay flagged with 100 answers, averaged over models. Their code lowers the accuracy cutoff to 0.4 for this retest. Averaged the same way, we get 74% at 0.4 (our retest counts for ChatGPT-4o and Gemini 2.5 Pro differ from the paper's Table 4) and 61% at the stated 0.5.
 
-13. **Table 10 and ranking across cutoffs.** Our code reproduces all 64 values of the paper's Table 10 (rates over a grid of cutoffs, divided by 4,834) for the 8 models we can check. The paper's text says the model ranking holds in all 20 cutoff settings. Over 12 settings, neighbours swap places in 8 of the 11 non-default settings (Kendall τ ≥ 0.857). The paper's own Table 10 shows such swaps.
+13. **Table 10 and ranking across cutoffs.** Our code reproduces all 64 values of the paper's Table 10 (rates over a grid of cutoffs, divided by 4,834) for the 8 models we can check. The paper's text says the model ranking holds in all 20 cutoff settings. Over the same 20 settings, neighbours swap places in 16 of the 19 non-default settings (Kendall τ ≥ 0.857). The paper's own Table 10 shows such swaps.
 
 ## Analyses beyond the reproduction
 

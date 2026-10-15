@@ -88,7 +88,7 @@ def fig_reproduction(checks, runs, relabel, cluster):
     ax.legend(handles=[Patch(facecolor=BLUE, edgecolor=BLUE, label="recomputed by us"),
                        Patch(facecolor="white", edgecolor=BLUE, hatch="////",
                              label="count only (100-answer data)")],
-              fontsize=6.5, loc="upper right", bbox_to_anchor=(1.0, 1.0))
+              fontsize=6.5, loc="upper left", bbox_to_anchor=(0.0, 1.0))
     ax.set_title("(a) Paper's runs, 4,834 pairs", fontsize=8.5, loc="left")
 
     ax = axes[1]
