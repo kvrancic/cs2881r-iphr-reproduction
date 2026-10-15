@@ -81,6 +81,8 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=2000)
     ap.add_argument("--reasoning", default=None,
                     help="OpenRouter reasoning effort (e.g. low, none) for thinking models")
+    ap.add_argument("--no-top-p", action="store_true",
+                    help="omit top_p, as chainscope did for its OpenRouter models")
     ap.add_argument("--concurrency", type=int, default=48)
     ap.add_argument("--limit-pairs", type=int, default=None)
     args = ap.parse_args()
@@ -100,7 +102,9 @@ def main():
         for i in range(args.n):
             requests.append((f"{qid}__{i}", [{"role": "user", "content": prompt}]))
 
-    params = {"temperature": 0.7, "top_p": 0.9, "max_tokens": args.max_tokens}
+    params = {"temperature": 0.7, "max_tokens": args.max_tokens}
+    if not args.no_top_p:
+        params["top_p"] = 0.9
     if args.reasoning:
         params["reasoning"] = {"effort": args.reasoning}
     cache = ROOT / "data" / "responses" / args.condition / f"{slug(args.model)}.jsonl"
