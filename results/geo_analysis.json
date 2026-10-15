@@ -1,0 +1,116 @@
+{
+  "conditions": {
+    "base": {
+      "pairs": 684,
+      "flags": 131,
+      "acc_yes_q": 0.7658625730994151,
+      "acc_no_q": 0.9683479532163743,
+      "mean_template_lean": -0.09498135017896046,
+      "templates_leaning": 19,
+      "templates": 36,
+      "lean_gap": 0.2027777777777778,
+      "share_citing_degrees": 0.4624269005847953
+    },
+    "paraphrase": {
+      "pairs": 684,
+      "flags": 140,
+      "acc_yes_q": 0.7469298245614034,
+      "acc_no_q": 0.9687865497076023,
+      "mean_template_lean": -0.10393841911764706,
+      "templates_leaning": 24,
+      "templates": 36,
+      "lean_gap": 0.22214912280701757,
+      "share_citing_degrees": 0.4024122807017544
+    },
+    "clarified": {
+      "pairs": 684,
+      "flags": 31,
+      "acc_yes_q": 0.944078947368421,
+      "acc_no_q": 0.9057748538011695,
+      "mean_template_lean": 0.017586100412387177,
+      "templates_leaning": 8,
+      "templates": 36,
+      "lean_gap": 0.07923976608187135,
+      "share_citing_degrees": 0.8719298245614036
+    },
+    "coordwording": {
+      "pairs": 684,
+      "flags": 24,
+      "acc_yes_q": 0.9562134502923976,
+      "acc_no_q": 0.939108187134503,
+      "mean_template_lean": 0.007442640250544657,
+      "templates_leaning": 7,
+      "templates": 36,
+      "lean_gap": 0.05730994152046784,
+      "share_citing_degrees": 0.9921783625730994
+    },
+    "factcard": {
+      "pairs": 684,
+      "flags": 2,
+      "acc_yes_q": 0.9957602339181285,
+      "acc_no_q": 0.9891081871345029,
+      "mean_template_lean": 0.002962695494864615,
+      "templates_leaning": 1,
+      "templates": 36,
+      "lean_gap": 0.013669590643274854,
+      "share_citing_degrees": 1.0
+    },
+    "fullcard": {
+      "pairs": 684,
+      "flags": 0,
+      "acc_yes_q": 0.9842836257309941,
+      "acc_no_q": 0.9877923976608188,
+      "mean_template_lean": -0.0017887293806411449,
+      "templates_leaning": 0,
+      "templates": 36,
+      "lean_gap": 0.01944444444444444,
+      "share_citing_degrees": 0.9999269005847953
+    }
+  },
+  "offsets": {
+    "paper | openai/gpt-4o-mini": {
+      "flagged": 638,
+      "median_other_ratio_flagged": 0.9619723326122683,
+      "median_other_ratio_unflagged_in_no_leaning_templates": 0.7457871676145994,
+      "flag_rate_by_other_ratio_quartile_in_no_leaning_templates": [
+        0.16475095785440613,
+        0.1867007672634271,
+        0.21583652618135377,
+        0.24839948783610755
+      ]
+    },
+    "paper | anthropic/claude-3.5-haiku": {
+      "flagged": 331,
+      "median_other_ratio_flagged": 2.101792114695341,
+      "median_other_ratio_unflagged_in_no_leaning_templates": 0.6270347726404286,
+      "flag_rate_by_other_ratio_quartile_in_no_leaning_templates": [
+        0.09359605911330049,
+        0.0594059405940594,
+        0.10214168039538715,
+        0.24342105263157895
+      ]
+    },
+    "paper | google/gemini-2.5-flash-preview": {
+      "flagged": 91,
+      "median_other_ratio_flagged": 2.9035161234819262,
+      "median_other_ratio_unflagged_in_no_leaning_templates": 0.8481928619716179,
+      "flag_rate_by_other_ratio_quartile_in_no_leaning_templates": [
+        0.011220196353436185,
+        0.012622720897615708,
+        0.032303370786516857,
+        0.07162921348314606
+      ]
+    },
+    "paper | google/gemini-pro-1.5": {
+      "flagged": 229,
+      "median_other_ratio_flagged": 3.3119223375089675,
+      "median_other_ratio_unflagged_in_no_leaning_templates": 0.5319362310941543,
+      "flag_rate_by_other_ratio_quartile_in_no_leaning_templates": [
+        0.0392156862745098,
+        0.0171990171990172,
+        0.044226044226044224,
+        0.23039215686274508
+      ]
+    }
+  }
+}

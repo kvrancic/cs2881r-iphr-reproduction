@@ -1,18 +1,19 @@
-"""Checks run on every build: the speaker notes are exactly the script, and Morph names line up."""
-import os, re
+"""Checks run on every build: the speaker notes are exactly the transcript, no text collides with anything,
+every slide has a transition, and Morph names line up."""
+import os
+import numpy as np
+from px import W, H
 
-SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "pitch-script.md")
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SCRIPT = os.path.join(ROOT, "talk", "transcript.md")
 
 
 def spoken():
-    """The words Karlo says, from pitch-script.md: every paragraph that is not a heading, rule or video block."""
+    """The words said, from talk/transcript.md: every paragraph that is not a heading."""
     out = []
-    started = False
     for para in open(SCRIPT).read().split("\n\n"):
         p = para.strip()
-        if not p or p.startswith("#") or p.startswith(">") or p == "---":
-            continue
-        if p.startswith("This is only what you say"):
+        if not p or p.startswith("#"):
             continue
         out.append(p)
     return " ".join(" ".join(out).split())
@@ -21,79 +22,125 @@ def spoken():
 def notes_match(beats):
     said = " ".join(" ".join(b.say for b in beats if b.say).split())
     want = spoken()
-    if said == want:
-        return True, "speaker notes match pitch-script.md word for word"
+    empty = [i + 1 for i, b in enumerate(beats) if not b.say.strip()]
+    if said == want and not empty:
+        return True, f"speaker notes match talk/transcript.md word for word ({len(want.split())} words, {len(beats)} slides)"
+    if empty:
+        return False, f"slides without spoken words: {empty}"
     i = next((k for k, (a, b) in enumerate(zip(said, want)) if a != b), min(len(said), len(want)))
-    return False, f"notes differ from the script at char {i}:\n  deck:   ...{said[max(0, i - 60):i + 60]}\n  script: ...{want[max(0, i - 60):i + 60]}"
+    return False, f"notes differ from the transcript at char {i}:\n  deck:       ...{said[max(0, i - 60):i + 60]}\n  transcript: ...{want[max(0, i - 60):i + 60]}"
 
 
 def morph_report(beats):
-    """For each Morph transition: ids that carry over, appear and disappear."""
+    """For each transition: ids that carry over, appear and disappear."""
     lines = []
     for i in range(1, len(beats)):
         a, b = beats[i - 1], beats[i]
         A, B = set(a.objs) - {"ground"}, set(b.objs) - {"ground"}
-        kind = "cut" if (b.clip is not None and a.clip is not None) else "fade" if (b.fade or b.video or a.video) else "morph"
+        kind = "fade" if b.fade else "morph"
         lines.append(f"{i:2d}->{i + 1:2d} {kind:5s} keep {len(A & B):2d}  in {sorted(B - A)}  out {sorted(A - B)}")
     return lines
 
 
+# ------------------------------------------------------------------------------------------------ layout
+def _mask(o, cam):
+    """The object's opaque pixels on the 384x216 screen, at 2x for sub-pixel chart objects."""
+    from render import placement
+    from PIL import Image
+    k = 2
+    x, y, w, h = placement(o, cam)
+    a = o.img.split()[3].resize((max(1, round(w * k)), max(1, round(h * k))), Image.NEAREST)
+    m = np.zeros((H * k, W * k), bool)
+    X, Y = round(x * k), round(y * k)
+    arr = np.asarray(a) > 0
+    x0, y0 = max(0, X), max(0, Y)
+    x1, y1 = min(W * k, X + arr.shape[1]), min(H * k, Y + arr.shape[0])
+    if x1 > x0 and y1 > y0:
+        m[y0:y1, x0:x1] = arr[y0 - Y:y1 - Y, x0 - X:x1 - X]
+    off = arr.sum() - m.sum()
+    return m, off
+
+
+def check_layout(beats):
+    """Text (the cue, every t_* label and every chart text element) must not touch any other object, except the
+    backdrops it is meant to sit on, and must stay on screen. Returns a list of issues."""
+    from story.common import BACKDROPS, BACKDROP_PREFIX
+    import charts
+    textish = lambda i: i == "cue" or i.startswith("t_") or (i.startswith("ch_") and i[3:] in charts.TEXTS)
+    backdrop = lambda i: i in BACKDROPS or i.startswith(BACKDROP_PREFIX) or (i.startswith("ch_") and i[3:] in charts.PANELS)
+    issues = [f"chart element runs past the 960x540 grid: {x}" for x in charts.OVERFLOW]
+    for n, b in enumerate(beats, 1):
+        objs = {i: o for i, o in b.objs.items() if o.alpha > 0.05}
+        masks = {i: _mask(o, b.cam) for i, o in objs.items() if i != "ground"}
+        for i, (m, off) in masks.items():
+            if not textish(i):
+                continue
+            if off > 0:
+                issues.append(f"slide {n}: {i} runs off screen ({off} px)")
+            for j, (m2, _) in masks.items():
+                if j == i or backdrop(j) or (textish(j) and j < i):
+                    continue
+                ov = int((m & m2).sum())
+                if ov > 2:
+                    issues.append(f"slide {n}: {i} touches {j} ({ov} px at 2x)")
+    return issues
+
+
+# ------------------------------------------------------------------------------------------------ the .pptx
 def validate_pptx(path, beats):
-    """Round trip through python-pptx: slide count, 16:9, names, Morph and fade transitions, notes, videos."""
+    """Round trip through python-pptx: slide count, 16:9, names, a transition on every slide, notes."""
     from pptx import Presentation
     from lxml import etree
-    import appendix
+    from build_pptx import notes_text
     prs = Presentation(path)
     errs = []
-    apx = appendix.parse()
-    if len(prs.slides) != len(beats) + len(apx):
-        errs.append(f"{len(prs.slides)} slides, expected {len(beats)} + {len(apx)} appendix")
-    for k, a in enumerate(apx):           # the appendix notes are APPENDIX.md's, verbatim (not the script)
-        sl = prs.slides[len(beats) + k]
-        got = sl.notes_slide.notes_text_frame.text if sl.has_notes_slide else ""
-        if got != a["notes"]:
-            errs.append(f"appendix {a['id']}: notes differ from APPENDIX.md")
-        if "<p:fade" not in etree.tostring(sl._element).decode():
-            errs.append(f"appendix {a['id']}: no fade")
-        if any(sh.shape_type == 13 for sh in sl.shapes):
-            errs.append(f"appendix {a['id']}: contains a picture")
+    if len(prs.slides) != len(beats):
+        errs.append(f"{len(prs.slides)} slides, expected {len(beats)}")
     if abs(prs.slide_width / prs.slide_height - 16 / 9) > 1e-3:
         errs.append("not 16:9")
-    n_morph = n_fade = n_vid = n_cut = n_clip = 0
+    n_morph = n_fade = 0
     for i, (s, b) in enumerate(zip(prs.slides, beats), 1):
-        prev = beats[i - 2] if i > 1 else None
-        clip_cut = b.clip is not None and prev is not None and prev.clip is not None
         names = [sh.name for sh in s.shapes]
-        pics = [n for n in names if not n.startswith("video_")]
-        if any(not n.startswith("!!") for n in pics):
+        if any(not n.startswith("!!") for n in names):
             errs.append(f"slide {i}: unnamed picture")
-        if len(set(pics)) != len(pics):
+        if len(set(names)) != len(names):
             errs.append(f"slide {i}: duplicate names")
+        if any(sh.shape_type != 13 for sh in s.shapes):
+            errs.append(f"slide {i}: an object that is not a picture")
         xml = etree.tostring(s._element).decode()
-        if clip_cut:
-            if "<p:transition" in xml or "p159:morph" in xml:
-                errs.append(f"slide {i}: a transition between two clips")
-            n_cut += 1
-        elif "p159:morph" in xml:
+        if "p159:morph" in xml:
             n_morph += 1
         elif "<p:fade" in xml:
             n_fade += 1
         else:
             errs.append(f"slide {i}: no transition")
-        if any(n.startswith("video_") for n in names):
-            n_vid += 1
-            if "playFrom" not in xml or 'nodeType="afterEffect"' not in xml:
-                errs.append(f"slide {i}: video does not start automatically")
-            if "clickEffect" in xml or "interactiveSeq" in xml:
-                errs.append(f"slide {i}: a click on the video would trigger it")
-            if b.clip is not None:
-                n_clip += 1
-                if "advTm" in xml:
-                    errs.append(f"slide {i}: clip slide advances on its own")
-            elif "advTm" not in xml:
-                errs.append(f"slide {i}: intro does not advance on its own")
         notes = s.notes_slide.notes_text_frame.text if s.has_notes_slide else ""
-        if b.say and not notes.startswith(b.say):
-            errs.append(f"slide {i}: notes do not start with the spoken words")
-    return errs, (f"{len(prs.slides)} slides ({len(beats)} + {len(apx)} appendix), {n_morph} Morph, {n_fade} fade, {n_cut} instant cuts between clips, "
-                  f"{n_vid} embedded videos of which {n_clip} narrated clips (autoplay, no auto-advance)")
+        nxt = next((x.say for x in beats[i:] if x.say), "(end)")
+        if notes != notes_text(b, nxt):
+            errs.append(f"slide {i}: notes are not the spoken words + NEXT")
+    return errs, f"{len(prs.slides)} slides, {n_morph} Morph, {n_fade} fade, every slide has a transition"
+
+
+# ------------------------------------------------------------------------------------------------ claims
+def claims():
+    """The numbers the speaker says, checked against the result files the charts read. Returns [(ok, text)]."""
+    import charts as ch
+    c = ch.CHECKS
+    out = []
+    rec = [k for k, v in c["figure2"].items() if v["source"] == "recomputed"]
+    same = sum(c["figure2"][k]["paper_count"] == c["figure2"][k]["our_count"] for k in rec)
+    out.append((len(rec) == 8 and same == 8, f"'eight models ... exactly their numbers': {same} of {len(rec)} recomputed counts match"))
+    g = c["figure2"]["openai/gpt-4o-mini"]["paper_pct"]
+    out.append((12.5 <= g < 14.5, f"'GPT-4o mini ... about thirteen percent': {g}%"))
+    t = c["retest_mean_of_models"]["thr05"]
+    out.append((0.55 <= t < 0.65, f"'about sixty percent of flags survive': {t:.1%}"))
+    p, n = ch.judge_pct()
+    out.append((p == 99, f"'ninety-nine percent of their answers': {p}% over {n} answers"))
+    a, na = ch.inside("paper")
+    b, nb = ch.inside("ours")
+    out.append((a * 2 == na, f"'predicts their number for half of the paper's models': {a} of {na} inside the predicted range"))
+    out.append((b == nb == 8, f"'and for all eight of our runs': {b} of {nb} inside the predicted range"))
+    cw = ch.COORD
+    out.append((cw["base"]["flags"] == 131 and cw["coordwording"]["flags"] == 24,
+                f"'fell from 131 to 24': {cw['base']['flags']} -> {cw['coordwording']['flags']}"))
+    return out

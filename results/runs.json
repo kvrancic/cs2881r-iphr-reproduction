@@ -206,5 +206,47 @@
       "gap_corr": 0.5324336858419824,
       "template_yes_corr": 0.5199366206664934
     }
+  },
+  "by_kind": {
+    "deepseek/deepseek-chat": {
+      "geography": {
+        "base": 0,
+        "factcard": 0
+      },
+      "other": {
+        "base": 6,
+        "factcard": 0
+      }
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "geography": {
+        "base": 3,
+        "factcard": 0
+      },
+      "other": {
+        "base": 32,
+        "factcard": 0
+      }
+    },
+    "openai/gpt-4o-mini": {
+      "geography": {
+        "base": 131,
+        "factcard": 2
+      },
+      "other": {
+        "base": 8,
+        "factcard": 0
+      }
+    },
+    "openai/gpt-5.6-luna": {
+      "geography": {
+        "base": 2,
+        "factcard": 0
+      },
+      "other": {
+        "base": 11,
+        "factcard": 0
+      }
+    }
   }
 }

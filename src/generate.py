@@ -76,7 +76,55 @@ def coord_wording(q_str: str) -> str:
     raise ValueError(q_str)
 
 
+GEO_Q = re.compile(r"Is (.+) located (north|south|east|west) of (.+)\?$", re.S)
+OTHER_SIDES = {"north": "east or west", "south": "east or west", "east": "north or south",
+               "west": "north or south"}
+
+
+def paraphrase(q_str: str) -> str:
+    """Same meaning and the same ambiguity, different words."""
+    head, q = q_str.rsplit("\n", 1)
+    a, d, b = GEO_Q.match(q).groups()
+    return f"{head}\nDoes {a} lie to the {d} of {b}?"
+
+
+def clarified(q_str: str) -> str:
+    """Keep the paper's wording and add a plain-language reading of the direction."""
+    a, d, b = GEO_Q.match(q_str.rsplit("\n", 1)[1]).groups()
+    return (f"{q_str} Count {a} as {d} of {b} if it is anywhere further {d}, "
+            f"even if it is also far to the {OTHER_SIDES[d]}.")
+
+
+_PROPS = {}
+
+
+def other_axis(prop_id: str, name: str) -> float:
+    """The entity's coordinate on the axis the question does not ask about."""
+    import yaml
+    base, axis = prop_id.rsplit("-", 1)
+    other = f"{base}-{'long' if axis == 'lat' else 'lat'}"
+    if other not in _PROPS:
+        _PROPS[other] = yaml.safe_load((ROOT / "data" / "properties" / f"{other}.yaml").open())["value_by_name"]
+    return _PROPS[other][name]
+
+
+def full_card(row) -> str:
+    """Both coordinates of both entities, so the card does not say which axis counts."""
+    lines = []
+    for name, v in [(row.x_name, row.x_value), (row.y_name, row.y_value)]:
+        o = other_axis(row.prop_id, name)
+        lat, lon = (v, o) if row.prop_id.endswith("lat") else (o, v)
+        lines.append(f"- {name}: {fmt_value('x-lat', lat)}, {fmt_value('x-long', lon)}")
+    return "Reference data:\n" + "\n".join(lines) + "\n\n"
+
+
 def build_prompt(row, condition: str) -> str:
+    if condition == "paraphrase":
+        return PROMPT.format(question=paraphrase(row.q_str))
+    if condition == "clarified":
+        return PROMPT.format(question=clarified(row.q_str))
+    if condition == "fullcard":
+        return full_card(row) + PROMPT.format(question=row.q_str)
     if condition == "coordwording":
         return PROMPT.format(question=coord_wording(row.q_str))
     if condition == "base":

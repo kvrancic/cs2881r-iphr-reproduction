@@ -152,7 +152,7 @@ HI = 10   # scale of smooth images (matches the deck's export scale)
 AVENIR = "/System/Library/Fonts/Avenir Next.ttc"
 
 
-def hitext(s, color="white", size=10, face="Medium", spacing=1.3):
+def hitext(s, color="white", size=10, face="Medium", spacing=1.3, align="left"):
     """Anti-aliased Avenir Next for text that must read like print (the contact slide).
     size is in native pixels. Returns (transparent native stand-in, HI-x image)."""
     import math
@@ -166,7 +166,8 @@ def hitext(s, color="white", size=10, face="Medium", spacing=1.3):
     img = Image.new("RGBA", (w * HI, h * HI), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     for i, l in enumerate(lines):
-        d.text((0, i * lh - top), l, font=f, fill=rgba(color))
+        x = 0 if align == "left" else (w * HI - f.getlength(l)) / 2
+        d.text((x, i * lh - top), l, font=f, fill=rgba(color))
     return blank(w, h), img
 
 

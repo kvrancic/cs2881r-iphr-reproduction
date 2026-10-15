@@ -93,6 +93,7 @@ def main():
     sub = pd.read_csv(ROOT / "data" / "subsample_pairs.csv")
     sub_qids = set(sub.qid_yes) | set(sub.qid_no)
     res = {}
+    tables = []
     for model, fname in MODELS.items():
         answers = load_model(fname, sub_qids)
         parsed = {rid: judge.parse(t) for rid, (_, t, _) in answers.items()}
@@ -106,6 +107,7 @@ def main():
             ours = parsed[rid] or (judge.judge_label(got[rid]["content"]) if rid in got else "UNKNOWN")
             rows.append({"rid": rid, "qid": qid, "paper": plab, "ours": ours})
         df = pd.DataFrame(rows)
+        tables.append(counts(rows, qs, model, "ours"))
         flags = {}
         for col in ["paper", "ours"]:
             pt = iphr.pair_table(counts(rows, qs, model, col))
@@ -126,6 +128,8 @@ def main():
         }
         print(model, json.dumps(res[model]))
     json.dump(res, (ROOT / "results" / "relabel_paper.json").open("w"), indent=2)
+    # Per-question counts of the paper's answers under our labels, for noise_models.py.
+    pd.concat(tables).to_csv(ROOT / "results" / "paper_answers_our_labels.csv", index=False)
 
 
 if __name__ == "__main__":

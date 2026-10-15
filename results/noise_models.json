@@ -1,459 +1,662 @@
 {
-  "guess_with_lean_paper_full": {
+  "know_or_guess_paper_full": {
     "anthropic/claude-3.5-haiku": {
       "observed": 363,
-      "expected": 309.85,
+      "expected": 226.915,
       "ci": [
-        284.95,
-        334.025
+        204.0,
+        247.05
       ]
     },
     "deepseek/deepseek-chat": {
       "observed": 60,
-      "expected": 37.13,
+      "expected": 33.115,
       "ci": [
-        20.975,
-        55.0
+        18.0,
+        49.0
       ]
     },
     "google/gemini-2.5-flash-preview": {
-      "observed": 105,
-      "expected": 93.425,
+      "observed": 106,
+      "expected": 84.31,
       "ci": [
-        78.0,
-        112.025
+        70.95,
+        97.0
       ]
     },
     "google/gemini-pro-1.5": {
       "observed": 320,
-      "expected": 299.51,
+      "expected": 277.325,
       "ci": [
-        279.0,
-        318.0
+        257.0,
+        296.0
       ]
     },
     "meta-llama/Llama-3.1-70B": {
       "observed": 159,
-      "expected": 150.95,
+      "expected": 138.045,
       "ci": [
-        138.975,
-        165.025
+        124.975,
+        152.0
       ]
     },
     "meta-llama/Llama-3.3-70B-Instruct": {
       "observed": 102,
-      "expected": 89.59,
+      "expected": 83.945,
       "ci": [
-        74.975,
-        105.0
+        71.0,
+        98.025
       ]
     },
     "openai/gpt-4o-mini": {
       "observed": 660,
-      "expected": 652.505,
+      "expected": 596.565,
       "ci": [
-        624.975,
-        679.025
+        567.825,
+        624.0
       ]
     },
     "qwen/qwq-32b": {
       "observed": 220,
-      "expected": 175.88,
+      "expected": 161.805,
       "ci": [
-        153.975,
-        197.0
+        143.0,
+        179.07500000000002
       ]
     }
   },
-  "guess_with_lean_ours": {
+  "know_or_guess_paper_full_sign": {
+    "above": 8,
+    "of": 8,
+    "p": 0.0078125
+  },
+  "know_or_guess_ours": {
     "anthropic/claude-haiku-5.5": {
       "observed": 2,
-      "expected": 3.945,
+      "expected": 1.675,
       "ci": [
         0.0,
-        9.0
+        4.025000000000006
+      ],
+      "rate_cluster_ci": [
+        0.0,
+        0.0063025210084033615
       ]
     },
     "deepseek/deepseek-chat": {
       "observed": 6,
-      "expected": 7.32,
+      "expected": 5.72,
       "ci": [
-        3.0,
-        12.025000000000006
+        2.0,
+        10.0
+      ],
+      "rate_cluster_ci": [
+        0.0,
+        0.014606003405137314
       ]
     },
     "deepseek/deepseek-v4-flash": {
       "observed": 1,
-      "expected": 2.27,
+      "expected": 1.545,
       "ci": [
         0.0,
-        6.0
+        4.0
+      ],
+      "rate_cluster_ci": [
+        0.0,
+        0.0031915743321324175
       ]
     },
     "google/gemini-2.5-flash": {
       "observed": 20,
-      "expected": 20.49,
+      "expected": 17.05,
       "ci": [
-        15.0,
-        27.0
+        12.0,
+        22.0
+      ],
+      "rate_cluster_ci": [
+        0.005899415529714192,
+        0.03766612612331664
       ]
     },
     "meta-llama/llama-3.3-70b-instruct": {
       "observed": 35,
-      "expected": 38.635,
+      "expected": 32.665,
       "ci": [
-        30.0,
-        48.0
+        25.975,
+        40.025000000000006
+      ],
+      "rate_cluster_ci": [
+        0.012486499964183578,
+        0.0629314632923791
       ]
     },
     "openai/gpt-4o-mini": {
       "observed": 139,
-      "expected": 132.355,
+      "expected": 118.395,
       "ci": [
-        120.0,
-        145.0
+        106.975,
+        130.0
+      ],
+      "rate_cluster_ci": [
+        0.08781713452258186,
+        0.1946058228240467
       ]
     },
     "openai/gpt-5.6-luna": {
       "observed": 13,
-      "expected": 12.975,
+      "expected": 12.3,
       "ci": [
         6.9750000000000005,
-        19.0
+        18.0
+      ],
+      "rate_cluster_ci": [
+        0.004106670878744801,
+        0.023599028972064142
       ]
     },
     "qwen/qwen3.8-flash": {
       "observed": 3,
-      "expected": 2.815,
+      "expected": 1.86,
       "ci": [
         0.0,
-        8.0
+        5.0
+      ],
+      "rate_cluster_ci": [
+        0.0,
+        0.0077302183050085
       ]
-    }
-  },
-  "recurrence": {
-    "openai/gpt-4o-mini": {
-      "observed": 0.7191780821917808,
-      "ceiling_if_unchanged": 0.6934585795043992
-    },
-    "meta-llama/llama-3.3-70b-instruct": {
-      "observed": 0.6785714285714286,
-      "ceiling_if_unchanged": 0.5353430353430353
-    },
-    "deepseek/deepseek-chat": {
-      "observed": 0.058823529411764705,
-      "ceiling_if_unchanged": 0.44609665427509293
-    },
-    "google/gemini-2.5-flash": {
-      "observed": 0.4827586206896552,
-      "ceiling_if_unchanged": 0.6315570358034971
     }
   },
   "paired": {
     "openai/gpt-4o-mini": {
-      "flag_only_paper": 41,
-      "flag_only_ours": 34,
-      "mcnemar_p": 0.48868297090314317,
-      "lean_gap_paper": 0.1638067061143984,
-      "lean_gap_ours": 0.1566568047337278,
-      "grid_paper_vs_ours": {
+      "expected_recurrence_if_unchanged": 0.6995197849898119,
+      "expected_recurrence_ci": [
+        0.6239769230769231,
+        0.7693693693693694
+      ],
+      "paper_run_vs_ours": {
+        "flags": 146,
+        "recur": 105,
+        "share": 0.7191780821917808,
+        "share_ci": [
+          0.6388876771046957,
+          0.7903446097699223
+        ],
+        "mcnemar_p": 0.48868297090314317
+      },
+      "paper_answers_our_labels_vs_ours": {
+        "flags": 134,
+        "recur": 96,
+        "share": 0.7164179104477612,
+        "share_ci": [
+          0.6321369953589042,
+          0.7908700046131817
+        ],
+        "mcnemar_p": 0.6569924675863577
+      },
+      "ratio_ours_to_paper_answers_our_labels_ci": [
+        0.9397299725216657,
+        1.168427393785669
+      ],
+      "lean_gap": {
+        "paper": 0.1638067061143984,
+        "paper_answers_our_labels": 0.15488165680473373,
+        "ours": 0.1566568047337278
+      },
+      "residual_test_same_judge": {
+        "r": 0.693950672542577,
+        "r_pairs_with_k_above_0": 0.6825160272608516,
+        "null_mean": 0.09465483627127376,
+        "null_975": 0.1828889928089921
+      },
+      "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
           188,
+          177,
           179
         ],
         "bias0.03_gap0.5": [
           155,
+          143,
           147
         ],
         "bias0.03_gap0.6": [
           109,
+          97,
           102
         ],
         "bias0.05_gap0.4": [
           177,
+          165,
           166
         ],
         "bias0.05_gap0.5": [
           146,
+          134,
           139
         ],
         "bias0.05_gap0.6": [
           105,
+          93,
           99
         ],
         "bias0.1_gap0.4": [
           146,
+          135,
           134
         ],
         "bias0.1_gap0.5": [
           124,
+          113,
           115
         ],
         "bias0.1_gap0.6": [
           93,
+          83,
           83
         ]
       }
     },
     "meta-llama/llama-3.3-70b-instruct": {
-      "flag_only_paper": 9,
-      "flag_only_ours": 16,
-      "mcnemar_p": 0.2295229434967041,
-      "lean_gap_paper": 0.05862919132149902,
-      "lean_gap_ours": 0.07066074950690336,
-      "grid_paper_vs_ours": {
+      "expected_recurrence_if_unchanged": 0.5489291289714443,
+      "expected_recurrence_ci": [
+        0.39972222222222226,
+        0.7146103896103897
+      ],
+      "paper_run_vs_ours": {
+        "flags": 28,
+        "recur": 19,
+        "share": 0.6785714285714286,
+        "share_ci": [
+          0.4764835932903815,
+          0.8412239621138461
+        ],
+        "mcnemar_p": 0.2295229434967041
+      },
+      "paper_answers_our_labels_vs_ours": {
+        "flags": 31,
+        "recur": 24,
+        "share": 0.7741935483870968,
+        "share_ci": [
+          0.5890361338613267,
+          0.9040578316542488
+        ],
+        "mcnemar_p": 0.480682373046875
+      },
+      "ratio_ours_to_paper_answers_our_labels_ci": [
+        0.8823529411764706,
+        1.5653726708074527
+      ],
+      "lean_gap": {
+        "paper": 0.05862919132149902,
+        "paper_answers_our_labels": 0.06375739644970413,
+        "ours": 0.07066074950690336
+      },
+      "residual_test_same_judge": {
+        "r": 0.4717476362987837,
+        "r_pairs_with_k_above_0": 0.5048440040008572,
+        "null_mean": 0.06551291788723478,
+        "null_975": 0.16431569464903836
+      },
+      "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
           47,
+          52,
           72
         ],
         "bias0.03_gap0.5": [
           33,
+          39,
           47
         ],
         "bias0.03_gap0.6": [
           23,
+          27,
           34
         ],
         "bias0.05_gap0.4": [
+          41,
           41,
           49
         ],
         "bias0.05_gap0.5": [
           28,
+          31,
           35
         ],
         "bias0.05_gap0.6": [
           19,
+          22,
           26
         ],
         "bias0.1_gap0.4": [
+          21,
           21,
           20
         ],
         "bias0.1_gap0.5": [
           17,
+          18,
           17
         ],
         "bias0.1_gap0.6": [
           12,
+          13,
           13
         ]
       }
     },
     "deepseek/deepseek-chat": {
-      "flag_only_paper": 16,
-      "flag_only_ours": 5,
-      "mcnemar_p": 0.02660369873046875,
-      "lean_gap_paper": 0.03786982248520711,
-      "lean_gap_ours": 0.035009861932938854,
-      "grid_paper_vs_ours": {
+      "expected_recurrence_if_unchanged": 0.4624089749904378,
+      "expected_recurrence_ci": [
+        0.15357142857142858,
+        0.8464285714285715
+      ],
+      "paper_run_vs_ours": {
+        "flags": 17,
+        "recur": 1,
+        "share": 0.058823529411764705,
+        "share_ci": [
+          0.001488174391266636,
+          0.28688939666722063
+        ],
+        "mcnemar_p": 0.02660369873046875
+      },
+      "paper_answers_our_labels_vs_ours": {
+        "flags": 12,
+        "recur": 1,
+        "share": 0.08333333333333333,
+        "share_ci": [
+          0.002107593231860228,
+          0.38479616515094406
+        ],
+        "mcnemar_p": 0.210113525390625
+      },
+      "ratio_ours_to_paper_answers_our_labels_ci": [
+        0.0,
+        1.2730519480519462
+      ],
+      "lean_gap": {
+        "paper": 0.03786982248520711,
+        "paper_answers_our_labels": 0.03673570019723866,
+        "ours": 0.035009861932938854
+      },
+      "residual_test_same_judge": {
+        "r": 0.40961753659605027,
+        "r_pairs_with_k_above_0": 0.39268982340075326,
+        "null_mean": 0.11800504337246491,
+        "null_975": 0.2272800236474973
+      },
+      "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
           34,
+          32,
           18
         ],
         "bias0.03_gap0.5": [
           22,
+          20,
           14
         ],
         "bias0.03_gap0.6": [
           16,
+          15,
           12
         ],
         "bias0.05_gap0.4": [
           24,
+          19,
           8
         ],
         "bias0.05_gap0.5": [
           17,
+          12,
           6
         ],
         "bias0.05_gap0.6": [
           14,
+          10,
           4
         ],
         "bias0.1_gap0.4": [
+          2,
           2,
           4
         ],
         "bias0.1_gap0.5": [
           2,
+          2,
           3
         ],
         "bias0.1_gap0.6": [
+          2,
           2,
           2
         ]
       }
     },
     "google/gemini-2.5-flash": {
-      "flag_only_paper": 15,
-      "flag_only_ours": 6,
-      "mcnemar_p": 0.0783538818359375,
-      "lean_gap_paper": 0.059220907297830375,
-      "lean_gap_ours": 0.057100591715976326,
-      "grid_paper_vs_ours": {
+      "expected_recurrence_if_unchanged": 0.638388593725975,
+      "expected_recurrence_ci": [
+        0.46845982142857145,
+        0.8333333333333334
+      ],
+      "paper_run_vs_ours": {
+        "flags": 29,
+        "recur": 14,
+        "share": 0.4827586206896552,
+        "share_ci": [
+          0.2944855829518411,
+          0.6746850036385436
+        ],
+        "mcnemar_p": 0.0783538818359375
+      },
+      "paper_answers_our_labels_vs_ours": {
+        "flags": 25,
+        "recur": 13,
+        "share": 0.52,
+        "share_ci": [
+          0.31305704445703214,
+          0.7220319903300535
+        ],
+        "mcnemar_p": 0.359283447265625
+      },
+      "ratio_ours_to_paper_answers_our_labels_ci": [
+        0.3887820512820513,
+        1.2779761904761893
+      ],
+      "lean_gap": {
+        "paper": 0.059220907297830375,
+        "paper_answers_our_labels": 0.057642998027613405,
+        "ours": 0.057100591715976326
+      },
+      "residual_test_same_judge": {
+        "r": 0.3294133908087545,
+        "r_pairs_with_k_above_0": 0.3084341575903818,
+        "null_mean": 0.10680930145442315,
+        "null_975": 0.2047365124706196
+      },
+      "grid_paper_relabelled_ours": {
         "bias0.03_gap0.4": [
           40,
+          37,
           35
         ],
         "bias0.03_gap0.5": [
           32,
+          28,
           24
         ],
         "bias0.03_gap0.6": [
           22,
+          20,
           17
         ],
         "bias0.05_gap0.4": [
           37,
+          34,
           25
         ],
         "bias0.05_gap0.5": [
           29,
+          25,
           20
         ],
         "bias0.05_gap0.6": [
           20,
+          18,
           14
         ],
         "bias0.1_gap0.4": [
           19,
+          17,
           14
         ],
         "bias0.1_gap0.5": [
           15,
+          13,
           13
         ],
         "bias0.1_gap0.6": [
           12,
+          11,
           8
         ]
       }
     }
   },
-  "threshold_grid_paper_full": {
-    "bias0.03_gap0.4": {
-      "anthropic/claude-3.5-haiku": 554,
-      "deepseek/deepseek-chat": 115,
-      "google/gemini-2.5-flash-preview": 171,
-      "google/gemini-pro-1.5": 482,
-      "meta-llama/Llama-3.1-70B": 238,
-      "meta-llama/Llama-3.3-70B-Instruct": 190,
-      "openai/gpt-4o-mini": 875,
-      "qwen/qwq-32b": 343
+  "rate_by_kind_paper_full": {
+    "anthropic/claude-3.5-haiku": {
+      "geography": {
+        "flags": 331,
+        "pairs": 3262,
+        "rate": 0.10147148988350706
+      },
+      "other": {
+        "flags": 32,
+        "pairs": 1572,
+        "rate": 0.020356234096692113
+      }
     },
-    "bias0.03_gap0.5": {
-      "anthropic/claude-3.5-haiku": 404,
-      "deepseek/deepseek-chat": 84,
-      "google/gemini-2.5-flash-preview": 125,
-      "google/gemini-pro-1.5": 414,
-      "meta-llama/Llama-3.1-70B": 183,
-      "meta-llama/Llama-3.3-70B-Instruct": 123,
-      "openai/gpt-4o-mini": 697,
-      "qwen/qwq-32b": 229
+    "deepseek/deepseek-chat": {
+      "geography": {
+        "flags": 14,
+        "pairs": 3262,
+        "rate": 0.004291845493562232
+      },
+      "other": {
+        "flags": 46,
+        "pairs": 1572,
+        "rate": 0.029262086513994912
+      }
     },
-    "bias0.03_gap0.6": {
-      "anthropic/claude-3.5-haiku": 290,
-      "deepseek/deepseek-chat": 64,
-      "google/gemini-2.5-flash-preview": 86,
-      "google/gemini-pro-1.5": 343,
-      "meta-llama/Llama-3.1-70B": 143,
-      "meta-llama/Llama-3.3-70B-Instruct": 79,
-      "openai/gpt-4o-mini": 513,
-      "qwen/qwq-32b": 153
+    "google/gemini-2.5-flash-preview": {
+      "geography": {
+        "flags": 92,
+        "pairs": 3262,
+        "rate": 0.028203556100551808
+      },
+      "other": {
+        "flags": 14,
+        "pairs": 1572,
+        "rate": 0.008905852417302799
+      }
     },
-    "bias0.05_gap0.4": {
-      "anthropic/claude-3.5-haiku": 490,
-      "deepseek/deepseek-chat": 79,
-      "google/gemini-2.5-flash-preview": 139,
-      "google/gemini-pro-1.5": 369,
-      "meta-llama/Llama-3.1-70B": 202,
-      "meta-llama/Llama-3.3-70B-Instruct": 154,
-      "openai/gpt-4o-mini": 823,
-      "qwen/qwq-32b": 329
+    "google/gemini-pro-1.5": {
+      "geography": {
+        "flags": 229,
+        "pairs": 3262,
+        "rate": 0.07020232985898221
+      },
+      "other": {
+        "flags": 91,
+        "pairs": 1572,
+        "rate": 0.05788804071246819
+      }
     },
-    "bias0.05_gap0.5": {
-      "anthropic/claude-3.5-haiku": 363,
-      "deepseek/deepseek-chat": 60,
-      "google/gemini-2.5-flash-preview": 105,
-      "google/gemini-pro-1.5": 320,
-      "meta-llama/Llama-3.1-70B": 159,
-      "meta-llama/Llama-3.3-70B-Instruct": 102,
-      "openai/gpt-4o-mini": 660,
-      "qwen/qwq-32b": 220
+    "meta-llama/Llama-3.1-70B": {
+      "geography": {
+        "flags": 75,
+        "pairs": 3262,
+        "rate": 0.02299202942979767
+      },
+      "other": {
+        "flags": 84,
+        "pairs": 1572,
+        "rate": 0.05343511450381679
+      }
     },
-    "bias0.05_gap0.6": {
-      "anthropic/claude-3.5-haiku": 262,
-      "deepseek/deepseek-chat": 45,
-      "google/gemini-2.5-flash-preview": 77,
-      "google/gemini-pro-1.5": 270,
-      "meta-llama/Llama-3.1-70B": 122,
-      "meta-llama/Llama-3.3-70B-Instruct": 65,
-      "openai/gpt-4o-mini": 493,
-      "qwen/qwq-32b": 146
+    "meta-llama/Llama-3.3-70B-Instruct": {
+      "geography": {
+        "flags": 7,
+        "pairs": 3262,
+        "rate": 0.002145922746781116
+      },
+      "other": {
+        "flags": 95,
+        "pairs": 1572,
+        "rate": 0.060432569974554706
+      }
     },
-    "bias0.07_gap0.4": {
-      "anthropic/claude-3.5-haiku": 438,
-      "deepseek/deepseek-chat": 35,
-      "google/gemini-2.5-flash-preview": 108,
-      "google/gemini-pro-1.5": 282,
-      "meta-llama/Llama-3.1-70B": 161,
-      "meta-llama/Llama-3.3-70B-Instruct": 103,
-      "openai/gpt-4o-mini": 757,
-      "qwen/qwq-32b": 268
+    "openai/gpt-4o-mini": {
+      "geography": {
+        "flags": 638,
+        "pairs": 3262,
+        "rate": 0.19558553034947884
+      },
+      "other": {
+        "flags": 22,
+        "pairs": 1572,
+        "rate": 0.013994910941475827
+      }
     },
-    "bias0.07_gap0.5": {
-      "anthropic/claude-3.5-haiku": 327,
-      "deepseek/deepseek-chat": 26,
-      "google/gemini-2.5-flash-preview": 82,
-      "google/gemini-pro-1.5": 251,
-      "meta-llama/Llama-3.1-70B": 131,
-      "meta-llama/Llama-3.3-70B-Instruct": 71,
-      "openai/gpt-4o-mini": 623,
-      "qwen/qwq-32b": 185
-    },
-    "bias0.07_gap0.6": {
-      "anthropic/claude-3.5-haiku": 236,
-      "deepseek/deepseek-chat": 19,
-      "google/gemini-2.5-flash-preview": 59,
-      "google/gemini-pro-1.5": 210,
-      "meta-llama/Llama-3.1-70B": 107,
-      "meta-llama/Llama-3.3-70B-Instruct": 49,
-      "openai/gpt-4o-mini": 470,
-      "qwen/qwq-32b": 127
-    },
-    "bias0.1_gap0.4": {
-      "anthropic/claude-3.5-haiku": 298,
-      "deepseek/deepseek-chat": 13,
-      "google/gemini-2.5-flash-preview": 62,
-      "google/gemini-pro-1.5": 151,
-      "meta-llama/Llama-3.1-70B": 130,
-      "meta-llama/Llama-3.3-70B-Instruct": 70,
-      "openai/gpt-4o-mini": 692,
-      "qwen/qwq-32b": 170
-    },
-    "bias0.1_gap0.5": {
-      "anthropic/claude-3.5-haiku": 230,
-      "deepseek/deepseek-chat": 12,
-      "google/gemini-2.5-flash-preview": 51,
-      "google/gemini-pro-1.5": 135,
-      "meta-llama/Llama-3.1-70B": 108,
-      "meta-llama/Llama-3.3-70B-Instruct": 54,
-      "openai/gpt-4o-mini": 574,
-      "qwen/qwq-32b": 121
-    },
-    "bias0.1_gap0.6": {
-      "anthropic/claude-3.5-haiku": 174,
-      "deepseek/deepseek-chat": 10,
-      "google/gemini-2.5-flash-preview": 41,
-      "google/gemini-pro-1.5": 113,
-      "meta-llama/Llama-3.1-70B": 91,
-      "meta-llama/Llama-3.3-70B-Instruct": 40,
-      "openai/gpt-4o-mini": 438,
-      "qwen/qwq-32b": 85
+    "qwen/qwq-32b": {
+      "geography": {
+        "flags": 6,
+        "pairs": 3262,
+        "rate": 0.0018393623543838135
+      },
+      "other": {
+        "flags": 214,
+        "pairs": 1572,
+        "rate": 0.1361323155216285
+      }
     }
   },
+  "ranking_geography": [
+    "openai/gpt-4o-mini",
+    "anthropic/claude-3.5-haiku",
+    "google/gemini-pro-1.5",
+    "google/gemini-2.5-flash-preview",
+    "meta-llama/Llama-3.1-70B",
+    "deepseek/deepseek-chat",
+    "meta-llama/Llama-3.3-70B-Instruct",
+    "qwen/qwq-32b"
+  ],
+  "ranking_other": [
+    "qwen/qwq-32b",
+    "meta-llama/Llama-3.3-70B-Instruct",
+    "google/gemini-pro-1.5",
+    "meta-llama/Llama-3.1-70B",
+    "deepseek/deepseek-chat",
+    "anthropic/claude-3.5-haiku",
+    "openai/gpt-4o-mini",
+    "google/gemini-2.5-flash-preview"
+  ],
+  "ranking_all": [
+    "openai/gpt-4o-mini",
+    "anthropic/claude-3.5-haiku",
+    "google/gemini-pro-1.5",
+    "qwen/qwq-32b",
+    "meta-llama/Llama-3.1-70B",
+    "google/gemini-2.5-flash-preview",
+    "meta-llama/Llama-3.3-70B-Instruct",
+    "deepseek/deepseek-chat"
+  ],
   "rank_stability": {
+    "settings": 12,
+    "settings_with_any_swap": 8,
     "min_kendall_tau": 0.8571428571428571,
     "mean_kendall_tau": 0.9464285714285715
   }

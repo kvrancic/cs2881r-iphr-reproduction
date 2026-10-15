@@ -124,6 +124,16 @@ def main():
             "template_yes_corr": float(np.corrcoef(tmpl.group_p_yes_paper, tmpl.group_p_yes_ours)[0, 1]),
         }
 
+    # Fact cards by kind of question (geography cards also tell the model which axis counts).
+    res["by_kind"] = {}
+    if "factcard" in tables:
+        for cond in ["base", "factcard"]:
+            t = tables[cond]
+            t = t.assign(kind=np.where(t.prop_id.str.contains(r"-(?:lat|long)$"), "geography", "other"))
+            for (m, k), g in t.groupby(["model_id", "kind"]):
+                if m in res["factcard"]:
+                    res["by_kind"].setdefault(m, {}).setdefault(k, {})[cond] = int(g.unf.sum())
+
     json.dump(res, (OUT / "runs.json").open("w"), indent=2)
     for sec in ["paper_same_pairs", "base", "factcard"]:
         print(f"\n== {sec}")

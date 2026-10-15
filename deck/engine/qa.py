@@ -2,10 +2,11 @@
 import os, sys, subprocess, glob
 from PIL import Image
 
-def pptx_to_pngs(pptx, outdir, dpi=40):
+def pptx_to_pngs(pptx, outdir, dpi=60):
     os.makedirs(outdir, exist_ok=True)
-    subprocess.run([sys.executable, os.path.expanduser("~/.claude/skills/pptx/scripts/office/soffice.py"), "--headless",
-                    "--convert-to", "pdf", "--outdir", outdir, pptx], check=True, capture_output=True)
+    wrap = os.path.expanduser("~/.claude/skills/pptx/scripts/office/soffice.py")
+    cmd = [sys.executable, wrap] if os.path.isfile(wrap) else ["soffice"]
+    subprocess.run(cmd + ["--headless", "--convert-to", "pdf", "--outdir", outdir, pptx], check=True, capture_output=True)
     pdf = os.path.join(outdir, os.path.basename(pptx).replace(".pptx", ".pdf"))
     for f in glob.glob(os.path.join(outdir, "p-*.png")):
         os.remove(f)

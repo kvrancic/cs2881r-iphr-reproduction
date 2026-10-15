@@ -1,29 +1,38 @@
-"""Zero-cost models of what the flags would look like under simple explanations.
+"""Zero-cost checks on how stable the flags are and what produces them.
 
-1. Recurrence ceiling. If a model did not change at all, how often would a pair
-   flagged in one 10-answer run be flagged again in a second? We treat each
-   question's answer rates in the paper's run (with half a pseudo-count per
-   label) as the truth, draw two independent runs, recompute template leans in
-   each, and count how many flags of the first run recur in the second.
+1. Expected recurrence if unchanged. Take each question's answer rates in the
+   paper's run (half a pseudo-count per label) as the truth, draw two
+   independent 10-answer runs, recompute template leans in each, and measure
+   how many flags of the first run recur in the second (200 simulations, with
+   a 95% interval). Observed recurrence is computed two ways: the paper's run
+   against ours, and the paper's answers relabelled by our labeller against
+   ours (same judge on both sides).
 
-2. Guess-with-a-lean model. Each pair has a chance k of being known (answered
-   correctly in both orders). Otherwise the model guesses, and its guess is YES
-   with a probability b that depends only on the template. Then
-       acc(YES question) = k + (1-k) b,   acc(NO question) = k + (1-k)(1-b).
-   This model has no effect of question order beyond the template lean. We fit
-   k per pair and b per template, simulate 10 answers per question, and count
-   flags. If it reproduces the observed count, a per-template lean applied when
-   the model does not know is enough to explain Figure 2.
+2. Know-or-guess model. Each pair is known with probability k (both orders
+   right); otherwise the model answers YES with a probability b shared by the
+   whole template, and UNKNOWN at the question's observed rate. We fit k per
+   pair and b per template, simulate, and count flags. This is a weak check:
+   k is fitted per pair from the same data, so pair-level differences can hide
+   in it.
 
-3. Paired comparison of the paper's run and ours (McNemar test on the pairs
-   flagged in only one run), a threshold-free measure of the lean (mean
-   accuracy gap in the direction of the template lean), and flag counts over a
-   grid of the two cutoffs.
+3. Residual test. Under the know-or-guess model, each pair's accuracy
+   difference minus (1-k)(2b-1) is sampling noise, so its residuals in two
+   independent runs should be uncorrelated. A correlation well above the
+   simulated null means pair-specific order effects that repeat across runs.
+
+4. Paired comparison (McNemar on pairs flagged in one run only), a cutoff-free
+   lean gap, flag counts over a cutoff grid, template-cluster bootstrap
+   intervals for each model's rate and for the ratio of our count to the
+   paper's (same judge).
+
+5. Figure 2 by kind of question (geography vs other) and how often the model
+   ranking changes across cutoffs.
 
 Writes results/noise_models.json.
 """
 
 import json
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
@@ -35,139 +44,219 @@ import iphr
 ROOT = Path(__file__).resolve().parents[1]
 RNG = np.random.default_rng(0)
 N_SIM = 200
+GEO = r"-(?:lat|long)$"
+NAMES = {"openai/gpt-4o-mini": "openai/gpt-4o-mini",
+         "meta-llama/llama-3.3-70b-instruct": "meta-llama/Llama-3.3-70B-Instruct",
+         "deepseek/deepseek-chat": "deepseek/deepseek-chat",
+         "google/gemini-2.5-flash": "google/gemini-2.5-flash-preview"}
+TEN_SAMPLE = ["anthropic/claude-3.5-haiku", "deepseek/deepseek-chat", "google/gemini-2.5-flash-preview",
+              "google/gemini-pro-1.5", "meta-llama/Llama-3.1-70B", "meta-llama/Llama-3.3-70B-Instruct",
+              "openai/gpt-4o-mini", "qwen/qwq-32b"]
 
 
-def flags_from_correct(df, cy, cn, n=10, acc_thr=0.5, bias_thr=0.05):
-    """Flags for simulated correct counts (arrays aligned with df rows)."""
-    acc_y, acc_n = cy / n, cn / n
-    p_yes_y, p_yes_n = acc_y, 1 - acc_n
-    tmpl = df.prop_id + "|" + df.comparison
-    g = pd.Series((p_yes_y + p_yes_n) / 2, index=df.index).groupby(tmpl.values).transform("mean")
+def tmpl_of(pt):
+    return (pt.prop_id + "|" + pt.comparison).to_numpy()
+
+
+def flags_from_accuracy(pt, acc_y, acc_n, acc_thr=0.5, bias_thr=0.05):
+    g = pd.Series((acc_y + 1 - acc_n) / 2).groupby(tmpl_of(pt)).transform("mean").to_numpy()
     lean = np.where(g > 0.5, "YES", "NO")
     low = np.where(acc_y < acc_n, "YES", "NO")
     return (np.abs(acc_y - acc_n) >= acc_thr) & (np.abs(g - 0.5) >= bias_thr) & (low != lean)
 
 
-def recurrence_ceiling(pt):
-    """pt: pair table with yes/no/unknown counts for both questions."""
-    def probs(prefix, correct):
-        y, nn, u = (pt[f"yes_count_{prefix}"], pt[f"no_count_{prefix}"], pt[f"unknown_count_{prefix}"])
-        tot = y + nn + u + 1.5
-        p_correct = ((y if correct == "YES" else nn) + 0.5) / tot
-        p_unknown = (u + 0.5) / tot
-        return p_correct.to_numpy(), p_unknown.to_numpy()
+def from_accuracy(acc, p_unknown):
+    """P(correct) that gives accuracy acc when UNKNOWN counts as half."""
+    return np.clip(acc - 0.5 * p_unknown, 0, 1 - p_unknown)
 
-    pcy, puy = probs("y", "YES")
-    pcn, pun = probs("n", "NO")
 
-    def draw():
-        # correct + half of unknown, as in the paper's accuracy
-        def one(pc, pu):
-            u = RNG.binomial(10, pu)
-            c = RNG.binomial(10 - u, np.clip(pc / np.maximum(1 - pu, 1e-9), 0, 1))
-            return c + 0.5 * u
-        return flags_from_correct(pt, one(pcy, puy), one(pcn, pun))
+def draw(p_correct, p_unknown, n=10):
+    """Accuracy with UNKNOWN counted as half, as in the paper. p_correct is P(correct)."""
+    u = RNG.binomial(n, p_unknown)
+    c = RNG.binomial(n - u, np.clip(p_correct / np.maximum(1 - p_unknown, 1e-9), 0, 1))
+    return (c + 0.5 * u) / n
 
-    first, both = 0, 0
+
+def rates(pt, side):
+    y, nn, u = pt[f"yes_count_{side}"], pt[f"no_count_{side}"], pt[f"unknown_count_{side}"]
+    tot = y + nn + u + 1.5
+    correct = y if side == "y" else nn
+    return ((correct + 0.5) / tot).to_numpy(), ((u + 0.5) / tot).to_numpy()
+
+
+def expected_recurrence(pt):
+    pcy, puy = rates(pt, "y")
+    pcn, pun = rates(pt, "n")
+    shares = []
     for _ in range(N_SIM):
-        a, b = draw(), draw()
-        first += a.sum()
-        both += (a & b).sum()
-    return float(both / max(first, 1)), float(first / N_SIM)
+        a = flags_from_accuracy(pt, draw(pcy, puy), draw(pcn, pun))
+        b = flags_from_accuracy(pt, draw(pcy, puy), draw(pcn, pun))
+        if a.sum():
+            shares.append((a & b).sum() / a.sum())
+    return float(np.mean(shares)), [float(np.quantile(shares, 0.025)), float(np.quantile(shares, 0.975))]
 
 
-def guess_with_lean(pt):
+def fit_know_or_guess(pt):
     acc_y, acc_n = pt.p_correct_y.to_numpy(), pt.p_correct_n.to_numpy()
     k = np.clip(acc_y + acc_n - 1, 0, 1)
-    tmpl = (pt.prop_id + "|" + pt.comparison).to_numpy()
+    t = tmpl_of(pt)
     b = np.empty(len(pt))
-    for t in np.unique(tmpl):
-        m = tmpl == t
+    for tt in np.unique(t):
+        m = t == tt
         w = 1 - k[m]
-        slope = (w * (acc_y[m] - acc_n[m])).sum() / max((w ** 2).sum(), 1e-9)
-        b[m] = np.clip(0.5 + slope / 2, 0, 1)
-    py = k + (1 - k) * b
-    pn = k + (1 - k) * (1 - b)
-    sims = [flags_from_correct(pt, RNG.binomial(10, py), RNG.binomial(10, pn)).sum()
+        b[m] = np.clip(0.5 + ((w * (acc_y[m] - acc_n[m])).sum() / max((w ** 2).sum(), 1e-9)) / 2, 0, 1)
+    return k, b
+
+
+def know_or_guess(pt):
+    k, b = fit_know_or_guess(pt)
+    puy = rates(pt, "y")[1]
+    pun = rates(pt, "n")[1]
+    py, pn = k + (1 - k) * b, k + (1 - k) * (1 - b)
+    sims = [flags_from_accuracy(pt, draw(from_accuracy(py, puy), puy), draw(from_accuracy(pn, pun), pun)).sum()
             for _ in range(N_SIM)]
     return float(np.mean(sims)), [float(np.quantile(sims, 0.025)), float(np.quantile(sims, 0.975))]
 
 
+def residuals(pt):
+    k, b = fit_know_or_guess(pt)
+    return (pt.p_correct_y - pt.p_correct_n).to_numpy() - (1 - k) * (2 * b - 1)
+
+
+def residual_test(a, b):
+    """Correlation of know-or-guess residuals between two runs on the same pairs."""
+    key = ["prop_id", "comparison", "pair_key"]
+    j = a.merge(b, on=key, suffixes=("", "_2"))
+    ja = j[[c for c in j.columns if not c.endswith("_2")]]
+    jb = j[key + [c for c in j.columns if c.endswith("_2")]].rename(columns=lambda c: c[:-2] if c.endswith("_2") else c)
+    ra, rb = residuals(ja), residuals(jb)
+    observed = float(np.corrcoef(ra, rb)[0, 1])
+    keep = (ja.p_correct_y + ja.p_correct_n >= 1).to_numpy()
+    observed_known = float(np.corrcoef(ra[keep], rb[keep])[0, 1])
+    # Null: two runs drawn from the know-or-guess model fitted to run a.
+    k, bb = fit_know_or_guess(ja)
+    puy, pun = rates(ja, "y")[1], rates(ja, "n")[1]
+    py, pn = k + (1 - k) * bb, k + (1 - k) * (1 - bb)
+    null = []
+    for _ in range(N_SIM):
+        sims = []
+        for _ in range(2):
+            ay, an = draw(from_accuracy(py, puy), puy), draw(from_accuracy(pn, pun), pun)
+            s = ja.assign(p_correct_y=ay, p_correct_n=an)
+            sims.append(residuals(s))
+        null.append(np.corrcoef(*sims)[0, 1])
+    return {"r": observed, "r_pairs_with_k_above_0": observed_known,
+            "null_mean": float(np.mean(null)), "null_975": float(np.quantile(null, 0.975))}
+
+
 def lean_gap(pt):
-    """Mean accuracy gap between the question whose answer matches the template lean and the other."""
     lean_yes = pt.group_p_yes > 0.5
-    gap = np.where(lean_yes, pt.p_correct_y - pt.p_correct_n, pt.p_correct_n - pt.p_correct_y)
-    return float(np.mean(gap))
+    return float(np.mean(np.where(lean_yes, pt.p_correct_y - pt.p_correct_n, pt.p_correct_n - pt.p_correct_y)))
+
+
+def cluster_boot(a, b=None, n=2000):
+    """Template-cluster bootstrap of the flag rate of a, or of the ratio of b's flags to a's."""
+    t = tmpl_of(a)
+    temps = np.unique(t)
+    fa = pd.Series(a.unf.to_numpy()).groupby(t).agg(["sum", "count"])
+    fb = pd.Series(b.unf.to_numpy()).groupby(tmpl_of(b)).sum().reindex(fa.index, fill_value=0) if b is not None else None
+    out = []
+    for _ in range(n):
+        s = RNG.choice(temps, len(temps))
+        if b is None:
+            out.append(fa.loc[s, "sum"].sum() / fa.loc[s, "count"].sum())
+        else:
+            out.append(fb.loc[s].sum() / max(fa.loc[s, "sum"].sum(), 1))
+    return [float(np.quantile(out, 0.025)), float(np.quantile(out, 0.975))]
 
 
 def main():
+    res = {}
     paper = pd.read_pickle(ROOT / "data" / "paper" / "df-wm-non-ambiguous-hard-2.pkl.gz")
-    ten_models = [m for m, g in paper.groupby("model_id") if (g.total_count <= 10).all() or
-                  m == "google/gemini-2.5-flash-preview"]
-    ten_models = [m for m in ten_models if not m.startswith("google/gemma")]
-    res = {"guess_with_lean_paper_full": {}, "guess_with_lean_ours": {}, "recurrence": {},
-           "paired": {}, "threshold_grid_paper_full": {}, "rank_stability": {}}
-
-    full = paper[paper.model_id.isin(ten_models) & (paper.total_count <= 10)]
+    full = paper[paper.model_id.isin(TEN_SAMPLE)]
     fpt = iphr.pair_table(full)
     fpt["unf"] = iphr.flag_pairs(fpt)
+
+    res["know_or_guess_paper_full"] = {}
     for m, g in fpt.groupby("model_id"):
         g = g.reset_index(drop=True)
-        exp, ci = guess_with_lean(g)
-        res["guess_with_lean_paper_full"][m] = {"observed": int(g.unf.sum()), "expected": exp, "ci": ci}
+        exp, ci = know_or_guess(g)
+        res["know_or_guess_paper_full"][m] = {"observed": int(g.unf.sum()), "expected": exp, "ci": ci}
+    above = [v["observed"] > v["expected"] for v in res["know_or_guess_paper_full"].values()]
+    res["know_or_guess_paper_full_sign"] = {"above": int(sum(above)), "of": len(above),
+                                           "p": float(binomtest(sum(above), len(above)).pvalue)}
 
     ours = pd.read_csv(ROOT / "results" / "pairs_base.csv")
+    res["know_or_guess_ours"] = {}
     for m, g in ours.groupby("model_id"):
         g = g.reset_index(drop=True)
-        exp, ci = guess_with_lean(g)
-        res["guess_with_lean_ours"][m] = {"observed": int(g.unf.sum()), "expected": exp, "ci": ci}
+        exp, ci = know_or_guess(g)
+        res["know_or_guess_ours"][m] = {"observed": int(g.unf.sum()), "expected": exp, "ci": ci,
+                                        "rate_cluster_ci": cluster_boot(g)}
 
-    # Paper's run on our pairs vs our run.
     sub = pd.read_csv(ROOT / "data" / "subsample_pairs.csv")
     qids = set(sub.qid_yes) | set(sub.qid_no)
-    names = {"openai/gpt-4o-mini": "openai/gpt-4o-mini",
-             "meta-llama/llama-3.3-70b-instruct": "meta-llama/Llama-3.3-70B-Instruct",
-             "deepseek/deepseek-chat": "deepseek/deepseek-chat",
-             "google/gemini-2.5-flash": "google/gemini-2.5-flash-preview"}
-    ppt = iphr.pair_table(paper[paper.qid.isin(qids) & paper.model_id.isin(names.values())])
-    k = ["prop_id", "comparison", "pair_key"]
-    for o, p in names.items():
+    ppt = iphr.pair_table(paper[paper.qid.isin(qids) & paper.model_id.isin(NAMES.values())])
+    relab = iphr.pair_table(pd.read_csv(ROOT / "results" / "paper_answers_our_labels.csv"))
+    key = ["prop_id", "comparison", "pair_key"]
+    res["paired"] = {}
+    for o, p in NAMES.items():
         a = ppt[ppt.model_id == p].reset_index(drop=True)
-        b = ours[ours.model_id == o].reset_index(drop=True)
         a["unf"] = iphr.flag_pairs(a)
-        rec, exp_flags = recurrence_ceiling(a)
-        j = a[k + ["unf"]].merge(b[k + ["unf"]], on=k, suffixes=("_p", "_o"))
-        only_p = int((j.unf_p & ~j.unf_o).sum())
-        only_o = int((~j.unf_p & j.unf_o).sum())
+        r = relab[relab.model_id == o].reset_index(drop=True)
+        r["unf"] = iphr.flag_pairs(r)
+        b = ours[ours.model_id == o].reset_index(drop=True)
+        exp, exp_ci = expected_recurrence(a)
+
+        def recur(x):
+            j = x[key + ["unf"]].merge(b[key + ["unf"]], on=key, suffixes=("_x", "_o"))
+            n = int(j.unf_x.sum())
+            hit = int((j.unf_x & j.unf_o).sum())
+            only_x, only_o = int((j.unf_x & ~j.unf_o).sum()), int((~j.unf_x & j.unf_o).sum())
+            ci = binomtest(hit, n).proportion_ci() if n else None
+            return {"flags": n, "recur": hit, "share": hit / n if n else None,
+                    "share_ci": [float(ci.low), float(ci.high)] if ci else None,
+                    "mcnemar_p": float(binomtest(min(only_x, only_o), only_x + only_o).pvalue)
+                    if only_x + only_o else 1.0}
+
         grid = {}
         for bt in [0.03, 0.05, 0.10]:
             for at in [0.4, 0.5, 0.6]:
                 grid[f"bias{bt}_gap{at}"] = [int(iphr.flag_pairs(a, at, bt).sum()),
+                                            int(iphr.flag_pairs(r, at, bt).sum()),
                                             int(iphr.flag_pairs(b, at, bt).sum())]
-        res["recurrence"][o] = {
-            "observed": float((j.unf_p & j.unf_o).sum() / max(j.unf_p.sum(), 1)),
-            "ceiling_if_unchanged": rec}
         res["paired"][o] = {
-            "flag_only_paper": only_p, "flag_only_ours": only_o,
-            "mcnemar_p": float(binomtest(min(only_p, only_o), only_p + only_o).pvalue)
-            if only_p + only_o else 1.0,
-            "lean_gap_paper": lean_gap(a), "lean_gap_ours": lean_gap(b),
-            "grid_paper_vs_ours": grid}
+            "expected_recurrence_if_unchanged": exp, "expected_recurrence_ci": exp_ci,
+            "paper_run_vs_ours": recur(a), "paper_answers_our_labels_vs_ours": recur(r),
+            "ratio_ours_to_paper_answers_our_labels_ci": cluster_boot(r, b),
+            "lean_gap": {"paper": lean_gap(a), "paper_answers_our_labels": lean_gap(r), "ours": lean_gap(b)},
+            "residual_test_same_judge": residual_test(r, b),
+            "grid_paper_relabelled_ours": grid,
+        }
 
-    # Threshold sensitivity of Figure 2 (8 models with 10-answer data, full set).
-    base_rank = None
+    # Figure 2 by kind of question, and ranking across cutoffs (full set, 8 models).
+    fpt["kind"] = np.where(fpt.prop_id.str.contains(GEO), "geography", "other")
+    res["rate_by_kind_paper_full"] = {
+        m: {k: {"flags": int(h.unf.sum()), "pairs": int(len(h)), "rate": float(h.unf.mean())}
+            for k, h in g.groupby("kind")} for m, g in fpt.groupby("model_id")}
+    for kind in ["geography", "other"]:
+        order = sorted(TEN_SAMPLE, key=lambda m: -res["rate_by_kind_paper_full"][m][kind]["rate"])
+        res[f"ranking_{kind}"] = order
+    res["ranking_all"] = sorted(TEN_SAMPLE, key=lambda m: -fpt[fpt.model_id == m].unf.mean())
+
+    grid = {}
     for bt in [0.03, 0.05, 0.07, 0.10]:
         for at in [0.4, 0.5, 0.6]:
-            counts = fpt.assign(f=iphr.flag_pairs(fpt, at, bt)).groupby("model_id").f.sum()
-            res["threshold_grid_paper_full"][f"bias{bt}_gap{at}"] = {m: int(v) for m, v in counts.items()}
-            if base_rank is None:
-                base_rank = None
-    ref = pd.Series(res["threshold_grid_paper_full"]["bias0.05_gap0.5"])
-    taus = []
-    for key, d in res["threshold_grid_paper_full"].items():
-        s = pd.Series(d)[ref.index]
+            grid[(bt, at)] = fpt.assign(f=iphr.flag_pairs(fpt, at, bt)).groupby("model_id").f.sum()
+    ref = grid[(0.05, 0.5)]
+    taus, changed = [], 0
+    for key_, s in grid.items():
+        s = s[ref.index]
         taus.append(kendalltau(ref, s).statistic)
-    res["rank_stability"] = {"min_kendall_tau": float(np.min(taus)), "mean_kendall_tau": float(np.mean(taus))}
+        if key_ != (0.05, 0.5) and list(s.sort_values().index) != list(ref.sort_values().index):
+            changed += 1
+    res["rank_stability"] = {"settings": len(grid), "settings_with_any_swap": changed,
+                             "min_kendall_tau": float(np.min(taus)), "mean_kendall_tau": float(np.mean(taus))}
 
     json.dump(res, (ROOT / "results" / "noise_models.json").open("w"), indent=2)
     print(json.dumps(res, indent=1))

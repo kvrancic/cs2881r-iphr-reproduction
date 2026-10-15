@@ -1,14 +1,15 @@
-"""python3 build_all.py [pptx] [sheets] [qa]   regenerate the deck from the storyboard code.
+"""python3 build_all.py [pptx] [sheets] [qa] [frames]   regenerate the deck from the storyboard code.
 
-pptx    deck/3B_Therapeutics.pptx
+pptx    deck/IPHR_Reproduction.pptx
 sheets  contact sheets of every slide, composed exactly as placed, in deck/review/
-qa      LibreOffice render of the .pptx into deck/review/qa/ (PDF and sheets)"""
-import sys, os, time, json
+qa      LibreOffice render of the .pptx into deck/review/qa/ (PDF, one PNG per slide, sheets)
+frames  every slide as a 4x PNG in deck/build/frames/"""
+import sys, os, time
 from build_story import story
 import reg, checks
 
 DECK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(DECK, "3B_Therapeutics.pptx")
+OUT = os.path.join(DECK, "IPHR_Reproduction.pptx")
 BUILD = os.path.join(DECK, "build")
 REVIEW = os.path.join(DECK, "review")
 
@@ -21,23 +22,35 @@ if __name__ == "__main__":
     print(f"story: {len(tl.beats)} slides, missing sprites: {len(reg.MISSING)} {sorted(reg.MISSING)}, errors: {len(reg.ERRORS)}")
     for k, v in list(reg.ERRORS.items())[:20]:
         print("  ERR", k, v[:200])
+    fails = 0
     ok, msg = checks.notes_match(tl.beats)
-    print(("OK  " if ok else "FAIL ") + msg)
+    fails += not ok
+    print(("OK   " if ok else "FAIL ") + msg)
+    for ok_, txt in checks.claims():
+        fails += not ok_
+        print(("OK   " if ok_ else "FAIL ") + "claim " + txt)
+    issues = checks.check_layout(tl.beats)
+    fails += bool(issues)
+    print(("OK   " if not issues else "FAIL ") + f"layout: {len(issues)} text collisions or off-screen labels")
+    for x in issues:
+        print("  " + x)
     with open(os.path.join(BUILD, "morph.txt"), "w") as f:
         f.write("\n".join(checks.morph_report(tl.beats)) + "\n")
     if "pptx" in what:
         from build_pptx import build
-        p, n, rep = build(tl.beats, OUT)
+        p, n = build(tl.beats, OUT)
         print(f"pptx: {n} slides, {os.path.getsize(p) / 1e6:.1f} MB -> {p}")
-        for r in rep:
-            print("  " + r)
         errs, summary = checks.validate_pptx(p, tl.beats)
-        print(("OK  " if not errs else "FAIL ") + "round trip: " + summary)
+        fails += bool(errs)
+        print(("OK   " if not errs else "FAIL ") + "round trip: " + summary)
         for e in errs:
             print("  " + e)
     if "sheets" in what:
         from render import contact
         per = 12
+        for f in os.listdir(REVIEW):
+            if f.startswith("slides-") and f.endswith(".png"):
+                os.remove(os.path.join(REVIEW, f))
         for k in range(0, len(tl.beats), per):
             path = os.path.join(REVIEW, f"slides-{k // per + 1:02d}.png")
             contact(tl.beats[k:k + per], path, cols=3, k=2, first=k + 1)
@@ -52,5 +65,5 @@ if __name__ == "__main__":
         import qa
         qd = os.path.join(REVIEW, "qa")
         pngs = qa.pptx_to_pngs(OUT, qd)
-        print("qa sheets:", qa.sheets(pngs, os.path.join(qd, "sheet")))
-    print(f"done in {time.time() - t0:.0f}s")
+        print(f"qa: {len(pngs)} slide PNGs; sheets:", qa.sheets(pngs, os.path.join(qd, "sheet")))
+    print(f"{'all checks passed' if not fails else f'{fails} check(s) failed'}; done in {time.time() - t0:.0f}s")
