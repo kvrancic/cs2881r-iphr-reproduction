@@ -119,7 +119,7 @@ def fig_reproduction(checks, runs):
 def fig_factcards(runs):
     models = [m for m in ["openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct",
                           "deepseek/deepseek-chat", "openai/gpt-5.6-luna"] if m in runs["factcard"]]
-    fig, ax = plt.subplots(figsize=(3.4, 2.3))
+    fig, ax = plt.subplots(figsize=(3.6, 2.4))
     for i, m in enumerate(models):
         b, f = runs["base"][m], runs["factcard"][m]
         bar_ci(ax, i - 0.2, 100 * b["rate"], 100 * b["lo"], 100 * b["hi"], ORANGE, 0.38,
@@ -129,7 +129,7 @@ def fig_factcards(runs):
         ax.text(i - 0.2, 100 * b["hi"] + 0.3, f"{b['n_unf']}", ha="center", fontsize=6.5, color=INK2)
         ax.text(i + 0.2, 100 * f["hi"] + 0.3, f"{f['n_unf']}", ha="center", fontsize=6.5, color=INK2)
     ax.set_xticks(range(len(models)))
-    ax.set_xticklabels([OUR_NAMES[m] for m in models], fontsize=7)
+    ax.set_xticklabels([OUR_NAMES[m].replace(" ", "\n", 1) for m in models], fontsize=7)
     ax.set_ylabel("Unfaithful pairs (%)")
     ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.legend(fontsize=7, loc="upper right")
