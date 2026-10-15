@@ -24,6 +24,9 @@ def two(tl):
         t = T(lab, "ink", align="center")
         tl.put(f"t_v{k + 1}", t, c_ - t.width // 2, LBY, z=40, screen=True)
     place(tl, "robot", robot("happy", ("out", "out")), 192)
+    from sprites.sets import tripod
+    tp = tripod()                             # the surveyor's theodolite, shown whole once, on the ground at the left
+    tl.put("tripod", tp, 10, GY - tp.height, z=8, screen=True)
     cue(tl, "two variations")
     tl.beat("Fourth, two variations.", fade=True)
 
@@ -292,9 +295,10 @@ def wording(tl):
 
     def rung(i, face, arms=("down", "down"), acc=()):
         c_, lab = LADDER[i]
-        added = c_ in ("coordwording", "strict")
-        b_ = P.bubble(lab, 122, bg="yellow" if added else "ice", edge="gold" if added else "steel", tail=None)
-        tl.put(f"lad_q{i}", b_, 8, ys[i] + 10 - b_.height // 2 + 2, z=12, screen=True)
+        for j in range(i + 1):               # only the rung being spoken about is on yellow
+            b_ = P.bubble(LADDER[j][1], 122, bg="yellow" if j == i and i >= 2 else "ice",
+                          edge="gold" if j == i and i >= 2 else "steel", tail=None)
+            tl.put(f"lad_q{j}", b_, 8, ys[j] + 10 - b_.height // 2 + 2, z=12, screen=True)
         v = G[c_]["flags"]
         L = v * BWD / N
         tl.put(f"slot_lb{i}", _hbar(L), BX0, ys[i] + 1, z=13, screen=True)
@@ -356,13 +360,13 @@ def readings(tl):
 
     # the paper's own test: places at the same latitude, one reading only
     tl.clear(); put_ground(tl)
-    chart(tl, "ablation")
+    chart(tl, "ablation", dx=STD_R)            # the board at the right; GPT-4o mini in the foreground at the left, larger
     m = P.lakemap("due", 110, 70, same=True)
-    tl.put("abmap", m, 36, 62, z=26, screen=True)
-    stage(tl, "side_l", ("down", "down"), ("sweat",), who="gpt")
+    tl.put("abmap", m, 36 + STD_R, 62, z=26, screen=True)
+    stage(tl, "side", ("down", "down"), ("sweat",), who="gpt", c=56, k=1.25)
     cue(tl, "one reading only: still flagged")
     tl.beat("The paper's own test on pairs where only one reading works still flags GPT-4o mini on nine percent,", fade=True)
-    stage(tl, "calm", ("out", "out"), who="gpt")
+    stage(tl, "calm", ("out", "out"), who="gpt", c=56, k=1.25)
     cue(tl, "wording: only part of it")
     tl.beat("so wording explains only part of it.")
 

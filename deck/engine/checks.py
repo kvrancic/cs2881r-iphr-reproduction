@@ -156,7 +156,7 @@ def claims():
     out.append((all(abs(v["ours"] / v["paper"] - 1) < 0.25 for v in lg.values()),
                 "'leans about as strongly': " + ", ".join(f"{l} {v['paper']:.3f}/{v['ours']:.3f}" for l, v in lg.items())))
     dmax = max(round(abs(v["ours"] - v["paper"]), 3) for v in lg.values())
-    out.append((dmax <= 0.012, f"'every model leans about as strongly as in the paper': lean gaps differ by at most {dmax:.3f}"))
+    out.append((dmax <= 0.012, f"'each of the four models we reran leans about as strongly': lean gaps differ by at most {dmax:.3f}"))
     sm = {lab: (R["paper_same_pairs"][k]["n_unf"], R["base"][k]["n_unf"], N["paired"][k]["ratio_ours_to_paper_answers_our_labels_ci"])
           for k, lab in ch.FOUR if k != ch.DS}
     out.append((all(ci[0] <= 1 <= ci[1] for _, _, ci in sm.values()),

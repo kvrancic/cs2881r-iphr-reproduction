@@ -282,13 +282,17 @@ def fig2(state):
     tick right after each of the eight bars we recomputed, with its key in the empty space beside the shorter bars;
     the rows sit closer and the board is shorter, so the cue fits below it)."""
     rec = state == "recomputed"
-    out = [el("bd", F2["x"], F2["y"], "", "paper", f"width:{F2['w']}px;height:{F2_REC_H if rec else F2['h']}px")]
+    out = [el("bd", F2["x"], F2["y"] + (10 if rec else 0), "", "paper", f"width:{F2['w']}px;height:{F2_REC_H if rec else F2['h']}px")]
     PANELS.add("bd")
     rows = sorted(FIG2, key=lambda r: -CHECKS["figure2"][r[0]]["paper_pct"])
-    x0, px_, y0, step, bh = F2X0, F2PX, F2Y0, 27 if rec else F2STEP, F2BH
+    # 15 to 18: the names column a little right of the board's edge (room for the thought-clouds) and a slightly
+    # smaller scale; 67 keeps the standard one
+    x0, px_ = (F2X0, F2PX) if rec else (F2X0 + 30, 17)
+    oy = 10 if rec else 0                   # 67: the board sits a little lower, clear of the stage's valance
+    y0, step, bh = F2Y0 + oy, 27 if rec else F2STEP, F2BH
     top, bot = y0 - 8, y0 + 16 * step - 6
-    out.append(txt("bdt", F2TX, 262 if rec else 278, "Figure 2", "f3 ink"))
-    out.append(el("bds", F2TX, 312 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
+    out.append(txt("bdt", F2TX, 272 if rec else 278, "Figure 2", "f3 ink"))
+    out.append(el("bds", F2TX, 322 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
     TEXTS.add("bds")
     for p in (5, 10):
         x = x0 + p * px_
@@ -296,7 +300,7 @@ def fig2(state):
         out.append(txt(f"f2y{p}", x + 12, bot - 40, f"{p}%", "f2 slate"))
     out.append(grid("f2axis", x0 - 5, top, 5, bot - top, "ink"))
     if state != "axes":
-        out.append(txt("f2n", F2TX, 365 if rec else 400, "16 models", "f2 slate"))
+        out.append(txt("f2n", F2TX, 375 if rec else 400, "16 models", "f2 slate"))
     for i, (key, lab, think) in enumerate(rows):
         d = CHECKS["figure2"][key]
         v = d["paper_pct"]
@@ -311,14 +315,14 @@ def fig2(state):
         out.append(hbar(f"f2b{i}", x0, y, v * px_, bh, "bp"))
         end = x0 + blen(v * px_)
         if state == "top" and i == 0:
-            s_ = f"{v:.2f}%"                       # right of the bar's end, centred where the magnifier goes
-            out.append(ktxt(f"f2v{i}", end + 63 - tw(s_) // 2 - 6, 55, s_, "f2 navy"))
+            s_ = f"{v:.1f}%"                       # right of the bar's end, centred where the magnifier goes
+            out.append(ktxt(f"f2v{i}", end + 56 - tw(s_) // 2 - 6, 55, s_, "f2 navy"))
         if state == "recomputed" and d["source"] == "recomputed":
             out.append(el(f"f2k{i}", end + 8, y + (bh - 14) // 2, tick_svg("orange", 2), "", "width:16px;height:14px"))
     if state == "recomputed":                      # the key of the ticks, beside the shorter bars, right of 10%
         kx = x0 + 10 * px_ + 8
-        out.append(el("f2kk", kx, 116 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
-        out.append(el("f2kt", kx + 24, 116, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
+        out.append(el("f2kk", kx, 126 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
+        out.append(el("f2kt", kx + 24, 126, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
         TEXTS.add("f2kt")
     if state == "think":
         r3 = next(i for i, r in enumerate(rows) if r[2])      # the key beside the first thinking model's bar
@@ -513,7 +517,7 @@ def _ds_recur(d):
                   f'<div class="o f2 ink" style="left:30px;top:0">{k} flagged again in our run</div>', "",
                   f"width:{30 + tw(f'{k} flagged again in our run')}px;height:40px"))
     TEXTS.add("dsrk")
-    out.append(txt("dsrn", x0, y0 + 180, f"unchanged model: {lo} to {hi} of {n}", "f2 slate"))
+    out.append(txt("dsrn", x0, y0 + 180, f"if nothing changed: {lo} to {hi} would recur", "f2 slate"))
     return "".join(out)
 
 
@@ -547,7 +551,7 @@ def excess(state="with"):
     for t in (0, 0.1, 0.2, 0.3):
         x = bx + r5(bw * t / mx)
         out.append(txt(f"ext{int(round(t * 100))}", x - 40, ay + 4, f"{t:g}", "f2 slate", "center", 80))
-    out.append(txt("excap", bx, ay + 38, "extra asymmetry, seen again in our run", "f2 slate"))
+    out.append(txt("excap", bx, ay + 38, "same order better again, beyond the lean", "f2 slate"))
     return "".join(out)
 
 
@@ -638,7 +642,7 @@ def recall(state="known"):
     if state in ("other", "guess"):
         out.append(txt("rcl1", BX + 30, y0 + 240, "other pairs: right order", "f2 ink"))
         out.append(row("rcp1", y0 + 282, 8.5))
-        out.append(txt("rcn1", BX + 440, y0 + 268, "8.5 in 10", "f3 ink"))
+        out.append(txt("rcn1", BX + 440, y0 + 268, "8.5 in 10", "f3 orange"))
     on = state == "guess"
     gx = BX + 30 + 5 * 40 - 5
     # the dashed line runs only across the rows of cells (rows at +192 and +282, 34 high), not through their labels
@@ -710,7 +714,7 @@ STYLE = {"fig2": "paper", "rec_": "term", "rank": "term", "ds": "bench", "excess
 def stand_of(slide):
     style = next(v for k, v in STYLE.items() if slide.startswith(k))
     if slide.startswith("fig2"):
-        x, w, y, h = F2["x"], F2["w"], F2["y"], F2_REC_H if slide == "fig2_rec" else F2["h"]
+        x, w, y, h = F2["x"], F2["w"], F2["y"] + (10 if slide == "fig2_rec" else 0), F2_REC_H if slide == "fig2_rec" else F2["h"]
     elif slide.startswith("kind"):
         x, w, y, h = KB["x"], KB["w"], KB["y"], KB["h"]
     elif slide.startswith("recall"):

@@ -58,7 +58,7 @@ def leans(tl):
         if k == 0:                      # the right plinth appears with its counts, on the next slide
             tl.put(f"panel_{k}", P.plinth(pw, PH), c_ - pw // 2, GY - PH, z=7, screen=True)
         tl.put("scale2" if k == 0 else "scale", sc, c_ - sc.width // 2, GY - (PH if k == 0 else 0) - sc.height, z=8, screen=True)
-    a = ui.runs([(f"{t['geography_NO']:,} NO", "wine"), ("   ", "ink"), (f"{t['geography_YES']} YES", "leaf")])
+    a = ui.runs([(f"{t['geography_NO']:,} NO", "wine"), ("  ", "ink"), (f"{t['geography_YES']} YES", "leaf")])
     tl.put("t_lno", a, C0 - a.width // 2, GY - PH + (PH - a.height) // 2 - 1, z=40, screen=True)
     place(tl, "robot", robot("side_l", POINT), (C0 + w0 // 2 + C1 - w1 // 2) // 2, z=20)
     u = T("flagged pairs, by the template's lean", "ink")    # what the counts count
@@ -69,9 +69,9 @@ def leans(tl):
     sc = scale(1, s=S, load=(None, "others"))
     tl.put("panel_1", P.plinth(w1, PH), C1 - w1 // 2, GY - PH, z=7, screen=True)
     tl.put("scale", sc, C1 - sc.width // 2, GY - PH - sc.height)
-    b = ui.runs([(f"{t['other_NO']} NO", "wine"), ("   ", "ink"), (f"{t['other_YES']} YES", "leaf")])
+    b = ui.runs([(f"{t['other_NO']} NO", "wine"), ("  ", "ink"), (f"{t['other_YES']} YES", "leaf")])
     tl.put("t_lyes", b, C1 - b.width // 2, GY - PH + (PH - b.height) // 2 - 1, z=40, screen=True)
-    tl.put("robot", robot("side", POINT_R))
+    place(tl, "robot", robot("side", POINT_R), (C0 + w0 // 2 + C1 - w1 // 2) // 2 - 8, z=20)   # the arm clear of the right box
     cue(tl, "dates, sizes, ages: lean YES")
     tl.beat("On dates, sizes and ages they lean towards yes.")
 

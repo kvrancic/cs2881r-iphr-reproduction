@@ -25,8 +25,8 @@ def close(tl):
         tl.put(f"t_bot{k}", tag, c_ - tag.width // 2, ROBOT_Y - tag.height - 10, z=40, screen=True)
     lean_signs(tl)
     _key(tl, "size of the lean")
-    cue(tl, "every lean: about as strong")
-    tl.beat("Every model leans about as strongly as in the paper.", fade=True)
+    cue(tl, "4 reruns: about as strong")
+    tl.beat("Each of the four models we reran leans about as strongly as in the paper.", fade=True)
 
     # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
     R = charts.RUNS

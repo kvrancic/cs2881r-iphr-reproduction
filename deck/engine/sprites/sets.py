@@ -4,9 +4,9 @@ elsewhere: beige and clay wood, grey lab tiles, lilac cork, slate boards, stage 
 slate. The band sits below the stage's text and the pieces stay clear of the places where text sits.
 
   lecture  the claim: wood panelling and a tall window at the right
-  lab      the reproduction: low grey tiles and a glass cabinet with bottles at each edge
-  mapwall  by kind: lilac cork and a world map pinned to the wall
-  survey   the variations: slate boards and a theodolite on its tripod at the left
+  lab      the reproduction: a cooler wall, low grey tiles and a glass cabinet with bottles at each edge
+  mapwall  by kind: a warm wall, lilac cork and a world map pinned to it
+  survey   the variations: a pale slate wall and slate boards (the theodolite stands on the act's first slide)
   stage    the close: stage boards, curtains drawn back at both sides and a scalloped valance"""
 from px import W, H, blank, rect, line, disc, ellipse
 from pal import rgba
@@ -41,6 +41,32 @@ def _band(img, light, dark, rail, step=None, grid=None, top=TOP, dense=False):
             img.putpixel((x, y), c)
 
 
+def _wall(img, tint, top, extra=None):
+    """A light tint over the back wall, above the wainscot: 1 in 4 pixels of tint (and 1 in 16 of extra), so ink
+    and slate text keep their contrast."""
+    inside = _inside()
+    T_, E = rgba(tint), rgba(extra) if extra else None
+    for y in range(0, top):
+        for x in range(W):
+            if not inside(x, y):
+                continue
+            if E and x % 4 == 2 and y % 4 == 2:
+                img.putpixel((x, y), E)
+            elif x % 2 == 0 and y % 2 == 0:
+                img.putpixel((x, y), T_)
+
+
+def tripod():
+    """A surveyor's theodolite on its tripod, feet on the ground line (a prop for the opening of the variations)."""
+    img = blank(36, 52)
+    tx, ty = 18, 18
+    rect(img, tx - 6, ty - 10, 13, 8, "slate"); rect(img, tx - 3, ty - 14, 7, 4, "slate"); rect(img, tx + 7, ty - 8, 4, 3, "slate")
+    rect(img, tx - 5, ty - 9, 11, 2, "steel")
+    for fx in (tx - 16, tx, tx + 16):
+        line(img, tx, ty - 2, fx, 51, "slate")
+    return img
+
+
 def _window(img, x, y, w, h):
     """A tall window: a steel frame, four panes, ice glass."""
     for yy in range(y + 2, y + h - 2):
@@ -57,7 +83,7 @@ def _window(img, x, y, w, h):
 def lecture():
     img = blank(W, H)
     _band(img, "sand", "clay", "clay")
-    _window(img, W - 64, 30, 34, 84)
+    _window(img, W - 64, 22, 34, 62)                   # its sill at y 86, above the robot's head
     return img
 
 
@@ -79,6 +105,7 @@ def _cabinet(img, x, y, w, h):
 
 def lab():
     img = blank(W, H)
+    _wall(img, "ice", 172, "steel")                          # a cooler, slightly darker wall
     _band(img, "ice", "steel", "steel", grid=12, top=172)    # low tiles: clear of the gauge's scale labels
     _cabinet(img, 18, 116, 28, 56)              # low cabinets: under the labels that sit at the left
     _cabinet(img, W - 46, 116, 28, 56)
@@ -91,6 +118,7 @@ CONTINENTS = [(110, 50, 46, 26), (132, 80, 20, 30), (190, 46, 30, 20), (200, 76,
 
 def mapwall():
     img = blank(W, H)
+    _wall(img, "sand", 172)                                    # a warm map-room wall
     _band(img, "ice", "grape", "grape", top=172, dense=True)   # under the labels of the split
     x0, y0, x1, y1 = 32, 16, W - 32, 154
     for d in (0, 1):
@@ -112,31 +140,25 @@ def mapwall():
 
 def survey():
     img = blank(W, H)
+    _wall(img, "ice", 162)                                       # a pale slate wall
     _band(img, "ice", "dusk", "dusk", step=32, top=162)      # lower: the wording ladder's last row sits above it
-    tx, ty = 22, 150                                   # the theodolite: a head on three legs, feet on the ground
-    rect(img, tx - 6, ty - 10, 13, 8, "slate"); rect(img, tx - 3, ty - 14, 7, 4, "slate"); rect(img, tx + 7, ty - 8, 4, 3, "slate")
-    rect(img, tx - 5, ty - 9, 11, 2, "steel")
-    for fx in (tx - 16, tx, tx + 16):
-        line(img, tx, ty - 2, fx, GY - 1, "slate")
     return img
 
 
 def stage():
     img = blank(W, H)
     _band(img, "sand", "brown", "brown", step=40)
-    rect(img, 0, 0, W, 10, "grape")
-    for k in range(0, W, 24):                          # the valance's scalloped hem
+    rect(img, 0, 0, W, 4, "grape")                    # a narrow valance, above the boards and cards of the close
+    for k in range(0, W, 24):
         for dx in range(24):
-            depth = max(1, round(4 * (1 - ((dx - 11.5) / 12) ** 2)))
-            rect(img, k + dx, 10, 1, depth, "grape")
-        rect(img, k + 23, 2, 1, 8, "plum")
-    for side in (0, 1):                                # the curtains, gathered towards the floor
-        for i in range(30):
+            rect(img, k + dx, 4, 1, max(1, round(2 * (1 - ((dx - 11.5) / 12) ** 2))), "grape")
+    for side in (0, 1):                                # the curtains, drawn back to the edges of the stage
+        for i in range(14):
             x = i if side == 0 else W - 1 - i
-            for y in range(12, GY):
-                bulge = 30 - int(12 * ((y - 12) / (GY - 12)) ** 2)
+            for y in range(5, GY):
+                bulge = 14 - int(5 * ((y - 5) / (GY - 5)) ** 2)
                 if i >= bulge:
                     continue
-                fold = (i + (y // 30)) % 6
-                img.putpixel((x, y), rgba("plum" if fold == 0 else "grape" if fold in (1, 2, 4) else "pink"))
+                fold = (i + (y // 30)) % 5
+                img.putpixel((x, y), rgba("plum" if fold == 0 else "grape" if fold in (1, 3) else "pink"))
     return img

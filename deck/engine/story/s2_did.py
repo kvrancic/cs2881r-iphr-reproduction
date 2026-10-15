@@ -27,8 +27,8 @@ def recompute(tl):
 
     # our code's small terminal grows into the monitor board; the robot stands at its right
     tl.clear(); put_ground(tl)
-    chart(tl, "rec_table", alias={"bd": "term"})
-    stage(tl, "happy", ("down", "up"))
+    chart(tl, "rec_table", alias={"bd": "term"}, dx=STD_R)    # the board at the right, the robot at its left
+    stage(tl, "happy", ("down", "up"), side="L")
     cue(tl, "released data: exact match")
     tl.beat("For the eight models whose ten-answer counts were released, our code gives exactly their numbers.", morph=0.9)
 
@@ -77,18 +77,24 @@ def recompute(tl):
     GR = 70                                   # the gauge's radius
     g, (gcx, gcy), tip = P.gauge(GR, post=26)
     gx_ = 128 - gcx
-    tl.put("dial", g, gx_, GY - g.height, z=12, screen=True)
+    tl.put("panel_dial", g, gx_, GY - g.height, z=12, screen=True)   # a backdrop: its scale labels sit on the dial
     gy_ = GY - g.height
     for i, (v, lab, fg, bg, side) in enumerate(((0.4, "used 0.4", "white", "sky", -1), (0.5, "stated 0.5", "sky", "white", 1))):
-        ex, ey = tip(v, GR + 10)
+        ex, ey = tip(v, GR + 26)
         c = ui.chip(lab, fg, bg, border="sky" if bg == "white" else "ink")
         x = gx_ + ex - (c.width if side < 0 else 0)
         tl.put(f"t_cut{i}", c, x - (8 if side > 0 else 0), gy_ + ey - c.height, z=40, screen=True)
-    for v, lab in ((0.3, "0.3"), (0.6, "0.6")):
-        t = T(lab, "slate")
-        ex, _ = tip(v, GR)
-        tl.put(f"t_tick{lab[-1]}", t, gx_ + ex - t.width // 2, gy_ + gcy + 12, z=40, screen=True)
-    stage(tl, "squint", ("out", "down"), c=gx_ + gcx + GR + 52)
+    for v in (0.3, 0.4, 0.5, 0.6):            # the scale: its ends just above the baseline, the two needles' ticks at the rim
+        t = T(f"{v:.1f}", "slate")
+        if v in (0.3, 0.6):
+            ex, ey = tip(v, GR - 16)
+            tl.put(f"t_tick{int(v * 10)}", t, gx_ + ex - t.width // 2, gy_ + ey - t.height - 3, z=40, screen=True)
+        else:
+            ex, ey = tip(v, GR + 9)
+            tl.put(f"t_tick{int(v * 10)}", t, gx_ + ex - t.width // 2, gy_ + ey - t.height // 2, z=40, screen=True)
+    tt = T("retest cutoff", "ink")
+    tl.put("t_gname", tt, gx_ + gcx - tt.width // 2, gy_ - tt.height - 30, z=40, screen=True)   # above the dial and its chips
+    stage(tl, "squint", ("out", "down"), c=gx_ + gcx + GR + 56)     # the hand on the knob, off the rim
     cue(tl, "looser than stated")
     tl.beat("The retest uses a looser cutoff than the paper states.", morph=0.9)
 
@@ -99,11 +105,7 @@ def recompute(tl):
     cue(tl, "the paper's claim")
     tl.beat("The paper says the model ranking never changes with the cutoffs,", morph=0.9)
     chart(tl, "rank_table", alias={"bd": "term"})
-    arms = ("out", "down")
-    stage(tl, "shock", arms, c=342)
-    hx, hy = hand(tl, "L", arms)
-    t = P.swapcard(40, 30)
-    tl.put("swap", t, hx - t.width + 10, hy - t.height // 2, z=33, screen=True)    # held out at chest height
+    stage(tl, "shock", ("down", "down"), c=342)
     cue(tl, "its own table: it changes")
     tl.beat("while its own table shows that it does.", morph=0.9)
 
@@ -295,7 +297,7 @@ BOT_X = (66, 152, 238, 324)          # the four models in a row
 DS_C = 44                            # DeepSeek's centre in front of its board
 
 
-LEAN_PX = 300                       # placard px per unit of lean: 0.2 spans 60 px on every sign
+LEAN_PX = 260                       # placard px per unit of lean: 0.2 spans 52 px on every sign
 LEAN_TICKS = (0.1 * LEAN_PX, 0.2 * LEAN_PX)
 
 
@@ -308,7 +310,7 @@ def lean_signs(tl, whos=range(4)):
         if k not in whos:
             continue
         lg = N[key]["lean_gap"]
-        pc = P.placard([(lg[r] * LEAN_PX, r, f"{lg[r]:.2f}") for r in ("paper", "ours")], 72, ticks=LEAN_TICKS, bh=10)
+        pc = P.placard([(lg[r] * LEAN_PX, r, f"{lg[r]:.3f}") for r in ("paper", "ours")], 72, ticks=LEAN_TICKS, bh=10)
         tl.put(f"sign{k}", pc, BOT_X[k] - pc.width // 2, ROBOT_Y + 50, z=36 + k, screen=True)
 
 

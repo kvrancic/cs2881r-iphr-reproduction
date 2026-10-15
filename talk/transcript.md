@@ -16,6 +16,6 @@ Fourth, two variations. In the first we printed both true values above each ques
 
 In the second we asked why GPT-4o mini fails on geography. Its flags are most common for places that are far apart, which should be the easiest to put in order. A typical wrong answer says that a lake is southwest of another, so it is not directly west of it. With the paper's wording it has 131 flags. A paraphrase with the same vague direction gives 140. Asking for a more western longitude cuts them to 24. A sentence saying that only directly west counts raises them to 667 of 684, although under that reading no is right for both orders. So many of these flags depend on how the model reads "west". The paper's own test on pairs where only one reading works still flags GPT-4o mini on nine percent, so wording explains only part of it.
 
-For the eight models with released data, Figure 2's counts recompute exactly. Every model leans about as strongly as in the paper. The flag counts repeat for GPT-4o mini, Llama and Gemini. Our limits are a smaller sample, a different judge and no way to check that providers still serve the same weights.
+For the eight models with released data, Figure 2's counts recompute exactly. Each of the four models we reran leans about as strongly as in the paper. The flag counts repeat for GPT-4o mini, Llama and Gemini. Our limits are a smaller sample, a different judge and no way to check that providers still serve the same weights.
 
 Thank you.
