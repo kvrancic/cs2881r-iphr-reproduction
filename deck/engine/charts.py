@@ -273,10 +273,10 @@ def fig2(state):
     """Figure 2 redrawn as horizontal bars, models sorted by their share, names right-aligned on the left, on a
     paper board as tall as the stage. The title sits in the empty lower right of the plot; the gridlines run
     unbroken with their labels at the foot. state: 'axes' (the names, every bar still at zero), 'bars', 'top'
-    (GPT-4o mini on yellow, its value at the end of its bar), 'think' (every thinking model's name on yellow, with a
-    key, and one bracket over every bar below 0.5%), 'recomputed' (an orange tick for each of the eight bars we
-    recomputed, in one column, with its key under the title; the rows sit closer and the board is shorter, so the
-    cue fits below it, and the gridline labels move to the left of their lines to make room)."""
+    (GPT-4o mini on yellow, its value just under the end of its bar, clear of the board's top for the magnifier),
+    'think' (every thinking model's name on yellow, with a key, and one bracket over every bar below 0.5%),
+    'recomputed' (an orange tick right after each of the eight bars we recomputed, with its key in the empty space
+    beside the shorter bars; the rows sit closer and the board is shorter, so the cue fits below it)."""
     rec = state == "recomputed"
     out = [el("bd", F2["x"], F2["y"], "", "paper", f"width:{F2['w']}px;height:{F2_REC_H if rec else F2['h']}px")]
     PANELS.add("bd")
@@ -289,12 +289,10 @@ def fig2(state):
     for p in (5, 10):
         x = x0 + p * px_
         out.append(grid(f"f2g{p}", x, top, 5, bot - top))
-        lx = x + 12 if state != "recomputed" else x - 7 - tw(f"{p}%")   # left of the line: the tick key sits below the title
-        out.append(txt(f"f2y{p}", lx, bot - 40, f"{p}%", "f2 slate"))
+        out.append(txt(f"f2y{p}", x + 12, bot - 40, f"{p}%", "f2 slate"))
     out.append(grid("f2axis", x0 - 5, top, 5, bot - top, "ink"))
     if state != "axes":
         out.append(txt("f2n", F2TX, 365 if rec else 400, "16 models", "f2 slate"))
-    tick_x = x0 + max(blen(CHECKS["figure2"][k]["paper_pct"] * px_) for k, _, _ in FIG2) + 14
     for i, (key, lab, think) in enumerate(rows):
         d = CHECKS["figure2"][key]
         v = d["paper_pct"]
@@ -307,17 +305,21 @@ def fig2(state):
             continue
         out.append(hbar(f"f2b{i}", x0, y, v * px_, bh, "bp"))
         end = x0 + blen(v * px_)
-        if state in ("top", "think") and i == 0:
-            out.append(ktxt(f"f2v{i}", end + 6, y - 12, f"{v:.2f}%", "f2 navy"))
+        if state == "top" and i == 0:
+            s_ = f"{v:.2f}%"                       # under the end of the bar, one row down
+            out.append(ktxt(f"f2v{i}", end - tw(s_) // 2 - 6, y + step - 2, s_, "f2 navy"))
         if state == "recomputed" and d["source"] == "recomputed":
-            out.append(el(f"f2k{i}", tick_x, y + (bh - 14) // 2, tick_svg("orange", 2), "", "width:16px;height:14px"))
-    if state == "recomputed":                      # the key of the ticks, under "16 models"
-        out.append(el("f2kk", F2TX - 8, 401 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
-        out.append(el("f2kt", F2TX + 14, 401, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
+            out.append(el(f"f2k{i}", end + 8, y + (bh - 14) // 2, tick_svg("orange", 2), "", "width:16px;height:14px"))
+    if state == "recomputed":                      # the key of the ticks, beside the shorter bars, on a white plate
+        kx = 503                                   # that the 10% gridline passes behind
+        PLATES.add("f2kp")
+        out.append(el("f2kp", kx - 8, 112, "", "", f"width:{16 + 8 + tw('recomputed') + 16}px;height:66px;background:var(--white)"))
+        out.append(el("f2kk", kx, 116 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
+        out.append(el("f2kt", kx + 24, 116, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
         TEXTS.add("f2kt")
     if state == "think":
-        out.append(band("f2keyb", F2TX, 165, tw("thinking model") + 16, 30))
-        out.append(txt("f2key", F2TX + 8, 160, "thinking model", "f2 ink"))
+        out.append(band("f2keyb", F2TX, 165, tw("thinking") + 16, 30))
+        out.append(txt("f2key", F2TX + 8, 160, "thinking", "f2 ink"))
         x = x0 + round(0.5 * px_)
         dash = "".join(f'<div class="o" style="left:0;top:{k * 16}px;width:5px;height:9px;background:var(--ink)"></div>'
                        for k in range(0, (bot - top) // 16 + 1))
@@ -427,6 +429,8 @@ def deepseek(state="two"):
             ("our labeller", d["paper_answers_our_labels_vs_ours"]["flags"], "bm", "slate"),
             ("our run", RUNS["base"][DS]["n_unf"], "bo", "orange")]
     out = [board("bench", "DeepSeek V3, flagged pairs")]
+    if state == "cut":
+        return out[0] + _ds_cut(d)
     if state == "three":
         out.append(swatch("dslg", BX + 28, BY + 66, "bm", "the paper's answers, our labeller", 40))
     bx, bw, mx, bh, gp = BX + 230, 290, 20, 44, 34
@@ -440,6 +444,33 @@ def deepseek(state="two"):
         out.append(hbar(f"dsb{i}", bx, y, bw * v / mx, bh, kind))
         out.append(txt(f"dsv{i}", bx + blen(bw * v / mx) + 14, y - 16, str(v), f"f4 {col}"))
     ay = y0 + 3 * (bh + gp) - 22
+    out.append(grid("dsax", bx - 5, y0 - 12, 5, ay - y0 + 17, "ink"))
+    out.append(grid("dsaxh", bx - 5, ay, bw + 10, 5, "ink"))
+    for t in (0, 10, 20):
+        x = bx + r5(bw * t / mx)
+        out.append(txt(f"dst{t}", x - 40, ay + 4, str(t), "f2 slate", "center", 80))
+    return "".join(out)
+
+
+def _ds_cut(d):
+    """DeepSeek V3 at two cutoffs on the template's lean (|share of YES - 0.5|, flag_pairs' bias_thr): the paper's
+    answers under our labeller (hatched) and our run (orange), at the stated 0.05 and at 0.10. Most of the gap
+    between the two runs is in pairs whose template lean sits just past 0.05. noise_models.json,
+    paired.deepseek.grid_paper_relabelled_ours (gap 0.5)."""
+    g = d["grid_paper_relabelled_ours"]
+    out = [swatch("dslg", BX + 28, BY + 66, "bm", "the paper's answers, our labeller", 40),
+           swatch("dslg2", BX + 28, BY + 106, "bo", "our run", 40)]
+    bx, bw, mx, bh = BX + 255, 290, 20, 28       # room for the cutoff labels
+    y0 = BY + 152
+    for gi, (lab, key) in enumerate((("lean cutoff 0.05", "bias0.05_gap0.5"), ("lean cutoff 0.10", "bias0.1_gap0.5"))):
+        yg = y0 + gi * 92
+        out.append(txt(f"dsc{gi}", BX + 28, yg + 12, lab, "f2 ink"))
+        for j, (v, kind, col) in enumerate(((g[key][1], "bm", "slate"), (g[key][2], "bo", "orange"))):
+            i = 1 + j + 2 * gi                     # 1, 2: the bars of the slide before glide to the first cutoff
+            y = yg + j * 36
+            out.append(hbar(f"dsb{i}", bx, y, bw * v / mx, bh, kind))
+            out.append(txt(f"dsv{i}", bx + blen(bw * v / mx) + 14, y + bh // 2 - 30, str(v), f"f3 {col}"))
+    ay = y0 + 168
     out.append(grid("dsax", bx - 5, y0 - 12, 5, ay - y0 + 17, "ink"))
     out.append(grid("dsaxh", bx - 5, ay, bw + 10, 5, "ink"))
     for t in (0, 10, 20):
@@ -556,10 +587,10 @@ def recall(state="known"):
         for i in range(10):
             f = min(1.0, max(0.0, lit - i))
             t += f'<div class="o" style="left:{i * 40}px;top:0;width:34px;height:34px;{wrong}"></div>'
-            if f < 1:
+            if f == 0:
                 t += f'<div class="o" style="left:{i * 40 + 7}px;top:7px">{cross_svg("steel", 5, 4)}</div>'
-            if f > 0:
-                t += (f'<div class="o" style="left:{i * 40}px;top:0;width:{round(34 * f / 5) * 5 if f < 1 else 34}px;height:34px;'
+            else:                          # a whole cell, or a split one: its left part orange, the rest an empty outline
+                t += (f'<div class="o" style="left:{i * 40}px;top:0;width:{34 if f == 1 else round(34 * f)}px;height:34px;'
                       f'background:var(--orange);box-shadow:inset 0 5px 0 0 var(--gold),inset -5px 0 0 0 var(--rust)"></div>')
         return el(id_, BX + 30, y, t, "", "width:394px;height:34px")
 
@@ -572,10 +603,11 @@ def recall(state="known"):
         out.append(txt("rcn1", BX + 440, y0 + 268, "8.5 in 10", "f3 ink"))
     on = state == "guess"
     gx = BX + 30 + 5 * 40 - 5
-    dash = "".join(f'<div class="o" style="left:0;top:{q * 16}px;width:5px;height:9px;background:var(--{"ink" if on else "ice"})"></div>'
-                   for q in range(9))
+    # the dashed line runs only across the rows of cells (rows at +192 and +282, 34 high), not through their labels
+    dash = "".join(f'<div class="o" style="left:0;top:{r0 + q * 16}px;width:5px;height:9px;background:var(--{"ink" if on else "ice"})"></div>'
+                   for r0 in (6, 96) for q in range(3))
     GRIDS.add("rcg")
-    out.append(el("rcg", gx, y0 + 180, dash, "", "width:5px;height:140px"))
+    out.append(el("rcg", gx, y0 + 186, dash, "", "width:5px;height:137px"))
     if on:
         out.append(band("rcglb", gx - 4 - tw("guessing: 5 in 10") // 2 - 8, y0 + 330, tw("guessing: 5 in 10") + 16, 30))
     out.append(txt("rcgl", gx - 4 - tw("guessing: 5 in 10") // 2, y0 + 325, "guessing: 5 in 10", "f2 " + ("ink" if on else "ice")))
@@ -623,7 +655,7 @@ def slides():
         "fig2_axes": fig2("axes"), "fig2_bars": fig2("bars"), "fig2_top": fig2("top"), "fig2_think": fig2("think"),
         "fig2_rec": fig2("recomputed"),
         "rec_table": recompute(), "rank_claim": rank("claim"), "rank_table": rank("table"),
-        "ds_two": deepseek("two"), "ds_three": deepseek("three"), "excess": excess("with"), "excess_both": excess("both"),
+        "ds_two": deepseek("two"), "ds_three": deepseek("three"), "ds_cut": deepseek("cut"), "excess": excess("with"), "excess_both": excess("both"),
         "kind_all": kind("all"), "kind_gpt": kind("gpt"), "kind_rev": kind("rev"),
         "recall": recall("known"), "recall_other": recall("other"), "recall_guess": recall("guess"), "dist": dist(),
         "ablation": ablation(),

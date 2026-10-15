@@ -152,7 +152,7 @@ def pairs(tl):
         x, y = card_xy(HERO, side)
         tl.put(wid, P.qcard("place", CW_, CH_), x, y, z=11, screen=True)
     _pair_cast(tl, "neutral")
-    n = ui.big(f"{charts.N_PAIRS:,} pairs", "ink", 40)
+    n = ui.big(f"{charts.N_PAIRS:,} pairs", "white", 40)
     tl.put("t_pairs", n, cx(n, 20, 290), 8, z=40, screen=True)
     cue(tl, "question and reverse: a pair")
     tl.beat("The authors built almost five thousand such pairs")
@@ -166,7 +166,7 @@ def pairs(tl):
         paste(im, ic, 0, 0); paste(im, t, ic.width + 4, (im.height - t.height) // 2)
         items.append(im)
     tot = sum(i.width for i in items) + 8 * 3
-    x = cx(blank(tot, 1), 16, 262)
+    x = CUE_XY[0]                         # wider than the wall: start at the cue plate's margin
     for k, im in enumerate(items):
         tl.put(f"t_kind{k}", im, x, 168, z=40, screen=True)
         x += im.width + 8

@@ -5,7 +5,7 @@ from px import rect, paste
 
 WX, WY, WW = 22, 24, 150                 # the chat window of both variations
 RBC = 326                                 # the big robot's centre, to the right
-SC = 247                                  # the big scale's centre, between the window and the robot
+SC = 235                                  # the scale's centre, between the window and the robot (its YES pan clears it)
 QF = "Was film A released\nbefore film B?"
 QW = "Is lake B west\nof lake A?"
 
@@ -17,9 +17,9 @@ def two(tl):
     clear_charts(tl)
     tl.clear(); put_ground(tl)
     tl.put("floor", floor(300), 42, GY, z=2, screen=True)
-    LBY = 146                                     # one baseline for both labels
-    for k, (c_, img, lab) in enumerate(((80, P.factcard(["A: true value", "B: true value"], 112), "values in the prompt"),
-                                        (306, P.compass(30), "geography wording"))):
+    LBY = 118                                     # one baseline for both labels, above the robot's arms
+    for k, (c_, img, lab) in enumerate(((78, P.factcard(["A: true value", "B: true value"], 140), "values in the prompt"),
+                                        (308, P.compass(38), "geography wording"))):
         tl.put(("fact", "compass")[k], img, c_ - img.width // 2, LBY - 12 - img.height, z=12, screen=True)
         t = T(lab, "ink")
         tl.put(f"t_v{k + 1}", t, c_ - t.width // 2, LBY, z=40, screen=True)
@@ -57,35 +57,42 @@ def _scene(tl, bubble_text, card=None, face="neutral", acc=(), arms=("down", "do
 
 
 def _big_scale(tl, tilt=0, grey=False):
-    """The big scale, a little left of SC so its YES pan clears the robot."""
     sc = scale(tilt, grey=grey, s=1.25)
-    tl.put("scale", sc, SC - 12 - sc.width // 2, feet(sc), z=6, screen=True)
+    tl.put("scale", sc, SC - sc.width // 2, feet(sc), z=6, screen=True)
 
 
 def _numbers_trace():
-    """A reasoning trace in grey strokes; on its second line the two numbers it writes, in gold, compared the
-    wrong way round (the later one written as the earlier)."""
+    """A reasoning trace in grey strokes; on its second line the two numbers it writes, as grey blocks with an ink
+    edge, compared the wrong way round (the later one written as the earlier)."""
     img = P.trace(WW - 16, 4, seed=7)
     rect(img, 0, 9, WW - 16, 10, "white")
     for x in (8, 58):
-        rect(img, x - 1, 10, 28, 8, "ink"); rect(img, x, 11, 26, 6, "gold"); rect(img, x, 11, 26, 1, "yellow")
+        rect(img, x - 1, 10, 28, 8, "ink"); rect(img, x, 11, 26, 6, "steel"); rect(img, x, 11, 26, 1, "ice")
     lt = T("<", "ink")
     paste(img, lt, 42, 14 - lt.height // 2)
     return img
 
 
-NUMS_AT = (8, 10, 84, 18)        # where the two numbers sit in the trace: x0, y0, x1, y1
+NUMS_AT = (8, 10, 84, 18)        # where the two numbers sit in the trace: x0, y0, x1, y1 (the bracket spans x0..x1)
 
 
-def _answer(unsure=False):
-    """The wrong answer: the trace with its numbers, optionally the words 'not sure', then YES and an ink cross."""
+def _answer(unsure=False, named=False):
+    """The wrong answer: the trace with its numbers (named=True: a bracket under the two numbers and the words
+    "its numbers"), optionally the words 'not sure', then YES and an ink cross."""
     yes = ui.plate("YES", "green", "white", 20, 2)
     tr = _numbers_trace()
     ns = ui.chip("not sure", "slate", "ice", border="steel") if unsure else None
-    h = tr.height + 4 + (ns.height + 4 if ns else 0) + yes.height
+    nm = T("its numbers", "ink") if named else None
+    x0, _, x1, _ = NUMS_AT
+    th = tr.height + (4 + nm.height + 2 if nm else 0)
+    h = th + 4 + (ns.height + 4 if ns else 0) + yes.height
     ans = blank(tr.width, h)
     paste(ans, tr, 0, 0)
-    y = tr.height + 4
+    if nm:                                    # the bracket under the two numbers, the words centred under it
+        by = tr.height + 1
+        rect(ans, x0 - 1, by, x1 - x0 + 2, 1, "ink"); rect(ans, x0 - 1, by - 2, 1, 2, "ink"); rect(ans, x1, by - 2, 1, 2, "ink")
+        paste(ans, nm, (x0 + x1) // 2 - nm.width // 2, by + 3)
+    y = th + 4
     if ns:
         paste(ans, ns, 0, y); y += ns.height + 4
     paste(ans, yes, 0, y); paste(ans, ui.cross("ink"), yes.width + 4, y + (yes.height - 9) // 2)
@@ -148,20 +155,9 @@ def facts(tl):
 
     # in its wrong answers the written numbers support the wrong answer -----------------------------------------
     clear_charts(tl)
-    _scene(tl, QF, None, "focus", answer=_answer(), who="llama")
+    _scene(tl, QF, None, "focus", answer=_answer(named=True), who="llama")
     _name(tl, "Llama 3.3 70B")
     _big_scale(tl, 1)
-    # "its numbers": a label beside the window, a leader line to the two numbers in the trace
-    an = tl.objs["ans"]
-    t = T("its numbers", "ink")
-    lx, ly = WX + WW + 12, round(an.y) - 26
-    tl.put("t_nums", t, lx, ly, z=40, screen=True)
-    x0, y0, x1, y1 = NUMS_AT
-    tx, ty = round(an.x) + x1 + 4, round(an.y) + (y0 + y1) // 2
-    ld = blank(lx - tx - 3, ty - ly - t.height // 2 + 2)
-    from px import line as _ln
-    _ln(ld, ld.width - 1, 0, 0, ld.height - 1, "ink")
-    tl.put("leader", ld, tx, ly + t.height // 2, z=41, screen=True)
     cue(tl, "wrong answer: its numbers back it")
     tl.beat("In its wrong answers, the numbers it writes support the wrong answer.", morph=0.9)
 
@@ -170,8 +166,7 @@ def facts(tl):
     t = tl.objs["t_name"].img
     tl.put("t_name", t, RBC - 6 - t.width // 2, GY - RB_H * 1.5 - t.height - 4)
     sc = scale(1, s=1.0)
-    tl.put("scale", sc, 236 - sc.width // 2, feet(sc))
-    tl.drop("t_nums", "leader")
+    tl.put("scale", sc, 218 - sc.width // 2, feet(sc))          # clear of the larger robot
     cue(tl, "unsure, answers anyway")
     tl.beat("It often says it is unsure and answers anyway.")
 
@@ -194,8 +189,10 @@ def _total(tl, parts):
         paste(n, i, x_, (n.height - i.height) // 2); x_ += i.width + 8
     w = t.width + 10 + n.width
     x = 192 - w // 2
-    tl.put("t_totl", t, x, 14 + (n.height - t.height) // 2, z=40, screen=True)
-    tl.put("t_tot", n, x + t.width + 10, 14, z=40, screen=True)
+    tl.put("t_totl", t, x, 10 + (n.height - t.height) // 2, z=40, screen=True)
+    tl.put("t_tot", n, x + t.width + 10, 10, z=40, screen=True)
+    s_ = T("the four models in this test", "slate")
+    tl.put("t_four", s_, 192 - s_.width // 2, 10 + n.height + 2, z=40, screen=True)
 
 
 LADDER = [("base", "paper's wording"), ("paraphrase", "reworded,\nsame vague"),
@@ -304,9 +301,11 @@ def wording(tl):
         v = G[c_]["flags"]
         L = v * BWD / N
         tl.put(f"slot_lb{i}", _hbar(L), BX0, ys[i] + 1, z=13, screen=True)
-        if c_ == "strict":
-            t = ui.say(f"{v} of {N}", "white", 20)
-            tl.put(f"t_lv{i}", t, BX0 + round(L) - t.width - 5, ys[i] + 1 + (20 - t.height) // 2, z=40, screen=True)
+        if c_ == "strict":                    # the bar nearly fills its track: a large numeral like the others, under
+            nb, ob = ui.say(str(v), "orange", 40), ui.say(f"of {N}", "slate", 20)   # its end, "of 684" smaller
+            t = blank(nb.width + 4 + ob.width, nb.height)
+            paste(t, nb, 0, 0); paste(t, ob, nb.width + 4, nb.height - ob.height - 1)
+            tl.put(f"t_lv{i}", t, BX0 + BWD - t.width, ys[i] + 1 + 20 + 3, z=40, screen=True)
             tl.drop("t_all")
         else:
             t = ui.say(str(v), "orange", 40)
@@ -358,7 +357,10 @@ def readings(tl):
         x = 22 + k * 172
         tl.put(f"map{k}", P.lakemap(reading, 170, 110), x, 40, z=8, screen=True)
         t = ui.chip(lab, fg, bg)
-        tl.put(f"t_read{k}", t, x + 85 - t.width // 2, 156, z=40, screen=True)
+        a_ = ui.plate(*(("YES", "green") if k == 0 else ("NO", "red")), "white", 20, 2)   # B is southwest of A
+        x_ = x + 85 - (t.width + 5 + a_.width) // 2           # the reading and its answer, one row under the map
+        tl.put(f"t_read{k}", t, x_, 156, z=40, screen=True)
+        tl.put(f"t_ans{k}", a_, x_ + t.width + 5, 156 + (t.height - a_.height) // 2, z=40, screen=True)
     cue(tl, "how it reads \"west\"")
     tl.beat("So many of these flags depend on how the model reads \"west\".")
 

@@ -160,12 +160,17 @@ def claims():
     d = N["paired"][ch.DS]
     ds = (d["paper_run_vs_ours"]["flags"], d["paper_answers_our_labels_vs_ours"]["flags"], R["base"][ch.DS]["n_unf"])
     out.append((ds[0] > ds[1] > ds[2], f"'DeepSeek gets fewer, part of that our labeller': paper {ds[0]}, paper's answers with our labels {ds[1]}, ours {ds[2]}"))
+    gd = d["grid_paper_relabelled_ours"]
+    c5, c10 = gd["bias0.05_gap0.5"][1:], gd["bias0.1_gap0.5"][1:]
+    out.append((c5[0] - c5[1] > 3 and max(c10) <= 3 and abs(c10[0] - c10[1]) <= 1,
+                f"'the rest may be chance, since its leans sit close to the cutoff': cutoff 0.05 gives {c5[0]} and {c5[1]}, "
+                f"0.10 gives {c10[0]} and {c10[1]}"))
     gx = N["paired"]["openai/gpt-4o-mini"]["one_sided_lean_recurrence"]
     out.append((gx["mean_in_other_run"] > 2 * gx["null_975"],
                 f"'GPT-4o mini ... also did better on that order in ours, beyond its general lean': "
                 f"{gx['mean_in_other_run']:.2f} against noise up to {gx['null_975']:.2f}"))
     out.append((gx["anti_mean_in_other_run"] > 2 * gx["anti_null_975"] and gx["anti_mean_in_other_run"] >= gx["mean_in_other_run"],
-                f"'it did so just as often on pairs that went against its lean': against the lean "
+                f"'it did so by about as much on pairs that went against its lean': against the lean "
                 f"{gx['anti_mean_in_other_run']:.2f} (noise up to {gx['anti_null_975']:.2f}), with the lean {gx['mean_in_other_run']:.2f}"))
     rk = N["rate_by_kind_paper_full"]
     gm = rk["openai/gpt-4o-mini"]

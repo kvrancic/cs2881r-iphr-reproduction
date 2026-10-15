@@ -77,7 +77,7 @@ def thanks(tl):
     width of the pixel line), above the four models we reran, all on the ground line, two of them waving."""
     tl.section = "thanks"
     tl.clear(); put_ground(tl)
-    b = ui.big("Thank you", "ink", 60)
+    b = ui.big("Thank you", "white", 60)
     tl.put("t_thanks", b, cx(b), 18, z=40, screen=True)
     nm = T("[Name 1]     [Name 2]     [Name 3]", "ink")
     y = 18 + b.height + 5

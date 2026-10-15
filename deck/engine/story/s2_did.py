@@ -32,21 +32,22 @@ def recompute(tl):
     cue(tl, "released data: exact match")
     tl.beat("For the eight models whose ten-answer counts were released, our code gives exactly their numbers.", morph=0.9)
 
-    # three small discrepancies as three props on plinths: the plot's page, the retest's dial, the ranking's swap
+    # three discrepancies as three props on plinths: the plot's page, the retest's dial, the ranking's swap
     clear_charts(tl)
     tl.keep("ground")
-    props = (("pg", P.divpage(50, 64), "the plot"), ("dial", P.gauge(26, post=10)[0], "the retest"),
-             ("swap", P.swapcard(44, 32), "the ranking"))
+    props = (("pg", P.divpage(62, 80), "the plot"), ("dial", P.gauge(32, post=12)[0], "the retest"),
+             ("swap", P.swapcard(55, 40), "the ranking"))
+    PL = 34                                   # tall plinths: the props stand higher on the stage
     for k, (i, img, lab) in enumerate(props):
-        c_ = 66 + k * 98
-        tl.put(f"plinth{k}", P.plinth(64, 14), c_ - 32, GY - 14, z=8, screen=True)
-        tl.put(i, img, c_ - img.width // 2, GY - 14 - img.height, z=12, screen=True)
+        c_ = 62 + k * 100
+        tl.put(f"plinth{k}", P.plinth(80, PL), c_ - 40, GY - PL, z=8, screen=True)
+        tl.put(i, img, c_ - img.width // 2, GY - PL - img.height, z=12, screen=True)
         t = T(lab, "ink")
-        tl.put(f"t_{i}", t, c_ - t.width // 2, GY - 14 - img.height - t.height - 6, z=40, screen=True)
+        tl.put(f"t_{i}", t, c_ - t.width // 2, GY - PL - img.height - t.height - 6, z=40, screen=True)
     tl.put("floor", floor(320), 18, GY, z=2, screen=True)
     stage(tl, "focus", c=344)
-    cue(tl, "three small discrepancies")
-    tl.beat("We also found three small discrepancies.", morph=0.9)
+    cue(tl, "three discrepancies")
+    tl.beat("We also found three discrepancies.", morph=0.9)
 
     # the divisor: the plot's page with the number it divides by, against the stack of pairs in the data;
     # the robot stands between them, squints and points at 4,892
@@ -73,20 +74,21 @@ def recompute(tl):
     # the retest: the cutoff as a gauge on the ground; the paper states 0.5 (the ghost needle), its code uses 0.4;
     # the robot turns the knob down
     tl.keep("ground", "robot", "cfloor", "floor")
-    g, (gcx, gcy), tip = P.gauge(56, post=20)
+    GR = 70                                   # the gauge's radius
+    g, (gcx, gcy), tip = P.gauge(GR, post=26)
     gx_ = 128 - gcx
     tl.put("dial", g, gx_, GY - g.height, z=12, screen=True)
     gy_ = GY - g.height
     for i, (v, lab, fg, bg, side) in enumerate(((0.4, "used 0.4", "white", "sky", -1), (0.5, "stated 0.5", "sky", "white", 1))):
-        ex, ey = tip(v, 66)
+        ex, ey = tip(v, GR + 10)
         c = ui.chip(lab, fg, bg, border="sky" if bg == "white" else "ink")
         x = gx_ + ex - (c.width if side < 0 else 0)
         tl.put(f"t_cut{i}", c, x - (8 if side > 0 else 0), gy_ + ey - c.height, z=40, screen=True)
     for v, lab in ((0.3, "0.3"), (0.6, "0.6")):
         t = T(lab, "slate")
-        ex, _ = tip(v, 56)
+        ex, _ = tip(v, GR)
         tl.put(f"t_tick{lab[-1]}", t, gx_ + ex - t.width // 2, gy_ + gcy + 12, z=40, screen=True)
-    stage(tl, "squint", ("out", "down"), c=gx_ + gcx + 56 + 52)
+    stage(tl, "squint", ("out", "down"), c=gx_ + gcx + GR + 52)
     cue(tl, "looser than stated")
     tl.beat("The retest uses a looser cutoff than the paper states.", morph=0.9)
 
@@ -101,7 +103,7 @@ def recompute(tl):
     stage(tl, "shock", arms, c=342)
     hx, hy = hand(tl, "L", arms)
     t = P.swapcard(40, 30)
-    tl.put("swap", t, hx - t.width // 2 + 2, hy - t.height + 4, z=33, screen=True)
+    tl.put("swap", t, hx - t.width + 10, hy - t.height // 2, z=33, screen=True)    # held out at chest height
     cue(tl, "its own table: it changes")
     tl.beat("while its own table shows that it does.", morph=0.9)
 
@@ -244,25 +246,12 @@ def rerun(tl):
     cue(tl, "part of it: our labeller")
     tl.beat("Part of that is our labeller.")
 
-    # the rest: maybe a different model behind the same name: a close-up of the paper's run (blue) and ours (orange)
-    clear_charts(tl)
-    tl.keep("ground")
-    k = 1.5
-    tl.put("floor", floor(330), 27, GY, z=2, screen=True)
-    for i, (c_, face, col, who) in enumerate(((112, "calm", "sky", "robot"), (272, "question", "orange", "ds_new"))):
-        place(tl, who, robot(face, ant=col, tint=col, who="deepseek"), c_, k)
-        t = ui.chip(("paper's run", "our run")[i], "white", col)
-        tl.put(f"t_dsrun{i}", t, c_ - t.width // 2, 36, z=40, screen=True)
-    nm = ui.chip("DeepSeek V3", "white", "ink")
-    tl.put("t_dsname", nm, 192 - nm.width // 2, 4, z=40, screen=True)
-    by0, by1 = 4 + nm.height, 36
-    br = blank(164, by1 - by0)
-    my = (by1 - by0) // 2
-    rect(br, 0, my, 164, 2, "ink"); rect(br, 81, 0, 2, my, "ink")
-    rect(br, 0, my, 2, by1 - by0 - my, "ink"); rect(br, 162, my, 2, by1 - by0 - my, "ink")
-    tl.put("bracket", br, 111, by0, z=30, screen=True)
-    cue(tl, "same name, maybe another model")
-    tl.beat("The rest may be a different model behind the same name.")
+    # the rest: chance near the cutoff. At the stated cutoff on the template's lean (0.05) the two runs differ; at
+    # 0.10 only a few flags are left in either, so most of the gap sits in pairs just past the cutoff
+    chart(tl, "ds_cut")
+    stage(tl, "focus", who="deepseek")
+    cue(tl, "the rest: near the cutoff")
+    tl.beat("The rest may be chance, since its leans sit close to the cutoff.")
 
     # GPT-4o mini at the left points at one pair as two stacked runs: the paper's (blue) and ours (orange, grey
     # until its turn); the order that came out better sits on yellow in both
@@ -287,14 +276,14 @@ def rerun(tl):
 
     tl.keep("ground", "robot", "cfloor", "cue")
     chart(tl, "excess", dx=STD_R)
-    stage(tl, "happy", POINT_R, who="gpt", side="L")
+    stage(tl, "happy", POINT_R, who="gpt", c=LX - 8)          # the hand stops short of the bench's test tubes
     cue(tl, "same order better again")
     tl.beat("beyond its general lean.", morph=0.9)
 
     chart(tl, "excess_both", dx=STD_R)
-    stage(tl, "focus", POINT_R, who="gpt", side="L")
-    cue(tl, "against the lean: just as often")
-    tl.beat("It did so just as often on pairs that went against its lean.", morph=0.9)
+    stage(tl, "focus", POINT_R, who="gpt", c=LX - 8)
+    cue(tl, "against the lean: about as much")
+    tl.beat("It did so by about as much on pairs that went against its lean.", morph=0.9)
 
 
 BOT_X = (66, 152, 238, 324)          # the four models in a row
@@ -306,13 +295,14 @@ LEAN_TICKS = (0.1 * LEAN_PX, 0.2 * LEAN_PX)
 
 def lean_signs(tl, whos=range(4)):
     """Each model holds a sign with the size of its lean, the paper's run (blue) and ours (orange), all on one
-    scale: a common baseline and the same faint gridlines on every sign."""
+    scale: a common baseline and the same faint gridlines on every sign, each value (the lean gap, noise_models.json
+    paired.*.lean_gap) at its bar's end."""
     N = charts.NOISE["paired"]
     for k, (key, _) in enumerate(charts.FOUR):
         if k not in whos:
             continue
         lg = N[key]["lean_gap"]
-        pc = P.placard([(lg["paper"] * LEAN_PX, "paper", None), (lg["ours"] * LEAN_PX, "ours", None)], 72, ticks=LEAN_TICKS)
+        pc = P.placard([(lg[r] * LEAN_PX, r, f"{lg[r]:.2f}") for r in ("paper", "ours")], 72, ticks=LEAN_TICKS, bh=10)
         tl.put(f"sign{k}", pc, BOT_X[k] - pc.width // 2, ROBOT_Y + 50, z=36 + k, screen=True)
 
 

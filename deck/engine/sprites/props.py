@@ -430,7 +430,7 @@ def continents(w=60, h=34):
 
 
 def compass(r=22, lit="W"):
-    """A compass rose: a ring and four points; the point named by lit glows gold, the others are steel."""
+    """A compass rose: a ring and four points; the point named by lit is dark (ink), the others are steel."""
     d = 2 * r + 3
     img = blank(d, d)
     c = d // 2
@@ -445,7 +445,7 @@ def compass(r=22, lit="W"):
                 img.putpixel((x, y), rgba("white"))
     dirs = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
     for k, (dx, dy) in dirs.items():
-        col, sh = ("gold", "orange") if k == lit else ("steel", "slate")
+        col, sh = ("dusk", "ink") if k == lit else ("steel", "slate")
         tip = (c + dx * (r - 3), c + dy * (r - 3))
         side = (-dy, dx)
         pts = [tip, (c + side[0] * 4, c + side[1] * 4), (c - side[0] * 4, c - side[1] * 4)]
@@ -925,12 +925,13 @@ def swaptile(w=20, h=14):
     return img
 
 
-def placard(rows, w=56, scale=None, ticks=()):
+def placard(rows, w=56, scale=None, ticks=(), bh=None):
     """A white sign held in front of the body: rows = [(length in px, 'paper' | 'ours', label or None)].
-    Paper's run blue, ours orange, the bars lit on top and shaded on the right. With ticks (lengths in px), every
-    sign drawn on the same scale carries the same faint gridlines, so the signs of different models compare."""
+    Paper's run blue, ours orange, the bars lit on top and shaded on the right, each label at its bar's end. With
+    ticks (lengths in px), every sign drawn on the same scale carries the same faint gridlines, so the signs of
+    different models compare. bh sets the bar height."""
     from sprites.deckui import say
-    hs = 6 if not ticks else 8
+    hs = bh or (6 if not ticks else 8)
     labs = [say(r[2], "ink") if r[2] else None for r in rows]
     rh = [max(hs, l.height if l is not None else 0) for l in labs]
     h = sum(rh) + 3 * (len(rows) - 1) + 10
@@ -1034,14 +1035,14 @@ def gauge(r=50, used=0.4, stated=0.5, lo=0.3, hi=0.6, post=30, small=False):
         for off in ((-1, 0), (0, -1), (-1, -1), (0, 0)):
             line(img, cx + off[0], cy + off[1], ex + off[0], ey + off[1], "navy")
         line(img, cx, cy - 1, ex, ey - 1, "sky")
-    disc(img, cx, cy, 4, "ink"); disc(img, cx, cy, 3, "gold"); _P(img, cx - 1, cy - 1, "yellow")
+    disc(img, cx, cy, 4, "ink"); disc(img, cx, cy, 3, "slate"); _P(img, cx - 1, cy - 1, "steel")
     # post, foot and the knob at the right of the base
     rect(img, cx - 3, cy + 3, 7, post, "ink"); rect(img, cx - 2, cy + 3, 5, post, "steel"); rect(img, cx - 2, cy + 3, 1, post, "ice")
     rect(img, cx - 16, H_ - 5, 33, 5, "ink"); rect(img, cx - 15, H_ - 4, 31, 2, "slate"); rect(img, cx - 15, H_ - 4, 31, 1, "steel")
     kx, ky = cx + r + 4, cy - 3
-    rect(img, kx - 2, ky, 12, 10, "ink"); rect(img, kx - 1, ky + 1, 10, 8, "gold"); rect(img, kx - 1, ky + 1, 10, 2, "yellow")
+    rect(img, kx - 2, ky, 12, 10, "ink"); rect(img, kx - 1, ky + 1, 10, 8, "steel"); rect(img, kx - 1, ky + 1, 10, 2, "ice")
     for k in range(3):
-        rect(img, kx + 1 + k * 3, ky + 3, 1, 6, "orange")
+        rect(img, kx + 1 + k * 3, ky + 3, 1, 6, "slate")
     return img, (cx, cy), tip
 
 
