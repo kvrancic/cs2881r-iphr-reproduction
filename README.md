@@ -87,7 +87,7 @@ The pickle holds only pandas and numpy objects; we listed its opcodes with `pick
 ../.venv/bin/python figures.py              # figures/ (needs relabel_paper.json and geo_analysis.json, committed)
 ```
 
-**Full rerun without new sampling.** The raw answers are in the release [`data-v1`](https://github.com/kvrancic/cs2881r-iphr-reproduction/releases/tag/data-v1) as `responses.tar.gz` (RELEASE_SIZE bytes, sha256 `RELEASE_SHA`). Run `tar -xzf responses.tar.gz` at the repository root. Then `./run_analysis.sh` regenerates every file in `results/` and `figures/` with no paid calls. It needs internet access: `validate_judge.py` and `relabel_paper.py` download the authors' answer files from GitHub (cached under `data/*/raw/`).
+**Full rerun without new sampling.** The raw answers are in the release [`data-v2`](https://github.com/kvrancic/cs2881r-iphr-reproduction/releases/tag/data-v2) as `responses.tar.gz` (97518561 bytes, sha256 `e49759ddcc08d92e510376517383d26a76b50202fa0d3ee40df87a6b4ff9333d`). Run `tar -xzf responses.tar.gz` at the repository root. Then `./run_analysis.sh` regenerates every file in `results/` and `figures/` with no paid calls. It needs internet access: `validate_judge.py` and `relabel_paper.py` download the authors' answer files from GitHub (cached under `data/*/raw/`).
 
 **Full rerun with new sampling.** Put `OPENROUTER_API_KEY=...` in `.env`, then run `./run_all.sh` and `./run_analysis.sh`. `SPEND_CAP_USD` (default 100) stops all calls once logged spend reaches it. The 10-pair cost pilots used `generate.py --limit-pairs 10`.
 
