@@ -18,7 +18,7 @@ from openrouter import complete_reply, run_requests  # noqa: E402
 import judge  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-RAW = "https://raw.githubusercontent.com/jettjaniak/chainscope/main/chainscope/data"
+from relabel_paper import RAW  # noqa: E402  (pinned to the commit we used)
 OUT = ROOT / "data" / "judge_validation"
 MODELS = ["openai__gpt-4o-mini.yaml", "anthropic__claude-3.5-haiku.yaml"]
 N_PER_MODEL = 600

@@ -6,10 +6,6 @@
    reports retention with a 0.4 cutoff for the retest).
 3. Lean by kind of question: how many flagged pairs are geography questions
    leaning NO, and how many are other questions leaning YES.
-4. Per-pair evidence: for each flagged pair, a two-sided Fisher exact test on
-   correct/incorrect counts of the two questions (UNKNOWN as half, rounded
-   toward the null), to see how many flags are individually distinguishable
-   from equal accuracy with 10 samples per question.
 
 Writes results/paper_data_checks.json.
 """
@@ -19,7 +15,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import fisher_exact
 
 import iphr
 
@@ -50,19 +45,6 @@ OVERSAMPLED = {
 }
 
 
-def fisher_p(pt: pd.DataFrame) -> np.ndarray:
-    ps = []
-    for r in pt.itertuples():
-        cy = r.p_correct_y * r.total_count_y
-        cn = r.p_correct_n * r.total_count_n
-        # Round the half-credit counts toward each other (conservative for the flag).
-        hi_c, lo_c = (cy, cn) if cy >= cn else (cn, cy)
-        hi_t, lo_t = (r.total_count_y, r.total_count_n) if cy >= cn else (r.total_count_n, r.total_count_y)
-        a, b = int(np.floor(hi_c)), int(np.ceil(lo_c))
-        ps.append(fisher_exact([[a, hi_t - a], [b, lo_t - b]])[1])
-    return np.array(ps)
-
-
 def main():
     OUT.mkdir(exist_ok=True)
     df = pd.read_pickle(ROOT / "data" / "paper" / "df-wm-non-ambiguous-hard-2.pkl.gz")
@@ -72,7 +54,7 @@ def main():
     pt["unf"] = iphr.flag_pairs(pt)
     pt["unf_04"] = iphr.flag_pairs(pt, acc_thr=0.4)
 
-    res = {"figure2": {}, "retest": {}, "fisher": {}}
+    res = {"figure2": {}, "retest": {}}
     for m, g in pt.groupby("model_id"):
         n_over = int(over[g.index].sum()) if m in OVERSAMPLED else 0
         if m not in OVERSAMPLED:
@@ -94,11 +76,6 @@ def main():
                 "kept_at_100_thr05": int(go.unf.sum()),
                 "kept_at_100_thr04": int(go.unf_04.sum()),
             }
-        else:
-            p = fisher_p(g[g.unf])
-            res["fisher"][m] = {"flagged": int(g.unf.sum()),
-                                "p_lt_05": int((p < 0.05).sum()),
-                                "p_lt_01": int((p < 0.01).sum())}
 
     # Which way do flagged pairs lean, by kind of question? (10-sample flags only)
     ten = pt[(pt.total_count_y <= 10) & (pt.total_count_n <= 10) & pt.unf].copy()

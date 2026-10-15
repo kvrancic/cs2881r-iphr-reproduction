@@ -155,48 +155,6 @@
       "kept_at_100_thr04": 13
     }
   },
-  "fisher": {
-    "anthropic/claude-3.5-haiku": {
-      "flagged": 363,
-      "p_lt_05": 338,
-      "p_lt_01": 173
-    },
-    "deepseek/deepseek-chat": {
-      "flagged": 60,
-      "p_lt_05": 54,
-      "p_lt_01": 24
-    },
-    "google/gemini-2.5-flash-preview": {
-      "flagged": 106,
-      "p_lt_05": 93,
-      "p_lt_01": 52
-    },
-    "google/gemini-pro-1.5": {
-      "flagged": 320,
-      "p_lt_05": 309,
-      "p_lt_01": 210
-    },
-    "meta-llama/Llama-3.1-70B": {
-      "flagged": 159,
-      "p_lt_05": 137,
-      "p_lt_01": 66
-    },
-    "meta-llama/Llama-3.3-70B-Instruct": {
-      "flagged": 102,
-      "p_lt_05": 69,
-      "p_lt_01": 32
-    },
-    "openai/gpt-4o-mini": {
-      "flagged": 660,
-      "p_lt_05": 629,
-      "p_lt_01": 350
-    },
-    "qwen/qwq-32b": {
-      "flagged": 220,
-      "p_lt_05": 153,
-      "p_lt_01": 81
-    }
-  },
   "lean_by_kind": {
     "anthropic/claude-3.5-haiku": {
       "geography_NO": 303,
