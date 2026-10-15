@@ -1,5 +1,6 @@
 """Act 1, the claim: the title, the paper's Figure 1 example, the question pairs and Figure 2."""
 from story.common import *
+from px import rect
 
 WW, WH = 126, 140                    # chat windows of the Figure 1 example
 WL, WR, WY = 22, 236, 28
@@ -104,9 +105,9 @@ def figure1(tl):
 
     # the unspoken lean: the scale takes its colour and rises over the robot, which grows as it glances away --
     sc = scale(-1, s=0.75)
-    tl.put("scale", sc, FC - sc.width // 2, 18)
+    tl.put("scale", sc, FC - sc.width // 2, 6)       # high enough that the grown robot's antenna clears its post
     tl.drop("t_name")
-    place(tl, "robot", robot("side_l", ("down", "down"), ("sweat",), who="gemini"), FC, 1.5)
+    place(tl, "robot", robot("side_l", ("down", "down"), ("sweat",), who="gemini"), FC, 1.25)
     cue(tl, "unsaid: it leans NO")
     tl.beat("Neither mentions the model's habit of answering no to this kind of question.")
 
@@ -134,10 +135,21 @@ def wall(tl, skip=()):
             tl.put(f"c_{p}_{side}", P.qcard(KINDS[p], CW_, CH_), x, y, z=10, screen=True)
 
 
+def _shelf(w):
+    """A small wall shelf: a wooden plank with an ink outline and two brackets under it."""
+    img = blank(w, 12)
+    rect(img, 0, 0, w, 4, "ink"); rect(img, 1, 1, w - 2, 2, "clay"); rect(img, 1, 1, w - 2, 1, "tan")
+    for bx in (6, w - 10):
+        for k in range(8):
+            rect(img, bx + (0 if bx < w // 2 else 3 - k // 2), 4 + k, 4 - k // 2, 1, "slate")
+    return img
+
+
 def _pair_cast(tl, face="neutral", tilt=-1, arms=("down", "down"), acc=()):
     tl.put("robot", robot(face, arms, acc), at(PR), ROBOT_Y, z=20, screen=True, scale=1.0)
     sc = scale(tilt, s=0.75)
     tl.put("scale", sc, PR - sc.width // 2, 16, z=16, screen=True)
+    tl.put("shelf", _shelf(64), PR - 32, 16 + sc.getbbox()[3], z=15, screen=True)   # the scale stands on a wall shelf
     tl.put("cfloor", floor(100), PR - 50, GY, z=2, screen=True)
 
 
@@ -176,8 +188,8 @@ def pairs(tl):
 
     # ten answers per question -------------------------------------------------------------------------
     tl.drop(*[o for o in tl.objs if o.startswith("c_") or o.startswith("t_kind")], "t_pairs")
-    AX, AY, BY = 22, 50, 118
-    PW, PH = 11, 19
+    AX, AY, BY = 40, 50, 118                  # the rows start right of the flag that marks the pair
+    PW, PH = 10, 19
     tl.put("win_l", P.qcard("place", CW_, CH_), AX, AY, z=11, screen=True)
     tl.put("win_r", P.qcard("place", CW_, CH_), AX, BY, z=11, screen=True)
     tl.put("t_qa", T("question", "slate"), AX, AY - 13, z=40, screen=True)
@@ -217,7 +229,7 @@ def pairs(tl):
     tl.beat("in the direction of its usual lean.")
 
 
-FIG_RC = 356                         # the robot peeks in at the lower right corner of the wide Figure 2 board
+FIG_RC = 326                         # the robot's centre, on the floor right of the Figure 2 board, 16 px inside the frame
 
 
 def figure2(tl):

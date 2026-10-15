@@ -1,135 +1,142 @@
-"""One set piece per act, drawn on the full 384x216 screen in the ground's own pale colours (ice, a little steel)
-so it stays in the background: a lecture hall with a window and a radiator (the claim), a lab wall with two shelves (the reproduction), a map
-wall (by kind), a surveyor's corner with a tripod and a ranging pole (the variations), a stage with curtains
-(the close). Each is placed once per act under every other object and stays put, so Morph keeps it still."""
-import math
-from px import W, H, blank, rect, line, disc, ellipse, dither
+"""One set per act, drawn on the full 384x216 screen behind everything: a coloured wainscot along the back wall
+(a band above the ground line, inside the ground's white area, in muted palette colours that carry no meaning
+elsewhere: beige and clay wood, grey lab tiles, lilac cork, slate boards, stage boards) and one set piece in steel and
+slate. The band sits below the stage's text and the pieces stay clear of the places where text sits.
+
+  lecture  the claim: wood panelling and a tall window at the right
+  lab      the reproduction: low grey tiles and a glass cabinet with bottles at each edge
+  mapwall  by kind: lilac cork and a world map pinned to the wall
+  survey   the variations: slate boards and a theodolite on its tripod at the left
+  stage    the close: stage boards, curtains drawn back at both sides and a scalloped valance"""
+from px import W, H, blank, rect, line, disc, ellipse
 from pal import rgba
+from ground import ground
 
 GY = 184
+TOP = 146                     # the top of the wainscot
+
+
+def _inside():
+    """The ground's white area: the set never covers the dithered border."""
+    g = ground()
+    white = rgba("white")
+    return lambda x, y: g.getpixel((x, y)) == white
+
+
+def _band(img, light, dark, rail, step=None, grid=None, top=TOP, dense=False):
+    """The wainscot from top to the ground line: light, sprinkled with dark (1 in 16 pixels, or 1 in 4 if dense), a
+    2 px rail on top; step draws vertical panel lines every step px, grid a tile grid of that size."""
+    inside = _inside()
+    L, D, R = rgba(light), rgba(dark), rgba(rail)
+    for y in range(top, GY):
+        for x in range(W):
+            if not inside(x, y):
+                continue
+            if y < top + 2 or step and x % step == 0 or grid and (x % grid == 0 or (y - top) % grid == 0):
+                c = R
+            elif (x % 2 == 0 and y % 2 == 0 and (x + y) % 4 == 0) if dense else (x % 4 == 0 and y % 4 == 0):
+                c = D
+            else:
+                c = L
+            img.putpixel((x, y), c)
 
 
 def _window(img, x, y, w, h):
-    """A tall window: an ice frame, four panes, sparse dithered glass."""
-    dither(img, x + 2, y + 2, w - 4, h - 4, "ice", 2)
+    """A tall window: a steel frame, four panes, ice glass."""
+    for yy in range(y + 2, y + h - 2):
+        for xx in range(x + 2, x + w - 2):
+            if (xx + yy) % 2 == 0:
+                img.putpixel((xx, yy), rgba("ice"))
     for d in (0, 1):
-        rect(img, x + d, y, 1, h, "ice"); rect(img, x + w - 1 - d, y, 1, h, "ice")
-        rect(img, x, y + d, w, 1, "ice"); rect(img, x, y + h - 1 - d, w, 1, "ice")
-    rect(img, x + w // 2, y, 1, h, "ice"); rect(img, x, y + h // 2, w, 1, "ice")
-    rect(img, x - 3, y + h, w + 6, 2, "ice")                    # the sill
+        rect(img, x + d, y, 1, h, "steel"); rect(img, x + w - 1 - d, y, 1, h, "steel")
+        rect(img, x, y + d, w, 1, "steel"); rect(img, x, y + h - 1 - d, w, 1, "steel")
+    rect(img, x + w // 2, y, 1, h, "steel"); rect(img, x, y + h // 2, w, 1, "steel")
+    rect(img, x - 3, y + h, w + 6, 2, "slate")                  # the sill
 
 
 def lecture():
-    """Act 1: a lecture hall's back wall: a tall window near the right corner, a low radiator at the left (clear of
-    the labels that sit at the left on some slides) and a wainscot rail."""
     img = blank(W, H)
+    _band(img, "sand", "clay", "clay")
     _window(img, W - 64, 30, 34, 84)
-    for k in range(6):                                 # the radiator: six fins on a foot
-        rect(img, 28 + k * 5, 160, 3, 20, "ice")
-    rect(img, 26, 178, 32, 2, "ice")
-    rect(img, 28, 150, W - 56, 1, "ice")
-    dither(img, 28, 152, W - 56, 1, "ice", 0)
     return img
 
 
-def _flask(img, x, y):
-    rect(img, x + 3, y, 4, 6, "ice")
-    for k in range(8):
-        rect(img, x + 3 - k // 2, y + 6 + k, 4 + k, 1, "ice")
-    dither(img, x + 1, y + 10, 8, 3, "steel", 0)
-
-
-def _beaker(img, x, y, h=12):
-    rect(img, x, y, 1, h, "ice"); rect(img, x + 9, y, 1, h, "ice"); rect(img, x, y + h - 1, 10, 1, "ice")
-    dither(img, x + 1, y + h // 2, 8, h // 2 - 1, "ice", 0)
-
-
-def _bottle(img, x, y):
-    rect(img, x + 2, y, 3, 4, "ice"); rect(img, x, y + 4, 7, 12, "ice")
-    dither(img, x + 1, y + 7, 5, 6, "steel", 1)
+def _cabinet(img, x, y, w, h):
+    """A tall glass-front lab cabinet: a slate frame, ice glass, two shelves of bottles."""
+    for yy in range(y, y + h):
+        for xx in range(x, x + w):
+            if (xx + yy) % 2 == 0:
+                img.putpixel((xx, yy), rgba("ice"))
+    for d in (0, 1):
+        rect(img, x + d, y, 1, h, "slate"); rect(img, x + w - 1 - d, y, 1, h, "slate")
+        rect(img, x, y + d, w, 1, "slate")
+    for sy in (y + h // 3, y + 2 * h // 3):
+        rect(img, x, sy, w, 2, "slate")
+        for k, bx in enumerate(range(x + 4, x + w - 5, 6)):
+            bh = 7 + (k % 2) * 3
+            rect(img, bx, sy - bh, 4, bh, "steel"); rect(img, bx + 1, sy - bh - 2, 2, 2, "steel")
 
 
 def lab():
-    """Act 2: a lab wall: two shelves high up at the left and the right with glassware, their brackets below; the
-    centre stays clear for the titles that sit there."""
     img = blank(W, H)
-    for x0, x1 in ((26, 128), (W - 128, W - 26)):
-        rect(img, x0, 36, x1 - x0, 2, "ice"); dither(img, x0, 38, x1 - x0, 1, "steel", 1)
-        for bx in (x0 + 10, x1 - 16):
-            line(img, bx, 39, bx + 6, 45, "ice"); rect(img, bx, 39, 1, 7, "ice")
-        x = x0 + 6
-        for kind in "fbtf":
-            if kind == "f":
-                _flask(img, x, 22); x += 16
-            elif kind == "b":
-                _beaker(img, x, 24); x += 18
-            else:
-                _bottle(img, x, 20); x += 14
-            x += 10
+    _band(img, "ice", "steel", "steel", grid=12, top=172)    # low tiles: clear of the gauge's scale labels
+    _cabinet(img, 18, 116, 28, 56)              # low cabinets: under the labels that sit at the left
+    _cabinet(img, W - 46, 116, 28, 56)
     return img
 
 
-CONTINENTS = [(110, 46, 46, 26), (132, 72, 20, 30), (190, 42, 30, 20), (200, 68, 26, 32), (236, 46, 70, 30),
-              (278, 82, 26, 18), (330, 56, 22, 14)]   # (centre x, centre y, w, h) on the screen
+CONTINENTS = [(110, 50, 46, 26), (132, 80, 20, 30), (190, 46, 30, 20), (200, 76, 26, 32), (236, 50, 70, 30),
+              (278, 92, 26, 18), (330, 60, 22, 14)]   # (centre x, centre y, w, h) on the screen
 
 
 def mapwall():
-    """Act 3: a world map pinned to the wall: an ice frame, continents in sparse dithered ice, two pins."""
     img = blank(W, H)
-    x0, y0, x1, y1 = 40, 18, W - 40, 112
+    _band(img, "ice", "grape", "grape", top=172, dense=True)   # under the labels of the split
+    x0, y0, x1, y1 = 32, 16, W - 32, 154
     for d in (0, 1):
-        rect(img, x0, y0 + d, x1 - x0, 1, "ice"); rect(img, x0, y1 - d, x1 - x0, 1, "ice")
-        rect(img, x0 + d, y0, 1, y1 - y0, "ice"); rect(img, x1 - d, y0, 1, y1 - y0 + 1, "ice")
+        rect(img, x0, y0 + d, x1 - x0, 1, "steel"); rect(img, x0, y1 - d, x1 - x0, 1, "steel")
+        rect(img, x0 + d, y0, 1, y1 - y0, "steel"); rect(img, x1 - d, y0, 1, y1 - y0 + 1, "steel")
     for (cx, cy, w, h) in CONTINENTS:
         m = blank(w, h)
-        ellipse(m, 0, 0, w, h, "ice")
+        ellipse(m, 0, 0, w, h, "steel")
         for yy in range(h):
             for xx in range(w):
-                if m.getpixel((xx, yy))[3] and (xx % 2 == 0 and yy % 2 == 0 or xx % 4 == 1 and yy % 4 == 1):
-                    img.putpixel((cx - w // 2 + xx, cy - h // 2 + yy), m.getpixel((xx, yy)))
-    for (px_, py_) in ((x0 + 4, y0 + 4), (x1 - 4, y0 + 4)):
-        disc(img, px_, py_, 2, "steel")
+                if m.getpixel((xx, yy))[3] and (xx + yy) % 2 == 0:
+                    img.putpixel((cx - w // 2 + xx, cy - h // 2 + yy), rgba("ice"))
+                if m.getpixel((xx, yy))[3] and xx % 4 == 0 and yy % 4 == 0:
+                    img.putpixel((cx - w // 2 + xx, cy - h // 2 + yy), rgba("steel"))
+    for (px_, py_) in ((x0 + 5, y0 + 5), (x1 - 5, y0 + 5)):
+        disc(img, px_, py_, 2, "slate")
     return img
 
 
 def survey():
-    """Act 4: a surveyor's corner: a theodolite on its tripod at the left edge and a striped ranging pole at the
-    right edge, both standing on the ground, and a small compass rose high on the left wall."""
     img = blank(W, H)
-    cx, cy, r = 48, 40, 15
-    for a in range(0, 360, 2):
-        img.putpixel((round(cx + r * math.cos(math.radians(a))), round(cy + r * math.sin(math.radians(a)))), rgba("ice"))
-    for dx, dy in ((0, -1), (1, 0), (0, 1), (-1, 0)):
-        line(img, cx, cy, cx + dx * (r - 2), cy + dy * (r - 2), "ice")
-    disc(img, cx, cy, 1, "steel")
-    tx, ty = 22, 150                                   # the theodolite: a head on three legs, feet on the ground, low
-                                                       # enough to stay under the labels at the left
-    rect(img, tx - 6, ty - 10, 13, 8, "ice"); rect(img, tx - 3, ty - 14, 7, 4, "ice"); rect(img, tx + 7, ty - 8, 4, 3, "ice")
+    _band(img, "ice", "dusk", "dusk", step=32, top=162)      # lower: the wording ladder's last row sits above it
+    tx, ty = 22, 150                                   # the theodolite: a head on three legs, feet on the ground
+    rect(img, tx - 6, ty - 10, 13, 8, "slate"); rect(img, tx - 3, ty - 14, 7, 4, "slate"); rect(img, tx + 7, ty - 8, 4, 3, "slate")
+    rect(img, tx - 5, ty - 9, 11, 2, "steel")
     for fx in (tx - 16, tx, tx + 16):
-        line(img, tx, ty - 2, fx, GY - 1, "ice")
-    px_ = W - 16                                       # the ranging pole: bands of ice and steel
-    for y in range(70, GY):
-        rect(img, px_, y, 3, 1, "steel" if (y // 8) % 2 else "ice")
+        line(img, tx, ty - 2, fx, GY - 1, "slate")
     return img
 
 
 def stage():
-    """The close: a stage, curtains drawn back at both sides and a valance across the top."""
     img = blank(W, H)
-    rect(img, 0, 0, W, 10, "ice")
+    _band(img, "sand", "brown", "brown", step=40)
+    rect(img, 0, 0, W, 10, "grape")
     for k in range(0, W, 24):                          # the valance's scalloped hem
         for dx in range(24):
             depth = max(1, round(4 * (1 - ((dx - 11.5) / 12) ** 2)))
-            rect(img, k + dx, 10, 1, depth, "ice")
-        rect(img, k + 23, 2, 1, 8, "steel")
-    for side in (0, 1):
-        for i in range(28):
+            rect(img, k + dx, 10, 1, depth, "grape")
+        rect(img, k + 23, 2, 1, 8, "plum")
+    for side in (0, 1):                                # the curtains, gathered towards the floor
+        for i in range(30):
             x = i if side == 0 else W - 1 - i
-            for y in range(10, GY):
-                fold = (i + (y // 30)) % 7
-                bulge = 28 - int(10 * ((y - 10) / (GY - 10)) ** 2)    # the curtain gathers towards the floor
-                if i < bulge and fold in (0, 1, 3):
-                    img.putpixel((x, y), rgba("ice"))
-                elif i < bulge and fold == 5 and y % 2 == 0:
-                    img.putpixel((x, y), rgba("steel"))
+            for y in range(12, GY):
+                bulge = 30 - int(12 * ((y - 12) / (GY - 12)) ** 2)
+                if i >= bulge:
+                    continue
+                fold = (i + (y // 30)) % 6
+                img.putpixel((x, y), rgba("plum" if fold == 0 else "grape" if fold in (1, 2, 4) else "pink"))
     return img

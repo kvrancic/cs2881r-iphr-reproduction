@@ -155,6 +155,8 @@ def claims():
     lg = {lab: N["paired"][k]["lean_gap"] for k, lab in ch.FOUR}
     out.append((all(abs(v["ours"] / v["paper"] - 1) < 0.25 for v in lg.values()),
                 "'leans about as strongly': " + ", ".join(f"{l} {v['paper']:.3f}/{v['ours']:.3f}" for l, v in lg.items())))
+    dmax = max(round(abs(v["ours"] - v["paper"]), 3) for v in lg.values())
+    out.append((dmax <= 0.012, f"'every model leans about as strongly as in the paper': lean gaps differ by at most {dmax:.3f}"))
     sm = {lab: (R["paper_same_pairs"][k]["n_unf"], R["base"][k]["n_unf"], N["paired"][k]["ratio_ours_to_paper_answers_our_labels_ci"])
           for k, lab in ch.FOUR if k != ch.DS}
     out.append((all(ci[0] <= 1 <= ci[1] for _, _, ci in sm.values()),
@@ -163,6 +165,10 @@ def claims():
     d = N["paired"][ch.DS]
     ds = (d["paper_run_vs_ours"]["flags"], d["paper_answers_our_labels_vs_ours"]["flags"], R["base"][ch.DS]["n_unf"])
     out.append((ds[0] > ds[1] > ds[2], f"'DeepSeek gets fewer, part of that our labeller': paper {ds[0]}, paper's answers with our labels {ds[1]}, ours {ds[2]}"))
+    rr = d["paper_answers_our_labels_vs_ours"]
+    out.append((rr["recur"] == 1 and rr["flags"] == 12 and rr["recur"] < d["expected_recurrence_ci"][0] * rr["flags"],
+                f"'only one of its twelve flags recurred, which hints at a change': {rr['recur']} of {rr['flags']}, "
+                f"unchanged model {d['expected_recurrence_ci'][0] * rr['flags']:.1f} to {d['expected_recurrence_ci'][1] * rr['flags']:.1f}"))
     gd = d["grid_paper_relabelled_ours"]
     c5, c10 = gd["bias0.05_gap0.5"][1:], gd["bias0.1_gap0.5"][1:]
     out.append((c5[0] - c5[1] > 3 and max(c10) <= 3 and abs(c10[0] - c10[1]) <= 1,
@@ -183,7 +189,7 @@ def claims():
     out.append((len(rev) == 3, f"'QwQ and Llama the other way round': {len(rev)} of 3 higher on the other questions"))
     rg, ro = N["ranking_geography"], N["ranking_other"]
     out.append((ro.index(rg[0]) >= len(ro) - 2 and ro.index(rg[-1]) <= 1,
-                f"'the ranking nearly reverses': first on geography {rg[0]} is {ro.index(rg[0]) + 1} of {len(ro)} on the rest; "
+                f"'the two rankings tend to run opposite': first on geography {rg[0]} is {ro.index(rg[0]) + 1} of {len(ro)} on the rest; "
                 f"last {rg[-1]} is {ro.index(rg[-1]) + 1}"))
     lt = c["lean_by_kind_total"]
     out.append((lt["geography_NO"] > 5 * lt["geography_YES"] and lt["other_YES"] > 5 * lt["other_NO"],
@@ -198,7 +204,7 @@ def claims():
     q = ch.GEO["distances"]["paper | openai/gpt-4o-mini"]["flag_rate_by_asked_quartile"]
     out.append((q[-1] == max(q), f"'flags most common for places far apart': by distance quarter {', '.join(f'{v:.1%}' for v in q)}"))
     out.append((G["base"]["flags"] == 131, f"'with the paper's wording it has 131 flags': {G['base']['flags']} of {G['base']['pairs']}"))
-    out.append((135 <= G["paraphrase"]["flags"] <= 145, f"'left the flags at about 140': {G['paraphrase']['flags']} (paper's wording {G['base']['flags']})"))
+    out.append((G["paraphrase"]["flags"] == 140, f"'a paraphrase with the same vague direction gives 140': {G['paraphrase']['flags']} (paper's wording {G['base']['flags']})"))
     out.append((G["coordwording"]["flags"] == 24, f"'asking for a more western longitude cuts them to 24': {G['coordwording']['flags']} of {G['coordwording']['pairs']}"))
     out.append((G["strict"]["flags"] == 667 and G["strict"]["pairs"] == 684, f"'raised them to 667 of 684': {G['strict']['flags']} of {G['strict']['pairs']}"))
     import re
@@ -206,5 +212,4 @@ def claims():
     m_ = re.search(r"GPT-4o-mini\s+(\d+\.\d+)%", paper[paper.index("near-identical longitudes"):])
     ab = float(m_.group(1)) if m_ else -1
     out.append((round(ab) == ch.ABLATION_PCT == 9, f"'the paper's own test ... still flags GPT-4o mini on nine percent': {ab}% in the paper's ablation"))
-    out.append((lc["wrong_says_unsure"] > 0.5, f"'Llama often says it is unsure and answers anyway': {lc['wrong_says_unsure']:.0%} of its wrong answers"))
     return out

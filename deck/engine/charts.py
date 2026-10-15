@@ -51,7 +51,7 @@ body { font-family: J; color: var(--ink); -webkit-font-smoothing: none; font-ker
 .f6 { font-size: %(f6)spx; line-height: 120px; }
 /* the boards */
 .paper { background: var(--white); box-shadow: 0 0 0 5px var(--ink), 10px 10px 0 5px var(--ice); }
-.term { background: var(--night); box-shadow: inset 0 0 0 5px var(--dusk), 0 0 0 5px var(--ink), 10px 10px 0 5px var(--ice); }
+.term { background: var(--night); box-shadow: inset 0 0 0 5px var(--dusk), 0 0 0 5px var(--ink); }
 .bench { background: var(--white);
   box-shadow: inset 0 0 0 5px var(--orange), inset 0 0 0 10px var(--white), 0 0 0 5px var(--ink), 10px 10px 0 5px var(--ice); }
 .hatch { background: repeating-linear-gradient(90deg, var(--sky) 0 10px, var(--orange) 10px 20px); }
@@ -194,6 +194,9 @@ def _rows_svg(rows, col, s):
     return f'<svg width="{len(rows[0]) * s}" height="{len(rows) * s}" shape-rendering="crispEdges" style="vertical-align:middle">{r}</svg>'
 
 
+THINK_SVG = _rows_svg([".XXX.", "XXXXX", ".XXX.", "X...."], {"X": "slate"}, 4)   # a thought-cloud: a thinking model
+
+
 def tick_svg(col="green", s=5):
     """A pixel check mark made of s x s squares."""
     pts = [(0, 3), (1, 4), (2, 5), (3, 4), (4, 3), (5, 2), (6, 1), (7, 0)]
@@ -257,10 +260,9 @@ FIG2 = [  # (key in paper_data_checks.json, label as in the paper's Figure 2, th
     ("meta-llama/Llama-3.3-70B-Instruct", "Llama 3.3 70B", False),
     ("qwen/qwq-32b", "QwQ 32B", True),
 ]
-F2 = dict(x=50, y=14, w=880, h=490)          # the paper board: native 20..372 x 6..202, the full height of the
-F2X0, F2PX, F2Y0, F2STEP, F2BH = 340, 19, 32, 29, 15   # stage; 16 rows 2 native px apart; the robot stands to its right
-F2TX = 748                                   # the title block, in the empty upper right of the board; the robot
-                                             # peeks in at the lower right corner
+F2 = dict(x=50, y=14, w=640, h=490)          # the paper board: native 20..276 x 6..202, the full height of the
+F2X0, F2PX, F2Y0, F2STEP, F2BH = 300, 19, 32, 29, 15   # stage; 16 rows 2 native px apart; the robot stands to its right
+F2TX = 508                                   # the title block, in the empty lower right of the plot
 F2_REC_H = 452                               # the shorter board of the 'recomputed' state: its slide has a cue
 
 
@@ -272,20 +274,21 @@ def ktxt(id_, x, y, s, cls="f2 navy", bg="white"):
 
 def fig2(state):
     """Figure 2 redrawn as horizontal bars, models sorted by their share, names right-aligned on the left, on a
-    paper board as tall and nearly as wide as the stage. The title sits in the empty upper right; the gridlines run
+    paper board as tall as the stage. The title sits in the empty lower right of the plot; the gridlines run
     unbroken with their labels at the foot. state: 'axes' (the names, every bar still at zero), 'bars', 'top'
-    (GPT-4o mini on yellow, its value just under the end of its bar, clear of the board's top for the magnifier),
-    'think' (every thinking model's name on yellow, with a key, and one bracket over every bar below 0.5%),
-    'recomputed' (an orange tick right after each of the eight bars we recomputed, with its key in the empty space
-    beside the shorter bars; the rows sit closer and the board is shorter, so the cue fits below it)."""
+    (GPT-4o mini on yellow, its value right of the end of its bar and a little lower, so a magnifier around it
+    stays inside the board and leaves the bar's tip uncovered), 'think' (a small slate thought-cloud before every
+    thinking model's name, the key beside the first of them, and one bracket over every bar below 0.5%), 'recomputed' (an orange
+    tick right after each of the eight bars we recomputed, with its key in the empty space beside the shorter bars;
+    the rows sit closer and the board is shorter, so the cue fits below it)."""
     rec = state == "recomputed"
     out = [el("bd", F2["x"], F2["y"], "", "paper", f"width:{F2['w']}px;height:{F2_REC_H if rec else F2['h']}px")]
     PANELS.add("bd")
     rows = sorted(FIG2, key=lambda r: -CHECKS["figure2"][r[0]]["paper_pct"])
     x0, px_, y0, step, bh = F2X0, F2PX, F2Y0, 27 if rec else F2STEP, F2BH
     top, bot = y0 - 8, y0 + 16 * step - 6
-    out.append(txt("bdt", F2TX, 26, "Figure 2", "f3 ink"))
-    out.append(el("bds", F2TX, 80, "share of<br>pairs flagged", "f2 slate", "line-height:31px"))
+    out.append(txt("bdt", F2TX, 262 if rec else 278, "Figure 2", "f3 ink"))
+    out.append(el("bds", F2TX, 312 if rec else 332, "share of<br>pairs flagged", "f2 slate", f"line-height:{29 if rec else 31}px"))
     TEXTS.add("bds")
     for p in (5, 10):
         x = x0 + p * px_
@@ -293,34 +296,38 @@ def fig2(state):
         out.append(txt(f"f2y{p}", x + 12, bot - 40, f"{p}%", "f2 slate"))
     out.append(grid("f2axis", x0 - 5, top, 5, bot - top, "ink"))
     if state != "axes":
-        out.append(txt("f2n", F2TX, 140, "16 models", "f2 slate"))
+        out.append(txt("f2n", F2TX, 365 if rec else 400, "16 models", "f2 slate"))
     for i, (key, lab, think) in enumerate(rows):
         d = CHECKS["figure2"][key]
         v = d["paper_pct"]
         y = y0 + i * step
-        lit = (state == "top" and key == "openai/gpt-4o-mini") or (state == "think" and think)
-        if lit:
+        if state == "top" and key == "openai/gpt-4o-mini":
             out.append(band(f"f2hl{i}", x0 - 20 - tw(lab) - 8, y - 4, tw(lab) + 16, bh + 8))
+        if state == "think" and think:              # a small thought-cloud before every thinking model's name
+            out.append(el(f"f2hl{i}", x0 - 20 - tw(lab) - 30, y + (bh - 16) // 2, THINK_SVG, "", "width:20px;height:16px"))
         out.append(txt(f"f2l{i}", F2["x"] + 8, y - 12, lab, "f2 ink", "right", x0 - 20 - F2["x"] - 8))
         if state == "axes":
             continue
         out.append(hbar(f"f2b{i}", x0, y, v * px_, bh, "bp"))
         end = x0 + blen(v * px_)
         if state == "top" and i == 0:
-            s_ = f"{v:.2f}%"                       # under the end of the bar, one row down
-            out.append(ktxt(f"f2v{i}", end - tw(s_) // 2 - 6, y + step - 2, s_, "f2 navy"))
+            s_ = f"{v:.2f}%"                       # right of the bar's end, centred where the magnifier goes
+            out.append(ktxt(f"f2v{i}", end + 63 - tw(s_) // 2 - 6, 55, s_, "f2 navy"))
         if state == "recomputed" and d["source"] == "recomputed":
             out.append(el(f"f2k{i}", end + 8, y + (bh - 14) // 2, tick_svg("orange", 2), "", "width:16px;height:14px"))
-    if state == "recomputed":                      # the key of the ticks, beside the shorter bars, on a white plate
-        kx = 503                                   # that the 10% gridline passes behind
-        PLATES.add("f2kp")
-        out.append(el("f2kp", kx - 8, 112, "", "", f"width:{16 + 8 + tw('recomputed') + 16}px;height:66px;background:var(--white)"))
+    if state == "recomputed":                      # the key of the ticks, beside the shorter bars, right of 10%
+        kx = x0 + 10 * px_ + 8
         out.append(el("f2kk", kx, 116 + 8, tick_svg("orange", 2), "", "width:16px;height:14px"))
         out.append(el("f2kt", kx + 24, 116, "recomputed<br>exactly", "f2 ink", "line-height:29px"))
         TEXTS.add("f2kt")
     if state == "think":
-        out.append(band("f2keyb", 548, 165, tw("thinking") + 16, 30))
-        out.append(txt("f2key", 548 + 8, 160, "thinking", "f2 ink"))
+        r3 = next(i for i, r in enumerate(rows) if r[2])      # the key beside the first thinking model's bar
+        ky = y0 + r3 * step
+        kx = x0 + 100
+        PLATES.add("f2keyp")
+        out.append(el("f2keyp", kx - 8, ky - 8, "", "", f"width:{30 + 10 + tw('thinking model') + 16}px;height:{bh + 16}px;background:var(--white)"))
+        out.append(el("f2keyb", kx + 4, ky + (bh - 16) // 2, THINK_SVG, "", "width:20px;height:16px"))
+        out.append(txt("f2key", kx + 34, ky - 12, "thinking model", "f2 ink"))
         x = x0 + round(0.5 * px_)
         dash = "".join(f'<div class="o" style="left:0;top:{k * 16}px;width:5px;height:9px;background:var(--ink)"></div>'
                        for k in range(0, (bot - top) // 16 + 1))
@@ -436,6 +443,8 @@ def deepseek(state="two"):
     out = [board("bench", "DeepSeek V3, flagged pairs", x=DSB["x"], w=DSB["w"])]
     if state == "cut":
         return out[0] + _ds_cut(d)
+    if state == "recur":
+        return out[0] + _ds_recur(d)
     if state == "three":
         out.append(swatch("dslg", DSB["x"] + 28, BY + 66, "bm", "the paper's answers, our labeller", 40))
     bx, bw, mx, bh, gp = BX + 230 + DSB["s"], 290, 20, 44, 34
@@ -481,6 +490,30 @@ def _ds_cut(d):
     for t in (0, 10, 20):
         x = bx + r5(bw * t / mx)
         out.append(txt(f"dst{t}", x - 40, ay + 4, str(t), "f2 slate", "center", 80))
+    return "".join(out)
+
+
+def _ds_recur(d):
+    """DeepSeek V3: the paper's flags under our labeller as tiles, one per flag; the ones flagged again in our run
+    lit orange, the rest grey; under them the range an unchanged model would give (expected_recurrence_ci of the
+    flags, rounded to whole pairs). noise_models.json, paired.deepseek.paper_answers_our_labels_vs_ours."""
+    r = d["paper_answers_our_labels_vs_ours"]
+    n, k = r["flags"], r["recur"]
+    lo, hi = (round(v * n) for v in d["expected_recurrence_ci"])
+    x0, y0 = BX + 28 + DSB["s"], BY + 80
+    out = [txt("dsr0", x0, y0, f"the paper's {n} flags, our labeller", "f2 ink")]
+    tiles = ""
+    for i in range(n):
+        lit = i < k
+        st = ("background:var(--orange);box-shadow:inset 0 5px 0 0 var(--gold),inset -5px 0 0 0 var(--rust),0 0 0 5px var(--ink)"
+              if lit else "background:var(--ice);box-shadow:inset 0 0 0 5px var(--steel)")
+        tiles += f'<div class="o" style="left:{i * 48}px;top:0;width:36px;height:36px;{st}"></div>'
+    out.append(el("dsrt", x0, y0 + 60, tiles, "", f"width:{n * 48}px;height:36px"))
+    out.append(el("dsrk", x0, y0 + 130, f'<div class="o" style="left:0;top:10px;width:20px;height:20px;background:var(--orange)"></div>'
+                  f'<div class="o f2 ink" style="left:30px;top:0">{k} flagged again in our run</div>', "",
+                  f"width:{30 + tw(f'{k} flagged again in our run')}px;height:40px"))
+    TEXTS.add("dsrk")
+    out.append(txt("dsrn", x0, y0 + 180, f"unchanged model: {lo} to {hi} of {n}", "f2 slate"))
     return "".join(out)
 
 
@@ -609,13 +642,13 @@ def recall(state="known"):
     on = state == "guess"
     gx = BX + 30 + 5 * 40 - 5
     # the dashed line runs only across the rows of cells (rows at +192 and +282, 34 high), not through their labels
-    dash = "".join(f'<div class="o" style="left:0;top:{r0 + q * 16}px;width:5px;height:9px;background:var(--{"ink" if on else "ice"})"></div>'
+    dash = "".join(f'<div class="o" style="left:0;top:{r0 + q * 16}px;width:5px;height:9px;background:var(--{"ink" if on else "steel"})"></div>'
                    for r0 in (6, 96) for q in range(3))
     GRIDS.add("rcg")
     out.append(el("rcg", gx, y0 + 186, dash, "", "width:5px;height:137px"))
     if on:
-        out.append(band("rcglb", gx - 4 - tw("guessing: 5 in 10") // 2 - 8, y0 + 330, tw("guessing: 5 in 10") + 16, 30))
-    out.append(txt("rcgl", gx - 4 - tw("guessing: 5 in 10") // 2, y0 + 325, "guessing: 5 in 10", "f2 " + ("ink" if on else "ice")))
+        out.append(band("rcglb", gx - 4 - tw("guessing: 5 in 10") // 2 - 8, y0 + 345, tw("guessing: 5 in 10") + 16, 30))
+    out.append(txt("rcgl", gx - 4 - tw("guessing: 5 in 10") // 2, y0 + 340, "guessing: 5 in 10", "f2 " + ("ink" if on else "slate")))
     return "".join(out)
 
 
@@ -660,7 +693,7 @@ def slides():
         "fig2_axes": fig2("axes"), "fig2_bars": fig2("bars"), "fig2_top": fig2("top"), "fig2_think": fig2("think"),
         "fig2_rec": fig2("recomputed"),
         "rec_table": recompute(), "rank_claim": rank("claim"), "rank_table": rank("table"),
-        "ds_two": deepseek("two"), "ds_three": deepseek("three"), "ds_cut": deepseek("cut"), "excess": excess("with"), "excess_both": excess("both"),
+        "ds_two": deepseek("two"), "ds_three": deepseek("three"), "ds_cut": deepseek("cut"), "ds_recur": deepseek("recur"), "excess": excess("with"), "excess_both": excess("both"),
         "kind_all": kind("all"), "kind_gpt": kind("gpt"), "kind_rev": kind("rev"),
         "recall": recall("known"), "recall_other": recall("other"), "recall_guess": recall("guess"), "dist": dist(),
         "ablation": ablation(),

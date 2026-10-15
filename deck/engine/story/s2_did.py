@@ -61,7 +61,7 @@ def recompute(tl):
         n = ui.big(num, col, 40, drop="ice")
         top = GY - (pg.height if i == 0 else st.height) - n.height - 8
         tl.put(f"t_num{i}", n, x0 + w_ // 2 - n.width // 2, top, z=40, screen=True)
-        t = T(lab, "slate")
+        t = T(lab, "ink")
         tl.put(f"t_lab{i}", t, x0 + w_ // 2 - t.width // 2, top - t.height - 4, z=40, screen=True)
     tl.put("floor", floor(340), 22, GY, z=2, screen=True)
     stage(tl, "squint", POINT, c=196)
@@ -251,6 +251,12 @@ def rerun(tl):
     stage(tl, "focus", who="deepseek", c=DS_C)
     cue(tl, "the rest: near the cutoff")
     tl.beat("The rest may be chance, since its leans sit close to the cutoff.")
+
+    # still: of the paper's twelve flags (our labeller) only one is flagged again in our run
+    chart(tl, "ds_recur")
+    stage(tl, "question", who="deepseek", c=DS_C)
+    cue(tl, "1 of 12 flagged again")
+    tl.beat("Still, only one of its twelve flags recurred, which hints at a change.", morph=0.9)
 
     # GPT-4o mini at the left points at one pair as two stacked runs: the paper's (blue) and ours (orange, grey
     # until its turn); the order that came out better sits on yellow in both

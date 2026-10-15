@@ -28,8 +28,8 @@ def split(tl):
     # the page of Figure 2 opens into the split board; it fills the stage, no robot
     tl.keep("ground")
     chart(tl, "kind_all", alias={"bd": "doc"})
-    cue(tl, "ranking nearly reverses")
-    tl.beat("The ranking nearly reverses.", morph=0.9)
+    cue(tl, "rankings run opposite")
+    tl.beat("The two rankings tend to run opposite.", morph=0.9)
     chart(tl, "kind_gpt", alias={"bd": "doc"})
     cue(tl, "GPT-4o mini: geography")
     tl.beat("GPT-4o mini is flagged on a fifth of the geography pairs and on one percent of the rest.")
@@ -61,6 +61,8 @@ def leans(tl):
     a = ui.runs([(f"{t['geography_NO']:,} NO", "wine"), ("   ", "ink"), (f"{t['geography_YES']} YES", "leaf")])
     tl.put("t_lno", a, C0 - a.width // 2, GY - PH + (PH - a.height) // 2 - 1, z=40, screen=True)
     place(tl, "robot", robot("side_l", POINT), (C0 + w0 // 2 + C1 - w1 // 2) // 2, z=20)
+    u = T("flagged pairs, by the template's lean", "ink")    # what the counts count
+    tl.put("t_unit", u, 192 - u.width // 2, 26, z=40, screen=True)
     cue(tl, "geography: leans NO")
     tl.beat("On geography the models lean towards no.")
 

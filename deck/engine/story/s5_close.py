@@ -11,7 +11,7 @@ def close(tl):
     tl.section = "close"
     tl.clear(); put_ground(tl)
     chart(tl, "fig2_rec")
-    stage(tl, "happy", ("up", "up"), c=356)      # peeking in at the board's lower right corner, as on Figure 2
+    stage(tl, "happy", ("up", "up"), c=326)      # on the floor right of the board, as on Figure 2
     cue(tl, "8 models: counts recompute")
     tl.beat("For the eight models with released data, Figure 2's counts recompute exactly.", fade=True)
 
@@ -25,8 +25,8 @@ def close(tl):
         tl.put(f"t_bot{k}", tag, c_ - tag.width // 2, ROBOT_Y - tag.height - 10, z=40, screen=True)
     lean_signs(tl)
     _key(tl, "size of the lean")
-    cue(tl, "every model: the same lean")
-    tl.beat("Every model's lean repeats.", fade=True)
+    cue(tl, "every lean: about as strong")
+    tl.beat("Every model leans about as strongly as in the paper.", fade=True)
 
     # the flag counts: GPT-4o mini, Llama and Gemini step forward with their counts; DeepSeek steps back
     R = charts.RUNS
@@ -53,19 +53,19 @@ def limits(tl):
     mw = _mini_wall(lit=(1, 7), cols=2, rows=3)
     faces.append((mw, "1,014 pairs,\nnot all " + f"{charts.N_PAIRS:,}"))
     faces.append((robot("focus", acc=("judge",)), "a different\njudge"))
-    faces.append((robot("question"), "same weights\nstill served?"))
+    faces.append((robot("question"), "weights\nunchanged?"))
     says = ("Our limits are a smaller sample,", "a different judge",
             "and no way to check that providers still serve the same weights.")
-    gap = 12
+    gap, CW = 10, 112                         # cards wide enough that every label keeps 16 px from the edges
     for n in range(1, 4):
-        x0 = 192 - (n * CARD_W + (n - 1) * gap) // 2
+        x0 = 192 - (n * CW + (n - 1) * gap) // 2
         for k in range(n):
             img, lab = faces[k]
-            x = x0 + k * (CARD_W + gap)
-            tl.put(f"card_{k}", P.card(CARD_W, CARD_H), x, CARD_Y, z=10, screen=True)
-            tl.put(f"lim{k}", img, x + (CARD_W - img.width) // 2 + (3 if k else 0), CARD_Y + 12 + max(0, (84 - img.height) // 2), z=12, screen=True)
+            x = x0 + k * (CW + gap)
+            tl.put(f"card_{k}", P.card(CW, CARD_H), x, CARD_Y, z=10, screen=True)
+            tl.put(f"lim{k}", img, x + (CW - img.width) // 2 + (3 if k else 0), CARD_Y + 12 + max(0, (84 - img.height) // 2), z=12, screen=True)
             t = T(lab, "ink", align="center")
-            tl.put(f"t_lim{k}", t, x + (CARD_W - t.width) // 2, CARD_Y + CARD_H - t.height - 12, z=40, screen=True)
+            tl.put(f"t_lim{k}", t, x + (CW - t.width) // 2, CARD_Y + CARD_H - t.height - 12, z=40, screen=True)
         if n == 1:
             cue(tl, "limits")
         tl.beat(says[n - 1], fade=(n == 1))

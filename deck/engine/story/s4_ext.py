@@ -18,10 +18,10 @@ def two(tl):
     tl.clear(); put_ground(tl)
     tl.put("floor", floor(300), 42, GY, z=2, screen=True)
     LBY = 118                                     # one baseline for both labels, above the robot's arms
-    for k, (c_, img, lab) in enumerate(((78, P.factcard(["A: true value", "B: true value"], 140), "values in the prompt"),
-                                        (308, P.compass(38), "geography wording"))):
+    for k, (c_, img, lab) in enumerate(((84, P.factcard(["A: true value", "B: true value"], 128), "values in\nthe prompt"),
+                                        (300, P.compass(38), "geography\nwording"))):
         tl.put(("fact", "compass")[k], img, c_ - img.width // 2, LBY - 12 - img.height, z=12, screen=True)
-        t = T(lab, "ink")
+        t = T(lab, "ink", align="center")
         tl.put(f"t_v{k + 1}", t, c_ - t.width // 2, LBY, z=40, screen=True)
     place(tl, "robot", robot("happy", ("out", "out")), 192)
     cue(tl, "two variations")
@@ -76,16 +76,15 @@ def _numbers_trace():
 NUMS_AT = (8, 10, 84, 18)        # where the two numbers sit in the trace: x0, y0, x1, y1 (the bracket spans x0..x1)
 
 
-def _answer(unsure=False, named=False):
+def _answer(named=False):
     """The wrong answer: the trace with its numbers (named=True: a bracket under the two numbers and the words
-    "its numbers"), optionally the words 'not sure', then YES and an ink cross."""
+    "its numbers"), then YES and an ink cross."""
     yes = ui.plate("YES", "green", "white", 20, 2)
     tr = _numbers_trace()
-    ns = ui.chip("not sure", "slate", "ice", border="steel") if unsure else None
     nm = T("its numbers", "ink") if named else None
     x0, _, x1, _ = NUMS_AT
     th = tr.height + (4 + nm.height + 2 if nm else 0)
-    h = th + 4 + (ns.height + 4 if ns else 0) + yes.height
+    h = th + 4 + yes.height
     ans = blank(tr.width, h)
     paste(ans, tr, 0, 0)
     if nm:                                    # the bracket under the two numbers, the words centred under it
@@ -93,8 +92,6 @@ def _answer(unsure=False, named=False):
         rect(ans, x0 - 1, by, x1 - x0 + 2, 1, "ink"); rect(ans, x0 - 1, by - 2, 1, 2, "ink"); rect(ans, x1, by - 2, 1, 2, "ink")
         paste(ans, nm, (x0 + x1) // 2 - nm.width // 2, by + 3)
     y = th + 4
-    if ns:
-        paste(ans, ns, 0, y); y += ns.height + 4
     paste(ans, yes, 0, y); paste(ans, ui.cross("ink"), yes.width + 4, y + (yes.height - 9) // 2)
     return ans
 
@@ -119,7 +116,7 @@ def facts(tl):
         tl.put(f"t_bot{k}", tg, c_ - tg.width // 2, ROBOT_Y - tg.height - 8, z=40, screen=True)
         sg = P.flagsign(charts.RUNS["by_kind"][key]["other"]["base"], 48)
         tl.put(f"sign{k}", sg, c_ - sg.width // 2, ROBOT_Y + 52, z=36 + k, screen=True)
-    _total(tl, [(str(a_), "orange")])
+    _total(tl, [])                            # the total comes with the next sentence
     cue(tl, "our runs, outside geography")
     tl.beat("As expected, flags outside geography", morph=0.9)
     for k, (key, nm) in enumerate(FACT_NAMES):
@@ -149,7 +146,7 @@ def facts(tl):
     stage(tl, "side_l", POINT, who="llama")
     hx, hy = hand(tl, "L", POINT)
     x, y, w, h = chart_pos("recall_guess", "rcgl")
-    hold(tl, "stick", hx, hy, round(x + w + 4), round(y + h / 2))
+    hold(tl, "stick", hx, hy, round(x + w + 4), hy if y <= hy <= y + h else round(y + h / 2))   # level: one straight line
     cue(tl, "and by guessing")
     tl.beat("and five in ten by guessing.")
 
@@ -160,15 +157,6 @@ def facts(tl):
     _big_scale(tl, 1)
     cue(tl, "wrong answer: its numbers back it")
     tl.beat("In its wrong answers, the numbers it writes support the wrong answer.", morph=0.9)
-
-    _scene(tl, QF, None, "question", ("sweat",), answer=_answer(unsure=True), who="llama", clear=False)
-    place(tl, "robot", robot("question", ("down", "down"), ("sweat",), who="llama"), RBC - 6, 1.5)
-    t = tl.objs["t_name"].img
-    tl.put("t_name", t, RBC - 6 - t.width // 2, GY - RB_H * 1.5 - t.height - 4)
-    sc = scale(1, s=1.0)
-    tl.put("scale", sc, 218 - sc.width // 2, feet(sc))          # clear of the larger robot
-    cue(tl, "unsure, answers anyway")
-    tl.beat("It often says it is unsure and answers anyway.")
 
 
 MAP_XY, MAP_WH = (12, 42), (160, 110)    # the lake map, over 40% of the width
@@ -183,6 +171,13 @@ def _total(tl, parts):
     """The total over the four models, at the top: a short label and the number(s) in large type."""
     t = T("flags outside geography", "ink")
     ims = [ui.arrow(22, "slate", 3) if s_ is None else ui.say(s_, c_, 40) for s_, c_ in parts]
+    if not ims:                               # no total yet: the label alone, at the height it keeps later
+        n = blank(1, ui.say("0", "ink", 40).height)
+        tl.put("t_totl", t, 192 - t.width // 2, 10 + (n.height - t.height) // 2, z=40, screen=True)
+        tl.drop("t_tot")
+        s_ = T("the four models in this test", "slate")
+        tl.put("t_four", s_, 192 - s_.width // 2, 10 + n.height + 2, z=40, screen=True)
+        return
     n = blank(sum(i.width for i in ims) + 8 * (len(ims) - 1), max(i.height for i in ims))
     x_ = 0
     for i in ims:
@@ -278,13 +273,13 @@ def wording(tl):
     tl.beat("so it is not directly west of it.")
 
     # the wording ladder: the same 684 pairs asked in four wordings, each a chat bubble with its flags as a bar on
-    # one scale; a faint dotted track of all 684 lies behind each row from the start; GPT-4o mini peeks in at the
-    # lower right throughout
+    # one scale and the count at the bar's end; a faint dotted track of all 684 lies behind each row from the start,
+    # "of 684" right of the top one; GPT-4o mini stands at the right, the whole robot inside the frame
     tl.clear(); put_ground(tl)
     G = charts.GEO["conditions"]
     N = G["base"]["pairs"]
-    BX0, BWD = 138, 192                       # the bars start at x 138; all 684 pairs span 192 px
-    LRC = 370                                 # GPT-4o mini peeks in at the lower right corner
+    BX0, BWD = 138, 96                        # the bars start at x 138; all 684 pairs span 96 px
+    LRC = 326                                 # GPT-4o mini's centre: 16 px from the right edge of the frame
     ys = (24, 62, 100, 138)
     ax = blank(2, ys[-1] + 24 - ys[0] + 8)
     rect(ax, 0, 0, 2, ax.height, "ink")
@@ -292,7 +287,7 @@ def wording(tl):
     for i, y_ in enumerate(ys):              # a faint dotted track behind each row: the room up to all pairs
         tl.put(f"slot_tr{i}", _track(BWD, 20), BX0, y_ + 1, z=11, screen=True)
     al = T(f"of {N}", "slate")
-    tl.put("t_all", al, BX0 + BWD - al.width, ys[3] + 1 + 20 + 4, z=40, screen=True)
+    tl.put("t_all", al, BX0 + BWD + 4, ys[0] + 11 - al.height // 2, z=40, screen=True)   # right of the top track
     stage(tl, "neutral", who="gpt", c=LRC)
 
     def rung(i, face, arms=("down", "down"), acc=()):
@@ -303,15 +298,8 @@ def wording(tl):
         v = G[c_]["flags"]
         L = v * BWD / N
         tl.put(f"slot_lb{i}", _hbar(L), BX0, ys[i] + 1, z=13, screen=True)
-        if c_ == "strict":                    # the bar nearly fills its track: a large numeral like the others, under
-            nb, ob = ui.say(str(v), "orange", 40), ui.say(f"of {N}", "slate", 20)   # its end, "of 684" smaller
-            t = blank(nb.width + 4 + ob.width, nb.height)
-            paste(t, nb, 0, 0); paste(t, ob, nb.width + 4, nb.height - ob.height - 1)
-            tl.put(f"t_lv{i}", t, BX0 + BWD - t.width, ys[i] + 1 + 20 + 3, z=40, screen=True)
-            tl.drop("t_all")
-        else:
-            t = ui.say(str(v), "orange", 40)
-            tl.put(f"t_lv{i}", t, BX0 + round(L) + 6, ys[i] + 11 - t.height // 2, z=40, screen=True)
+        t = ui.say(str(v), "orange", 40)      # every count at its bar's end
+        tl.put(f"t_lv{i}", t, BX0 + round(L) + 6, ys[i] + 11 - t.height // 2, z=40, screen=True)
         stage(tl, face, arms, acc, who="gpt", c=LRC)
 
     rung(0, "neutral")
@@ -319,7 +307,7 @@ def wording(tl):
     tl.beat("With the paper's wording it has 131 flags.", fade=True)
     rung(1, "dots")
     cue(tl, "reworded: about the same")
-    tl.beat("A paraphrase with the same vague direction gives about 140.")
+    tl.beat("A paraphrase with the same vague direction gives 140.")
     rung(2, "happy", POINT)
     hx, hy = hand(tl, "L", POINT)
     o = tl.objs["t_lv2"]
