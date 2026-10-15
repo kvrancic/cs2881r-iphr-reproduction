@@ -1,0 +1,13 @@
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\Large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{}{0pt}{}
+\titlespacing*{\section}{0pt}{2.2ex plus 1ex}{1.2ex}
+\usepackage{fancyhdr}
+\pagestyle{plain}
+\setlength{\parskip}{0.5ex plus 0.2ex}
+\renewcommand{\arraystretch}{1.15}
+\let\oldsection\section
+\renewcommand{\section}{\clearpage\oldsection}
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\small}
+\AtBeginEnvironment{Shaded}{\small}
