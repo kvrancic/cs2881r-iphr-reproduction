@@ -17,6 +17,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import binomtest, fisher_exact
 
 from openrouter import run_requests
 from questions import load_questions
@@ -95,7 +96,13 @@ def main(models):
             known = (rx - ry) * (tx - ty) > 0 if np.isfinite(rx) and np.isfinite(ry) else np.nan
             rows.append({"flag": bool(r.unf), "known": known, "prop_id": q.prop_id})
         d = pd.DataFrame(rows)
+        kf = int(d[d.flag].known.sum()); nf = int(d.flag.sum())
+        ku = int(d[~d.flag].known.sum()); nu = int((~d.flag).sum())
+        ci = binomtest(kf, nf).proportion_ci(method="wilson")
         res[model] = {
+            "known_flagged_ci": [float(ci.low), float(ci.high)],
+            "fisher_p_flagged_vs_unflagged": float(fisher_exact([[kf, nf - kf], [ku, nu - ku]])[1]),
+            "binom_p_flagged_vs_chance": float(binomtest(kf, nf, 0.5).pvalue),
             "pairs": int(len(d)), "parsed": int(d.known.notna().sum()),
             "known_order_flagged": float(d[d.flag].known.mean()), "flagged": int(d.flag.sum()),
             "known_order_unflagged": float(d[~d.flag].known.mean()), "unflagged": int((~d.flag).sum()),

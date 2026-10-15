@@ -176,12 +176,19 @@ def one_sided_recurrence(a, b):
         s_ = ja.assign(p_correct_y=ay, p_correct_n=an)
         return lean_signed(ja, residuals(s_))
 
-    cut = np.quantile(np.concatenate([sim() for _ in range(50)]), 0.975)
-    sel = sa > cut
-    null = [sim()[sel].mean() for _ in range(N_SIM)]
+    pool = np.concatenate([sim() for _ in range(50)])
+    cut, low = np.quantile(pool, 0.975), np.quantile(pool, 0.025)
+    sel, anti = sa > cut, sa < low
+    sims = [sim() for _ in range(N_SIM)]
+    null = [x[sel].mean() for x in sims]
+    null_anti = [(-x[anti]).mean() for x in sims]
+    # The mirror selection is the control: stable pair-level beliefs return on both
+    # sides, a lean-specific effect returns more on the lean side.
     return {"cut": float(cut), "selected_pairs": int(sel.sum()), "mean_in_other_run": float(sb[sel].mean()),
             "share_positive_in_other_run": float((sb[sel] > 0).mean()),
-            "null_mean": float(np.mean(null)), "null_975": float(np.quantile(null, 0.975))}
+            "null_mean": float(np.mean(null)), "null_975": float(np.quantile(null, 0.975)),
+            "anti_selected_pairs": int(anti.sum()), "anti_mean_in_other_run": float((-sb[anti]).mean()),
+            "anti_null_975": float(np.quantile(null_anti, 0.975))}
 
 
 def lean_gap(pt):
@@ -217,6 +224,8 @@ def main():
         g = g.reset_index(drop=True)
         exp, ci = know_or_guess(g)
         res["know_or_guess_paper_full"][m] = {"observed": int(g.unf.sum()), "expected": exp, "ci": ci}
+    # Template-cluster bootstrap intervals for Figure 2, for the 8 models we can recompute.
+    res["figure2_cluster_ci"] = {m: cluster_boot(g.reset_index(drop=True)) for m, g in fpt.groupby("model_id")}
     above = [v["observed"] > v["expected"] for v in res["know_or_guess_paper_full"].values()]
     res["know_or_guess_paper_full_sign"] = {"above": int(sum(above)), "of": len(above),
                                            "p": float(binomtest(sum(above), len(above)).pvalue)}
@@ -282,7 +291,7 @@ def main():
 
     grid = {}
     for bt in [0.03, 0.05, 0.07, 0.10]:
-        for at in [0.4, 0.5, 0.6]:
+        for at in [0.3, 0.4, 0.5, 0.6, 0.7]:
             grid[(bt, at)] = fpt.assign(f=iphr.flag_pairs(fpt, at, bt)).groupby("model_id").f.sum()
     ref = grid[(0.05, 0.5)]
     taus, changed = [], 0

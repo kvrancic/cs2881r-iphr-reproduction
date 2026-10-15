@@ -28,12 +28,13 @@ def main():
             f"{n['lean_gap']['paper']:.3f} & {n['lean_gap']['ours']:.3f} & "
             f"{100 * rec['share']:.0f}\\% ({100 * n['expected_recurrence_if_unchanged']:.0f}\\%) & "
             f"{n['residual_test_same_judge']['r']:.2f} ({n['residual_test_same_judge']['null_975']:.2f}) & "
-            f"{one['mean_in_other_run']:.3f} ({one['null_975']:.3f})\\\\")
+            f"{one['mean_in_other_run']:.2f} / {one['anti_mean_in_other_run']:.2f} "
+            f"({one['null_975']:.2f} / {one['anti_null_975']:.2f})\\\\")
     body = "\n".join(rows)
     tex = r"""\begin{tabular}{lrrrcrrccc}
 \toprule
-& \multicolumn{3}{c}{Flagged (of 1,014)} & Ours / paper & \multicolumn{2}{c}{Lean gap} & Recurrence & Residual $r$ & Lean-side\\
-Model & paper & paper ans., & ours & ans., our & paper & ours & observed & observed & excess\\
+& \multicolumn{3}{c}{Flagged (of 1,014)} & Ours / paper & \multicolumn{2}{c}{Lean gap} & Recurrence & Residual $r$ & Excess returns\\
+Model & paper & paper ans., & ours & ans., our & paper & ours & observed & observed & lean / anti side\\
 & & our labels & & labels (95\%) & & & (unchanged) & (null 97.5\%) & (null 97.5\%)\\
 \midrule
 """ + body + r"""

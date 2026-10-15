@@ -9,7 +9,6 @@ data/paper/*.pkl.gz
 data/responses/**/*.jsonl
 !data/responses/**/*.labels.jsonl
 data/judge_validation/raw/
-data/spend.jsonl
 deck/build/
 *.pdf
 !report/report.pdf
@@ -23,3 +22,4 @@ data/paper/*-T*.pkl.gz
 !figures/*.pdf
 !deck/review/qa/*.pdf
 !deck/IPHR_Reproduction.pdf
+data/spend.jsonl

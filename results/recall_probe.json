@@ -1,5 +1,11 @@
 {
   "openai/gpt-4o-mini": {
+    "known_flagged_ci": [
+      0.3057423946026273,
+      0.8631557141764027
+    ],
+    "fisher_p_flagged_vs_unflagged": 0.1440432778459123,
+    "binom_p_flagged_vs_chance": 0.7265625,
     "pairs": 330,
     "parsed": 330,
     "known_order_flagged": 0.625,
@@ -8,6 +14,12 @@
     "unflagged": 322
   },
   "meta-llama/llama-3.3-70b-instruct": {
+    "known_flagged_ci": [
+      0.5462549057408342,
+      0.8443541950225723
+    ],
+    "fisher_p_flagged_vs_unflagged": 0.080187679945147,
+    "binom_p_flagged_vs_chance": 0.020061607006937265,
     "pairs": 330,
     "parsed": 330,
     "known_order_flagged": 0.71875,

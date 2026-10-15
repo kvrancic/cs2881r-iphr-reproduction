@@ -4,7 +4,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
 
 - **Report:** [`report/report.pdf`](report/report.pdf) (5 pages)
 - **Talk:** script in [`talk/transcript.md`](talk/transcript.md), slides in [`deck/IPHR_Reproduction.pptx`](deck/IPHR_Reproduction.pptx) with a PDF copy in [`deck/IPHR_Reproduction.pdf`](deck/IPHR_Reproduction.pdf)
-- **Every choice we made and why:** [`DECISIONS.md`](DECISIONS.md)
+- **Decision log:** [`DECISIONS.md`](DECISIONS.md)
 
 ## Results
 
@@ -15,7 +15,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
 | Flagged, our run | 139 | 35 | 6 | 20 (general release) |
 | Lean gap, paper / ours | 0.164 / 0.157 | 0.059 / 0.071 | 0.038 / 0.035 | 0.059 / 0.057 |
 | Pair asymmetry correlation across runs (template-only null, 97.5%) | 0.69 (0.18) | 0.47 (0.17) | 0.41 (0.22) | 0.33 (0.21) |
-| Lean-side excess that returns in our run (null, 97.5%) | 0.193 (0.042) | 0.054 (0.050) | 0.067 (0.049) | 0.055 (0.034) |
+| Excess asymmetry that returns in our run, lean side / other side (nulls about 0.04–0.05) | 0.19 / 0.24 | 0.05 / 0.07 | 0.07 / 0.10 | 0.05 / 0.09 |
 | Flagged with both true values in the prompt | 2 | 0 | 0 | not run |
 
 - **Newer models on the same pairs:** GPT-5.6 Luna 13 flags (0 with values), Qwen 3.8 Flash 3, Claude Haiku 5.5 2, DeepSeek V4 Flash 1.
@@ -26,7 +26,7 @@ CS2881r mini-project by [Name 1], [Name 2] and [Name 3]. We reproduce Figure 2 o
   - our code gives the plotted count exactly for the 8 models with 10-answer data, as well as their 64 values in the paper's Table 10;
   - the plot divides by 4,892 where the data hold 4,834 pairs;
   - averaged over models, the retest keeps 61% of flags at the stated 0.5 cutoff (74% at the code's 0.4; the paper reports 76.5%, also averaged over models);
-  - the model ranking changes in 8 of 11 alternative cutoff settings, as the paper's own Table 10 also shows;
+  - the model ranking changes in 16 of 19 alternative cutoff settings, as the paper's own Table 10 also shows;
   - by kind of question the ranking nearly reverses: GPT-4o-mini is flagged on 19.6% of geography pairs and 1.4% of the rest, QwQ on 0.2% and 13.6%.
 
 ## Layout
@@ -97,7 +97,7 @@ The pickle holds only pandas and numpy objects; we listed its opcodes with `pick
 
 **Full rerun with new sampling.** Put `OPENROUTER_API_KEY=...` in `.env`, then run `./run_all.sh` and `./run_analysis.sh`. `SPEND_CAP_USD` (default 100) stops all calls once logged spend reaches it. The 10-pair cost pilots used `generate.py --limit-pairs 10`.
 
-Cost of our runs at October 2026 OpenRouter prices: $96 in total (answers, labels, the fact reader and the recall probe; `data/spend.jsonl` has every call).
+Cost of our runs at October 2026 OpenRouter prices: $103 in total (answers, labels, the fact reader and the recall probe; `data/spend.jsonl.gz` logs the cost of every call).
 
 ## Use of AI tools
 
@@ -111,5 +111,6 @@ Claude (Anthropic) wrote most of the code, ran the experiments and drafted the r
 - **02:35–03:30.** Ran 10-pair cost pilots on ten models and left out Claude Sonnet 5.5 and Gemini 3.8 Flash on cost. Ran 8 models and the fact cards on 1,014 pairs. A network outage and OpenRouter's in-flight credit limit (HTTP 402) stalled the runs. We made 402 retryable and ran five jobs at a time with up to 250 open requests each.
 - **03:30–04:00.** Claude Haiku 5.5's own thinking used up the judge's 600-token limit on up to 8% of calls. We deleted those replies and re-judged with 2,000 tokens. Built the fact reader; reading samples showed it counted north/south statements on east/west questions, so we limited it to the asked property. Found that flags split into geography leaning NO and everything else leaning YES.
 - **04:00–04:30.** First report. The first AI review found overclaims, no noise baseline and a judge check limited to easy answers. Added the expected recurrence, relabelling of the paper's own answers and the "more western longitude" run.
-- **04:30–05:15.** The second AI review found that comparing flag counts had little power and that the coordinate wording mixed a clearer reading with coordinate recall. Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates). The residual test reversed our earlier reading: pair-specific order effects exist and repeat. Rewrote the report and the talk.
-- **05:15–06:10.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Table 1 is now generated from the result files. The knowledge claim changed: for geography the flags sit on the easiest pairs and track the reading of the direction word.
+- **04:30–05:15.** The second AI review found that comparing flag counts had little power and that the coordinate wording mixed a clearer reading with coordinate recall. Added the residual test, Figure 2 by kind and three geography controls (paraphrase, a plain-language sentence on what "west of" means, both coordinates). The residual test showed that pair-level asymmetry repeats across runs. Rewrote the report and the talk.
+- **05:15–06:10.** The third AI review found a stale table, a confound in the residual test (stable wrong beliefs) and claims about knowledge that we had not measured. Added a one-sided residual test, a closed-book recall probe, tie cards, a strict-reading control and distance tables for geography. Table 1 is now generated from the result files. We revised the knowledge claim to say that geography flags sit on the easiest pairs and track the reading of the direction word.
+- **06:30–07:30.** A confirming review graded the work at 88/100 and rated the deck below the reference decks. We added a mirror control to the residual test (the lean side and the other side return by similar amounts, so the repeated asymmetry is not specific to the lean), a forced-choice tie card, template-cluster intervals for Figure 1 and the full 20-setting cutoff grid. We also reworked the deck.

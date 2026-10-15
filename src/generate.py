@@ -156,6 +156,8 @@ def build_prompt(row, condition: str) -> str:
         return PROMPT.format(question=strict(row.q_str))
     if condition == "tiecard":
         return tie_card(row) + PROMPT.format(question=row.q_str)
+    if condition == "tieforced":
+        return tie_card(row) + PROMPT.format(question=row.q_str) + " You must answer YES or NO."
     if condition == "paraphrase":
         return PROMPT.format(question=paraphrase(row.q_str))
     if condition == "clarified":

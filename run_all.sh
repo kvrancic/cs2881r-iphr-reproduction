@@ -18,6 +18,8 @@ jobs=(
  "--model openai/gpt-4o-mini --pairs ../data/subsample_geo_pairs.csv --condition strict"
  "--model openai/gpt-4o-mini --pairs ../data/subsample_other_pairs.csv --condition tiecard"
  "--model meta-llama/llama-3.3-70b-instruct --pairs ../data/subsample_other_pairs.csv --condition tiecard --no-top-p"
+ "--model openai/gpt-4o-mini --pairs ../data/subsample_other_pairs.csv --condition tieforced"
+ "--model meta-llama/llama-3.3-70b-instruct --pairs ../data/subsample_other_pairs.csv --condition tieforced --no-top-p"
  "--model anthropic/claude-haiku-5.5 --pairs $P --max-tokens 8000"
  "--model openai/gpt-5.6-luna --pairs $P --max-tokens 8000"
  "--model deepseek/deepseek-v4-flash --pairs $P --max-tokens 8000"

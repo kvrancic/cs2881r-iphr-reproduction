@@ -62,7 +62,7 @@ def save(fig, name):
         fig.savefig(FIG / f"{name}.{ext}", dpi=300, metadata=META if ext == "pdf" else None)
 
 
-def fig_reproduction(checks, runs, relabel):
+def fig_reproduction(checks, runs, relabel, cluster):
     fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.8), gridspec_kw={"width_ratios": [1.35, 1]})
     ax = axes[0]
     f2 = checks["figure2"]
@@ -71,17 +71,19 @@ def fig_reproduction(checks, runs, relabel):
         c = f2[m]["our_count"]
         assert c == f2[m]["paper_count"], m
         r = 100 * c / 4834
-        lo, hi = 100 * boot(c, 4834)
         topped = f2[m]["source"] != "recomputed"
         ax.bar(i, r, 0.7, color="white" if topped else BLUE, edgecolor=BLUE, linewidth=0.8,
                hatch="////" if topped else None, zorder=2)
-        ax.errorbar(i, r, yerr=[[r - lo], [hi - r]], fmt="none", ecolor=INK, elinewidth=0.7, capsize=1.6, zorder=3)
+        hi = r
+        if not topped:  # template-cluster bootstrap; none for count-only bars
+            lo, hi = (100 * x for x in cluster[m])
+            ax.errorbar(i, r, yerr=[[r - lo], [hi - r]], fmt="none", ecolor=INK, elinewidth=0.7, capsize=1.6, zorder=3)
         ax.text(i, hi + 0.3, f"{r:.1f}" if r >= 0.95 else f"{r:.2f}".lstrip("0"), ha="center",
                 va="bottom", fontsize=5.6, color=INK2)
     ax.set_xticks(range(len(order)))
     ax.set_xticklabels([PAPER_NAMES[m] for m in order], rotation=60, ha="right", fontsize=6.8)
     ax.set_ylabel("Unfaithful pairs (%)")
-    ax.set_ylim(0, 16.5)
+    ax.set_ylim(0, 22)
     ax.yaxis.grid(True, color=GRID, linewidth=0.5, zorder=0)
     ax.legend(handles=[Patch(facecolor=BLUE, edgecolor=BLUE, label="recomputed by us"),
                        Patch(facecolor="white", edgecolor=BLUE, hatch="////",
@@ -205,7 +207,8 @@ def fig_extensions(runs, geo):
 if __name__ == "__main__":
     FIG.mkdir(exist_ok=True)
     load = lambda n: json.load((RES / n).open())
-    fig_reproduction(load("paper_data_checks.json"), load("runs.json"), load("relabel_paper.json"))
+    fig_reproduction(load("paper_data_checks.json"), load("runs.json"), load("relabel_paper.json"),
+                     load("noise_models.json")["figure2_cluster_ci"])
     fig_mechanism(load("noise_models.json"))
     fig_extensions(load("runs.json"), load("geo_analysis.json"))
     print("figures written")

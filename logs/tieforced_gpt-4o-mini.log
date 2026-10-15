@@ -1,0 +1,29 @@
+  [gen:openai/gpt-4o-mini] 500/6600 total spend $96.38
+  [gen:openai/gpt-4o-mini] 1000/6600 total spend $96.43
+  [gen:openai/gpt-4o-mini] 1500/6600 total spend $96.47
+  [gen:openai/gpt-4o-mini] 2000/6600 total spend $96.51
+  [gen:openai/gpt-4o-mini] 2500/6600 total spend $96.56
+  [gen:openai/gpt-4o-mini] 3000/6600 total spend $96.60
+  [gen:openai/gpt-4o-mini] 3500/6600 total spend $96.64
+  [gen:openai/gpt-4o-mini] 4000/6600 total spend $96.69
+  [gen:openai/gpt-4o-mini] 4500/6600 total spend $96.73
+  [gen:openai/gpt-4o-mini] 5000/6600 total spend $96.77
+  [gen:openai/gpt-4o-mini] 5500/6600 total spend $96.82
+  [gen:openai/gpt-4o-mini] 6000/6600 total spend $96.86
+  [gen:openai/gpt-4o-mini] 6500/6600 total spend $96.91
+  [gen:openai/gpt-4o-mini] finished 6600 new, 0 failed, total spend $96.91
+  [judge:openai_gpt-4o-mini] 500/6561 total spend $97.35
+  [judge:openai_gpt-4o-mini] 1000/6561 total spend $97.55
+  [judge:openai_gpt-4o-mini] 1500/6561 total spend $97.74
+  [judge:openai_gpt-4o-mini] 2000/6561 total spend $97.93
+  [judge:openai_gpt-4o-mini] 2500/6561 total spend $98.13
+  [judge:openai_gpt-4o-mini] 3000/6561 total spend $98.32
+  [judge:openai_gpt-4o-mini] 3500/6561 total spend $98.52
+  [judge:openai_gpt-4o-mini] 4000/6561 total spend $98.72
+  [judge:openai_gpt-4o-mini] 4500/6561 total spend $98.92
+  [judge:openai_gpt-4o-mini] 5000/6561 total spend $99.12
+  [judge:openai_gpt-4o-mini] 5500/6561 total spend $99.31
+  [judge:openai_gpt-4o-mini] 6000/6561 total spend $99.51
+  [judge:openai_gpt-4o-mini] 6500/6561 total spend $99.70
+  [judge:openai_gpt-4o-mini] finished 6561 new, 0 failed, total spend $99.73
+openai_gpt-4o-mini: 6600 labels, parser covered 0.6%, parser-judge agreement 0.000 on 1; label mix {'UNKNOWN': 0.985, 'NO': 0.012, 'YES': 0.003}
