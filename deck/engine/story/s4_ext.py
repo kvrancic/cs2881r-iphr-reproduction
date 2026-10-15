@@ -1,68 +1,95 @@
 """Act 4, the two variations: values in the prompt on the questions that are not about geography, then why
 GPT-4o mini fails on geography and the wording ladder."""
 from story.common import *
-from px import rect
+from px import rect, paste
 
-WX, WY, WW = 8, 24, 168                  # the chat window of both variations
-RBC = 338                                 # the big robot's centre, to the right
-SC = 238                                  # the big scale's centre, between the window and the robot
+WX, WY, WW = 22, 24, 150                 # the chat window of both variations
+RBC = 326                                 # the big robot's centre, to the right
+SC = 247                                  # the big scale's centre, between the window and the robot
 QF = "Was film A released\nbefore film B?"
 QW = "Is lake B west\nof lake A?"
 
 
 def two(tl):
+    """The two variations as two halves, the fact card and the compass, their labels on one baseline, the robot
+    standing between them."""
     tl.section = "variations"
     clear_charts(tl)
     tl.clear(); put_ground(tl)
-    fc = P.factcard(["A: true value", "B: true value"], 112)
-    tl.put("fact", fc, 22, 58, z=12, screen=True)
-    t1 = T("values in the prompt", "ink")
-    tl.put("t_v1", t1, 22 + (fc.width - t1.width) // 2, 58 + fc.height + 8, z=40, screen=True)
-    cp = P.compass(30)
-    tl.put("compass", cp, 222 - cp.width // 2, 44, z=12, screen=True)
-    t2 = T("geography wording", "ink")
-    tl.put("t_v2", t2, 222 - t2.width // 2, 44 + cp.height + 8, z=40, screen=True)
-    tl.put("floor", floor(270), 6, GY, z=2, screen=True)
-    stage(tl, "dots")
-    tl.beat("Fourth, the two variations.", fade=True)
+    tl.put("floor", floor(300), 42, GY, z=2, screen=True)
+    LBY = 146                                     # one baseline for both labels
+    for k, (c_, img, lab) in enumerate(((80, P.factcard(["A: true value", "B: true value"], 112), "values in the prompt"),
+                                        (306, P.compass(30), "geography wording"))):
+        tl.put(("fact", "compass")[k], img, c_ - img.width // 2, LBY - 12 - img.height, z=12, screen=True)
+        t = T(lab, "ink")
+        tl.put(f"t_v{k + 1}", t, c_ - t.width // 2, LBY, z=40, screen=True)
+    place(tl, "robot", robot("happy", ("out", "out")), 192)
+    cue(tl, "two variations")
+    tl.beat("Fourth, two variations.", fade=True)
 
 
 def _name(tl, nm):
     """The model's name once, as a tag above the big robot."""
     t = ui.tag(nm, "white", "ink")
-    tl.put("t_name", t, RBC - t.width // 2 - 2, ROBOT_Y - t.height - 6, z=40)
+    tl.put("t_name", t, RBC - t.width // 2, ROBOT_Y - t.height - 10, z=40, screen=True)
 
 
-def _scene(tl, bubble_text, card=None, face="neutral", acc=(), arms=("down", "down"), answer=None, **look):
+def _scene(tl, bubble_text, card=None, face="neutral", acc=(), arms=("down", "down"), answer=None, who=None, clear=True):
     """The chat window (card above the question, an optional answer below), the big robot on the ground."""
-    tl.clear(); put_ground(tl)
-    tl.put("floor", floor(220), 160, GY, z=2)
+    if clear:
+        tl.clear(); put_ground(tl)
+    tl.put("floor", floor(220), 160, GY, z=2, screen=True)
     y = WY + 20
     if card is not None:
-        tl.put("fact", card, WX + 6, y, z=14)
+        tl.put("fact", card, WX + 6, y, z=14, screen=True)
         y += card.height + 4
     b = P.bubble(bubble_text, WW - 12)
-    tl.put("q", b, WX + 6, y, z=12)
+    tl.put("q", b, WX + 6, y, z=12, screen=True)
     y += b.height + 6
     if answer is not None:
-        tl.put("ans", answer, WX + 8, y, z=12)
+        tl.put("ans", answer, WX + 8, y, z=12, screen=True)
         y += answer.height + 6
-    tl.put("win_q", P.chat(WW, y - WY, "chat"), WX, WY, z=10)
-    tl.put("robot", robot(face, arms, acc, **look), at(RBC), ROBOT_Y, z=20)
+    else:
+        tl.drop("ans")
+    tl.put("win_q", P.chat(WW, y - WY, "chat"), WX, WY, z=10, screen=True)
+    tl.put("robot", robot(face, arms, acc, who=who), at(RBC), ROBOT_Y, z=20, screen=True)
     return y
 
 
 def _big_scale(tl, tilt=0, grey=False):
-    sc = scale(tilt, grey=grey, s=1.5)
-    tl.put("scale", sc, SC - sc.width // 2, feet(sc), z=6)
+    """The big scale, a little left of SC so its YES pan clears the robot."""
+    sc = scale(tilt, grey=grey, s=1.25)
+    tl.put("scale", sc, SC - 12 - sc.width // 2, feet(sc), z=6, screen=True)
 
 
 def _numbers_trace():
-    """A reasoning trace in grey strokes with two written numbers in gold: the values the model writes as it compares."""
-    img = P.trace(150, 4, seed=7)
-    for (x, y) in ((24, 0), (96, 12)):
-        rect(img, x - 1, y - 2, 26, 6, "ink"); rect(img, x, y - 1, 24, 4, "gold"); rect(img, x, y - 1, 24, 1, "yellow")
+    """A reasoning trace in grey strokes; on its second line the two numbers it writes, in gold, compared the
+    wrong way round (the later one written as the earlier)."""
+    img = P.trace(WW - 16, 4, seed=7)
+    rect(img, 0, 9, WW - 16, 10, "white")
+    for x in (8, 58):
+        rect(img, x - 1, 10, 28, 8, "ink"); rect(img, x, 11, 26, 6, "gold"); rect(img, x, 11, 26, 1, "yellow")
+    lt = T("<", "ink")
+    paste(img, lt, 42, 14 - lt.height // 2)
     return img
+
+
+NUMS_AT = (8, 10, 84, 18)        # where the two numbers sit in the trace: x0, y0, x1, y1
+
+
+def _answer(unsure=False):
+    """The wrong answer: the trace with its numbers, optionally the words 'not sure', then YES and an ink cross."""
+    yes = ui.plate("YES", "green", "white", 20, 2)
+    tr = _numbers_trace()
+    ns = ui.chip("not sure", "slate", "ice", border="steel") if unsure else None
+    h = tr.height + 4 + (ns.height + 4 if ns else 0) + yes.height
+    ans = blank(tr.width, h)
+    paste(ans, tr, 0, 0)
+    y = tr.height + 4
+    if ns:
+        paste(ans, ns, 0, y); y += ns.height + 4
+    paste(ans, yes, 0, y); paste(ans, ui.cross("ink"), yes.width + 4, y + (yes.height - 9) // 2)
+    return ans
 
 
 def facts(tl):
@@ -71,107 +98,285 @@ def facts(tl):
     _scene(tl, QF, card, "focus", ("card",), ("down", "up"))
     _big_scale(tl, 0, grey=True)
     cue(tl, "both true values, above the question")
-    tl.beat("In the first we printed both true values above each question.", fade=True)
+    tl.beat("In the first we printed both true values above each question.")
 
+    # the four models of these runs (GPT-5.6 Luna takes Gemini's place), each holding up its flags outside
+    # geography; then each holds the fact card and its count drops to 0
     tl.clear(); put_ground(tl)
-    chart(tl, "facts_before")
-    stage(tl, "neutral")
-    tl.beat("Outside geography", fade=True)
-    chart(tl, "facts_after")
-    stage(tl, "happy", POINT)
-    tl.beat("the flags went from fifty-seven to zero across four models.")
+    tl.put("floor", floor(350), 17, GY, z=2, screen=True)
+    a_, b_ = charts.nongeo_total()
+    for k, (key, nm) in enumerate(FACT_NAMES):
+        c_ = BOTS[k]
+        place(tl, f"bot{k}", robot("focus", who=FACT_WHO[k]), c_, z=20 + k)
+        tg = ui.tag(nm, "white", "ink")
+        tl.put(f"t_bot{k}", tg, c_ - tg.width // 2, ROBOT_Y - tg.height - 8, z=40, screen=True)
+        sg = P.flagsign(charts.RUNS["by_kind"][key]["other"]["base"], 48)
+        tl.put(f"sign{k}", sg, c_ - sg.width // 2, ROBOT_Y + 52, z=36 + k, screen=True)
+    _total(tl, [(str(a_), "orange")])
+    cue(tl, "our runs, outside geography")
+    tl.beat("As expected, flags outside geography", morph=0.9)
+    for k, (key, nm) in enumerate(FACT_NAMES):
+        tl.put(f"bot{k}", robot("happy", ("down", "up"), ("card",), who=FACT_WHO[k]))
+        sg = P.flagsign(charts.RUNS["by_kind"][key]["other"]["factcard"], 48, col="ink")
+        tl.put(f"sign{k}", sg, BOTS[k] - sg.width // 2)
+    _total(tl, [(str(a_), "orange"), (None, "arrow"), (str(b_), "ink")])
+    cue(tl, "both values in the prompt: 0")
+    tl.beat("went from fifty-seven to zero across four models.", morph=0.9)
 
-    # each value asked alone: Llama mostly knows the order ------------------------------------------------------
+    # each value asked alone: Llama mostly knows the order; it holds up the next lit tile ---------------------------
+    tl.clear(); put_ground(tl)
     chart(tl, "recall")
-    stage(tl, "happy")
-    tl.beat("Asked for each value on its own, Llama ordered about seven in ten of its flagged pairs outside geography correctly,")
+    arms = ("up", "down")
+    stage(tl, "happy", arms, who="llama")
+    hx, hy = hand(tl, "L", arms)
+    tile = blank(14, 14)
+    rect(tile, 0, 0, 14, 14, "ink"); rect(tile, 1, 1, 12, 12, "orange"); rect(tile, 1, 1, 12, 2, "gold")
+    tl.put("held", tile, hx - 7, hy - 20, z=34, screen=True)
+    cue(tl, "Llama, each value asked alone")
+    tl.beat("Asked for each value on its own, Llama ordered about seven in ten of its flagged pairs correctly,")
+    chart(tl, "recall_other")
+    stage(tl, "focus", who="llama")
+    cue(tl, "its other pairs")
+    tl.beat("against eight and a half in ten for its other pairs")
     chart(tl, "recall_guess")
-    stage(tl, "focus", POINT)
-    tl.beat("where guessing gives five in ten.")
+    stage(tl, "side_l", POINT, who="llama")
+    hx, hy = hand(tl, "L", POINT)
+    x, y, w, h = chart_pos("recall_guess", "rcgl")
+    hold(tl, "stick", hx, hy, round(x + w + 4), round(y + h / 2))
+    cue(tl, "and by guessing")
+    tl.beat("and five in ten by guessing.")
 
     # in its wrong answers the written numbers support the wrong answer -----------------------------------------
     clear_charts(tl)
-    yes = ui.plate("YES", "green", "white", 20, 2)
-    tr = _numbers_trace()
-    ans = blank(tr.width, tr.height + 4 + yes.height)
-    paste(ans, tr, 0, 0); paste(ans, yes, 0, tr.height + 4); paste(ans, ui.cross("ink"), yes.width + 4, tr.height + 4 + (yes.height - 9) // 2)
-    _scene(tl, QF, None, "focus", answer=ans, ant="gold", hat="beret")
+    _scene(tl, QF, None, "focus", answer=_answer(), who="llama")
     _name(tl, "Llama 3.3 70B")
     _big_scale(tl, 1)
+    # "its numbers": a label beside the window, a leader line to the two numbers in the trace
+    an = tl.objs["ans"]
+    t = T("its numbers", "ink")
+    lx, ly = WX + WW + 12, round(an.y) - 26
+    tl.put("t_nums", t, lx, ly, z=40, screen=True)
+    x0, y0, x1, y1 = NUMS_AT
+    tx, ty = round(an.x) + x1 + 4, round(an.y) + (y0 + y1) // 2
+    ld = blank(lx - tx - 3, ty - ly - t.height // 2 + 2)
+    from px import line as _ln
+    _ln(ld, ld.width - 1, 0, 0, ld.height - 1, "ink")
+    tl.put("leader", ld, tx, ly + t.height // 2, z=41, screen=True)
     cue(tl, "wrong answer: its numbers back it")
-    tl.beat("In its wrong answers, the numbers it writes support the wrong answer.", fade=True)
+    tl.beat("In its wrong answers, the numbers it writes support the wrong answer.", morph=0.9)
+
+    _scene(tl, QF, None, "question", ("sweat",), answer=_answer(unsure=True), who="llama", clear=False)
+    place(tl, "robot", robot("question", ("down", "down"), ("sweat",), who="llama"), RBC - 6, 1.5)
+    t = tl.objs["t_name"].img
+    tl.put("t_name", t, RBC - 6 - t.width // 2, GY - RB_H * 1.5 - t.height - 4)
+    sc = scale(1, s=1.0)
+    tl.put("scale", sc, 236 - sc.width // 2, feet(sc))
+    tl.drop("t_nums", "leader")
+    cue(tl, "unsure, answers anyway")
+    tl.beat("It often says it is unsure and answers anyway.")
 
 
-MAP_XY, MAP_WH = (8, 34), (204, 120)
-LR = 342                                   # the robot's centre in the lake scene
+MAP_XY, MAP_WH = (12, 42), (160, 110)    # the lake map, over 40% of the width
+LR = 228                                   # the robot's centre in the lake scene: beside the map
+FACT_NAMES = (("openai/gpt-4o-mini", "GPT-4o\nmini"), ("meta-llama/llama-3.3-70b-instruct", "Llama 3.3\n70B"),
+              ("deepseek/deepseek-chat", "DeepSeek\nV3"), ("openai/gpt-5.6-luna", "GPT-5.6\nLuna"))
+FACT_WHO = ("gpt", "llama", "deepseek", "luna")
+BOTS = (62, 148, 236, 324)
+
+
+def _total(tl, parts):
+    """The total over the four models, at the top: a short label and the number(s) in large type."""
+    t = T("flags outside geography", "ink")
+    ims = [ui.arrow(22, "slate", 3) if s_ is None else ui.say(s_, c_, 40) for s_, c_ in parts]
+    n = blank(sum(i.width for i in ims) + 8 * (len(ims) - 1), max(i.height for i in ims))
+    x_ = 0
+    for i in ims:
+        paste(n, i, x_, (n.height - i.height) // 2); x_ += i.width + 8
+    w = t.width + 10 + n.width
+    x = 192 - w // 2
+    tl.put("t_totl", t, x, 14 + (n.height - t.height) // 2, z=40, screen=True)
+    tl.put("t_tot", n, x + t.width + 10, 14, z=40, screen=True)
+
+
+LADDER = [("base", "paper's wording"), ("paraphrase", "reworded,\nsame vague"),
+          ("clarified", "+ anywhere\nfurther west"), ("strict", "+ only\ndue west")]
+
+
+def _hbar(L, h=20):
+    """A flag-count bar lying on its side, our run's orange, lit on top and shaded at its end."""
+    L = max(2, round(L))
+    img = blank(L, h)
+    rect(img, 0, 0, L, h, "ink"); rect(img, 0, 1, L - 1, h - 2, "orange")
+    rect(img, 0, 1, L - 1, 2, "gold"); rect(img, L - 3, 3, 2, h - 4, "rust")
+    return img
+
+
+def _track(w, h):
+    """A faint dotted outline of a bar lying on its side, for the room up to all pairs."""
+    img = blank(w, h)
+    for x in range(0, w, 3):
+        rect(img, x, 0, 1, 1, "steel"); rect(img, x, h - 1, 1, 1, "steel")
+    for y in range(0, h, 3):
+        rect(img, w - 1, y, 1, 1, "steel")
+    return img
+
+
+def _point_b(tl):
+    """GPT-4o mini, standing to the right of the lake map, points its stick at lake B."""
+    from sprites.props import LAKE_B, MAP_W, MAP_H
+    bx = MAP_XY[0] + round(LAKE_B[0] * MAP_WH[0] / MAP_W) + 14
+    by = MAP_XY[1] + round(LAKE_B[1] * MAP_WH[1] / MAP_H) + 4
+    hx, hy = hand(tl, "L", POINT)
+    hold(tl, "stick", hx, hy, bx, by)
 
 
 def wording(tl):
     tl.section = "geography"
-    y = _scene(tl, QW, None, "focus")
+    y = _scene(tl, QW, None, "focus", who="gpt")
     cp = P.compass(30)
-    tl.put("compass", cp, WX + (WW - cp.width) // 2 + 20, y + 14, z=16)
+    tl.put("compass", cp, WX + (WW - cp.width) // 2, y + 12, z=16, screen=True)
     sc = scale(-1)
-    tl.put("scale", sc, SC - sc.width // 2, feet(sc), z=6)
+    tl.put("scale", sc, SC - sc.width // 2, feet(sc), z=6, screen=True)
     _name(tl, "GPT-4o mini")
     cue(tl, "why it fails on geography")
     tl.beat("In the second we asked why GPT-4o mini fails on geography.", fade=True)
 
+    # the paper's data by distance: GPT-4o mini, small, climbs onto its tallest bar
     tl.clear(); put_ground(tl)
     chart(tl, "dist", alias={"dib3": "map"})
-    stage(tl, "focus", POINT)
+    stage(tl, "side_l", POINT, who="gpt")
+    hx, hy = hand(tl, "L", POINT)
+    x, y, w, h = chart_pos("dist", "dib3")
+    hold(tl, "stick", hx, hy, round(x + w + 3), round(y + h * 0.4))
     cue(tl, "far apart: more flags")
-    tl.beat("Its flags are most common for places that are far apart,", fade=True)
+    tl.beat("Its flags are most common for places that are far apart,", morph=0.9)
 
-    # far apart: the easiest to locate; the farthest bar opens into the one map of the lakes --------------------
+    # far apart: the easiest to put in order; the farthest bar opens into the one map of the lakes, and GPT-4o mini
+    # steps up beside it and points at lake B
     clear_charts(tl)
-    tl.keep("ground", "map", "robot", "cfloor")
-    q = P.bubble("Is lake B west of lake A?", 172)
-    tl.put("q", q, MAP_XY[0], 8, z=12, screen=True)
+    tl.keep("ground", "map", "robot")
+    q = P.bubble("Is lake B west of lake A?", 176, tail=None)
+    tl.put("q", q, MAP_XY[0], 14, z=12, screen=True)
     tl.put("map", P.lakemap(None, *MAP_WH), *MAP_XY, z=8, screen=True, scale=1.0)
-    tl.put("robot", robot("happy"), at(LR), ROBOT_Y, z=20, screen=True)
-    tl.put("cfloor", floor(100), LR - 50, GY, z=2, screen=True)
+    stage(tl, "happy", POINT, who="gpt", c=LR)
+    _point_b(tl)
     t = ui.tag("GPT-4o mini", "white", "ink")
-    tl.put("t_name", t, LR - t.width // 2 - 2, ROBOT_Y - t.height - 6, z=40, screen=True)
+    tl.put("t_name", t, LR - t.width // 2, ROBOT_Y - t.height - 10, z=40, screen=True)
     cue(tl, "far apart: should be easy")
     tl.beat("which should be the easiest to put in order.", morph=0.9)
 
-    b1 = P.bubble("B is southwest\nof A.", 96, tail="side")
-    tl.put("say1", b1, LR - 50 - 2 - b1.width + 6, 92, z=22, screen=True)
-    tl.put("robot", robot("focus"))
+    # its answer, in one bubble on its right that grows; the tail points at the robot's screen
+    def say(s_):
+        b_ = P.bubble(s_, max(T(l).width for l in s_.split("\n")) + 12, tail="lside")
+        tl.put("say", b_, LR + 34, ROBOT_Y + 30 - b_.height // 2, z=22, screen=True)
+    say("B is\nsouthwest\nof A.")
+    tl.put("robot", robot("focus", POINT, who="gpt"))
     cue(tl, "its answer: southwest")
     tl.beat("A typical wrong answer says that a lake is southwest of another,")
 
-    b2 = P.bubble("Southwest,\nnot due west.\nSo: NO.", 96, tail="side")
-    tl.put("say2", b2, LR - 50 - 2 - b2.width + 6, 92 + b1.height + 4, z=22, screen=True)
-    tl.put("robot", robot("smug"))
+    say("B is\nsouthwest\nof A, not\ndue west.\nSo: NO.")
+    tl.put("map", P.lakemap("due", *MAP_WH))
+    tl.put("robot", robot("smug", POINT, who="gpt"))
     cue(tl, "southwest does not count")
     tl.beat("so it is not directly west of it.")
 
-    # the wording ladder ----------------------------------------------------------------------------------------
+    # the wording ladder: the same 684 pairs asked in four wordings, each a chat bubble with its flags as a bar on
+    # one scale; a faint dotted track of all 684 lies behind each row from the start; GPT-4o mini stands at the right throughout
     tl.clear(); put_ground(tl)
-    chart(tl, "ladder2")
-    stage(tl, "neutral")
-    tl.beat("A paraphrase with the same vague direction left the flags at about 140.", fade=True)
-    chart(tl, "ladder3")
-    _glyph(tl, "ladder3", 2, "further")
-    stage(tl, "happy")
-    tl.beat("One sentence saying that anywhere further west counts cut them to 31.")
-    chart(tl, "ladder4")
-    _glyph(tl, "ladder4", 2, "further")
-    _glyph(tl, "ladder4", 3, "due")
-    stage(tl, "shock", POINT)
-    tl.beat("The opposite sentence, that only directly west counts, raised them to 667 of 684.")
+    G = charts.GEO["conditions"]
+    N = G["base"]["pairs"]
+    BX0, BWD = 124, 178                       # the bars start at x 124; all 684 pairs span 178 px
+    ys = (24, 62, 100, 138)
+    ax = blank(2, ys[-1] + 24 - ys[0] + 8)
+    rect(ax, 0, 0, 2, ax.height, "ink")
+    tl.put("lad_ax", ax, BX0 - 3, ys[0] - 4, z=12, screen=True)
+    for i, y_ in enumerate(ys):              # a faint dotted track behind each row: the room up to all pairs
+        tl.put(f"slot_tr{i}", _track(BWD, 20), BX0, y_ + 1, z=11, screen=True)
+    al = T(f"of {N}", "slate")
+    tl.put("t_all", al, BX0 + BWD - al.width, ys[3] + 1 + 20 + 4, z=40, screen=True)
+    stage(tl, "neutral", who="gpt", c=346)
+
+    def rung(i, face, arms=("down", "down"), acc=()):
+        c_, lab = LADDER[i]
+        added = c_ in ("clarified", "strict")
+        b_ = P.bubble(lab, 108, bg="yellow" if added else "ice", edge="gold" if added else "steel", tail=None)
+        tl.put(f"lad_q{i}", b_, 8, ys[i] + 10 - b_.height // 2 + 2, z=12, screen=True)
+        v = G[c_]["flags"]
+        L = v * BWD / N
+        tl.put(f"slot_lb{i}", _hbar(L), BX0, ys[i] + 1, z=13, screen=True)
+        if c_ == "strict":
+            t = ui.say(f"{v} of {N}", "white", 20)
+            tl.put(f"t_lv{i}", t, BX0 + round(L) - t.width - 5, ys[i] + 1 + (20 - t.height) // 2, z=40, screen=True)
+            tl.drop("t_all")
+        else:
+            t = ui.say(str(v), "orange", 40)
+            tl.put(f"t_lv{i}", t, BX0 + round(L) + 6, ys[i] + 11 - t.height // 2, z=40, screen=True)
+        stage(tl, face, arms, acc, who="gpt", c=346)
+
+    rung(0, "neutral")
+    cue(tl, "same 684 pairs, four wordings")
+    tl.beat("With the paper's wording it has 131 flags.", fade=True)
+    rung(1, "dots")
+    cue(tl, "reworded: about the same")
+    tl.beat("A paraphrase with the same vague direction gives about 140.")
+    rung(2, "happy", POINT)
+    hx, hy = hand(tl, "L", POINT)
+    o = tl.objs["t_lv2"]
+    hold(tl, "stick", hx, hy, round(o.x + o.w + 4), round(o.y + o.h / 2))
+    cue(tl, "+ further west: fewer")
+    tl.beat("One sentence saying that anywhere further west counts cuts them to 31.")
+    rung(3, "shock", ("up", "up"), ("sweat",))
+    cue(tl, "+ only due west: almost all")
+    tl.beat("The opposite sentence, that only directly west counts, raises them to 667 of 684,")
+
+    # under the strict reading NO is right in both orders
+    clear_charts(tl)
+    tl.clear(); put_ground(tl)
+    tl.put("map1", P.lakemap("due", 170, 110), 22, 40, z=8, screen=True)
+    t = ui.chip("due west only", "white", "ink")
+    tl.put("t_read1", t, 22 + 85 - t.width // 2, 156, z=40, screen=True)
+    for k, qq in enumerate(("Is B west of A?", "Is A west of B?")):
+        b = P.bubble(qq, 128, tail=None)
+        y = 50 + k * 58
+        tl.put(f"qq{k}", b, 212, y, z=12, screen=True)
+        no = ui.plate("NO", "red", "white", 20, 2)
+        tl.put(f"qno{k}", no, 212 + 8, y + b.height + 2, z=14, screen=True)
+        tl.put(f"qok{k}", ui.check("ink"), 212 + 8 + no.width + 5, y + b.height + 6, z=14, screen=True)
+    cue(tl, "read strictly: NO is right both times")
+    tl.beat("although under that reading no is right for both orders.", fade=True)
 
 
-def _glyph(tl, slide, i, reading):
-    """The mini lake map of a wording, under its bar's label."""
-    x, y, w, h = chart_pos(slide, f"ldl{i}")
-    g = P.minimap(reading)
-    tl.put(f"glyph{i}", g, round(x + w / 2 - g.width / 2), round(y + h + 3), z=30, screen=True)
+def readings(tl):
+    """Geography: many flags depend on how the model reads "west": anywhere further west (31), due west only
+    (667). Then the paper's own test where only one reading works."""
+    tl.section = "readings"
+    tl.drop("qq0", "qq1", "qno0", "qno1", "qok0", "qok1", "cue")
+    q = P.bubble("Is lake B west of lake A?", 172)
+    tl.put("q", q, (W - q.width) // 2, 8, z=12, screen=True)
+    for k, (reading, lab, fg, bg) in enumerate((("further", "anywhere further west", "ink", "yellow"),
+                                                 ("due", "due west only", "white", "ink"))):
+        x = 22 + k * 172
+        tl.put(f"map{k}", P.lakemap(reading, 170, 110), x, 40, z=8, screen=True)
+        t = ui.chip(lab, fg, bg)
+        tl.put(f"t_read{k}", t, x + 85 - t.width // 2, 156, z=40, screen=True)
+    cue(tl, "how it reads \"west\"")
+    tl.beat("So many of these flags depend on how the model reads \"west\".")
+
+    # the paper's own test: places at the same latitude, one reading only
+    tl.clear(); put_ground(tl)
+    chart(tl, "ablation")
+    m = P.lakemap("due", 110, 70, same=True)
+    tl.put("abmap", m, 36, 62, z=26, screen=True)
+    stage(tl, "side_l", ("down", "down"), ("sweat",), who="gpt")
+    cue(tl, "one reading only: still flagged")
+    tl.beat("The paper's own test on pairs where only one reading works still flags GPT-4o mini on nine percent,", fade=True)
+    stage(tl, "calm", ("out", "out"), who="gpt")
+    cue(tl, "wording: only part of it")
+    tl.beat("so wording explains only part of it.")
 
 
 def act4(tl):
     two(tl)
     facts(tl)
     wording(tl)
+    readings(tl)

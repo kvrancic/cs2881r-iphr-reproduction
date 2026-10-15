@@ -17,7 +17,7 @@ Endesga 32 only (`pal.py`). Semantic colours, the same everywhere: NO wine/red; 
 ## Rules
 - Light from the top left; 1px ink outlines on characters and props.
 - Text: Jersey 10 only, at size 20 or a multiple. Words are keywords and short labels, never the spoken sentence. The orientation cue is white on an ink plate with a yellow bar, in one spot per scene. No em dashes, no headers, footers or trackers.
-- Smooth Avenir Next only for the paper title, the team names and the repo link.
+- All text is Jersey 10, the title and closing slides included, except the repo link on the closing slide: smooth Avenir Next (as the brief allows), so the long link sits well inside the frame.
 
 ## Code
 - Sprites are functions with keyword arguments, deterministic, returning RGBA.

@@ -136,6 +136,14 @@ def bubble(s, w, fg="ink", bg="ice", edge="steel", tail="left"):
     'side' on the right edge pointing right (at the speaker), None for no tail."""
     t = text(s, fg, 20, maxw=None if "\n" in s else w - 10)   # explicit line breaks are kept as written
     h = t.height + 9
+    if tail == "lside":                # on the left edge, pointing left (at a speaker standing to its left)
+        img = blank(w + 6, h)
+        _rbox(img, 6, 0, w, h, bg, edge)
+        paste(img, t, 11, 4)
+        cy = h // 2
+        poly(img, [(6, cy - 4), (6, cy + 3), (0, cy)], edge)
+        poly(img, [(7, cy - 3), (7, cy + 2), (3, cy)], bg)
+        return img
     if tail == "side":
         img = blank(w + 6, h)
         _rbox(img, 0, 0, w, h, bg, edge)
@@ -236,11 +244,17 @@ def qcard(kind="book", w=26, h=32, lit=False):
     """A question card: white card, a coloured header stripe by kind, the kind's icon and two lines of text."""
     img = blank(w, h)
     _rbox(img, 0, 0, w, h, "white")
-    stripe = {"book": "grape", "film": "slate", "person": "clay", "place": "pink"}[kind]
+    stripe = {"book": "sand", "film": "night", "person": "clay", "place": "pink"}[kind]
     rect(img, 1, 1, w - 2, 4, stripe)
     ic = kind_icon(kind)
-    paste(img, ic, (w - ic.width) // 2, 8)
-    rect(img, 4, h - 9, w - 8, 1, "steel"); rect(img, 4, h - 6, w - 12, 1, "steel")
+    if w >= 30 and h >= 38:          # a large card: the glyph at 2x fills half the face
+        from px import scale_int
+        ic = scale_int(ic, 2)
+        paste(img, ic, (w - ic.width) // 2 + 1, 7)
+        rect(img, 4, h - 6, w - 9, 1, "steel")
+    else:
+        paste(img, ic, (w - ic.width) // 2, 8)
+        rect(img, 4, h - 9, w - 8, 1, "steel"); rect(img, 4, h - 6, w - 12, 1, "steel")
     rect(img, w - 2, 2, 1, h - 3, "ice"); rect(img, 2, h - 2, w - 3, 1, "ice")
     if lit:
         img = outline(img, "gold")
@@ -593,10 +607,11 @@ LAKE_A, LAKE_B = (126, 30), (46, 72)       # the two lakes of the 170x100 map, B
 MAP_W, MAP_H = 170, 100
 
 
-def pin(letter):
-    """A large ink map pin with a white letter; its point is the bottom-centre pixel."""
-    t = text(letter, "white", 20)
-    w, h = 13, 13
+def pin(letter, big=False):
+    """A large ink map pin with a white letter (at twice the type size when big); its point is the bottom-centre
+    pixel."""
+    t = text(letter, "white", 40 if big else 20)
+    w, h = (21, 21) if big else (13, 13)
     img = blank(w, h + 5)
     _rbox(img, 0, 0, w, h, "ink", "ink")
     rect(img, 1, 1, w - 2, 1, "slate")
@@ -631,13 +646,13 @@ def _lake(img, cx, cy, rx, ry, seed, water="sky", shade="navy"):
     rect(img, cx - rx // 3, cy - 1, max(3, rx // 3), 1, "cyan")
 
 
-def lakemap(reading=None, w=MAP_W, h=MAP_H):
+def lakemap(reading=None, w=MAP_W, h=MAP_H, same=False):
     """The one map of the lake question, reused wherever it appears: pale land, dashed meridians, five lakes,
     lake A and lake B (to A's southwest) under large ink pins. reading: 'due' adds a dashed ink line due west
     from A; 'further' dithers in yellow everything further west than A. Drawn natively at any size."""
     sx, sy = w / MAP_W, h / MAP_H
     A = (round(LAKE_A[0] * sx), round(LAKE_A[1] * sy))
-    B = (round(LAKE_B[0] * sx), round(LAKE_B[1] * sy))
+    B = (round(LAKE_B[0] * sx), round((LAKE_A[1] if same else LAKE_B[1]) * sy))   # same: B due west of A
     img = blank(w, h)
     _rbox(img, 0, 0, w, h, "white", "ink")
     dither(img, 1, 1, w - 2, h - 2, "ice", 2)
@@ -653,7 +668,7 @@ def lakemap(reading=None, w=MAP_W, h=MAP_H):
                     _P(img, xx, yy, "yellow")
     lakes = ((A[0], A[1] + round(6 * sy), 15, 7, 1, "sky", "navy"), (B[0], B[1] + round(6 * sy), 17, 8, 2, "sky", "deep"),
              (round(92 * sx), round(66 * sy), 9, 5, 3, "sky", "navy"), (round(150 * sx), round(78 * sy), 8, 6, 4, "sky", "navy"),
-             (round(24 * sx), round(24 * sy), 9, 6, 5, "sky", "navy"))
+             (round(24 * sx), round((78 if same else 24) * sy), 9, 6, 5, "sky", "navy"))
     for (cx, cy, rx, ry, sd, wat, sh) in lakes:
         _lake(img, cx, cy, round(rx * sx), round(ry * sy), sd, wat, sh)
     if reading == "further":
@@ -663,29 +678,8 @@ def lakemap(reading=None, w=MAP_W, h=MAP_H):
             if x % 6 < 4:
                 rect(img, x, A[1] + 2, 1, 2, "ink")
     for (x, y), lab in ((A, "A"), (B, "B")):
-        p = pin(lab)
+        p = pin(lab, big=w >= 160)
         paste(img, p, x - p.width // 2, y - p.height + 4)
-    return img
-
-
-def minimap(reading="due", w=36, h=22):
-    """A tiny glyph of the lake map for a chart label: A at the upper right, B to its southwest; 'due' a dashed
-    line due west of A, 'further' yellow dither over everything west of A."""
-    img = blank(w, h)
-    _rbox(img, 0, 0, w, h, "white", "ink")
-    ax, ay, bx, by = w - 9, 6, 9, h - 7
-    if reading == "further":
-        for y in range(1, h - 1):
-            for x in range(1, ax):
-                if (x + y) % 2 == 0:
-                    _P(img, x, y, "yellow")
-        rect(img, ax, 1, 1, h - 2, "ink")
-    else:
-        for x in range(2, ax - 2):
-            if x % 4 < 2:
-                _P(img, x, ay + 1, "ink")
-    for (x, y) in ((ax, ay), (bx, by)):
-        rect(img, x - 2, y - 1, 5, 4, "ink"); rect(img, x - 1, y, 3, 2, "sky")
     return img
 
 
@@ -842,12 +836,12 @@ def card(w=66, h=110):
     return img
 
 
-def deckpile(n=7, kind="place"):
-    """A tall stack of question cards seen from the front: the whole set."""
-    c = qcard(kind, 30, 38)
+def deckpile(n=7, kind="place", w=30, h=38):
+    """A stack of question cards seen from the front, n cards deep (the whole set, or a part of it)."""
+    c = qcard(kind, w, h)
     img = blank(c.width + 2 * n, c.height + 2 * n)
     for k in range(n):
-        paste(img, qcard(kind, 30, 38) if k == n - 1 else faint(c), 2 * (n - 1 - k), 2 * (n - 1 - k))
+        paste(img, qcard(kind, w, h) if k == n - 1 else faint(c), 2 * (n - 1 - k), 2 * (n - 1 - k))
     return img
 
 
@@ -878,3 +872,212 @@ def truthtab(ans):
     _rbox(img, 0, 0, img.width, img.height, "white", "steel")
     paste(img, t, 4, 3)
     return img
+
+
+# ------------------------------------------------------------------------------------------------ held props
+def stick(x0, y0, x1, y1, tip="red"):
+    """A long pointer from a hand at (x0, y0) to its tip at (x1, y1), in native pixels. Returns (img, x, y): the
+    picture and where its top-left corner goes."""
+    pad = 3
+    X, Y = min(x0, x1) - pad, min(y0, y1) - pad
+    img = blank(abs(x1 - x0) + 2 * pad + 1, abs(y1 - y0) + 2 * pad + 1)
+    a, b = (x0 - X, y0 - Y), (x1 - X, y1 - Y)
+    for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (1, -1), (-1, 1)):
+        line(img, a[0] + dx, a[1] + dy, b[0] + dx, b[1] + dy, "ink")
+    line(img, a[0], a[1], b[0], b[1], "clay")
+    rect(img, b[0] - 2, b[1] - 2, 5, 5, "ink"); rect(img, b[0] - 1, b[1] - 1, 3, 3, tip)
+    return img, X, Y
+
+
+def lens_on_stick(hx, hy, cx, cy, r=16):
+    """A big magnifying glass: a gold ring of radius r centred on (cx, cy), its handle running to the hand at
+    (hx, hy). The glass is a faint tint, so what it looks at stays readable. Returns (img, x, y)."""
+    ang = math.atan2(hy - cy, hx - cx)
+    ex, ey = round(cx + (r + 1) * math.cos(ang)), round(cy + (r + 1) * math.sin(ang))
+    st, sx, sy = stick(hx, hy, ex, ey, tip="clay")
+    X, Y = min(sx, cx - r - 3), min(sy, cy - r - 3)
+    img = blank(max(sx + st.width, cx + r + 4) - X, max(sy + st.height, cy + r + 4) - Y)
+    paste(img, st, sx - X, sy - Y)
+    c = (cx - X, cy - Y)
+    for y in range(-r - 2, r + 3):
+        for x in range(-r - 2, r + 3):
+            d = math.hypot(x, y)
+            if d <= r - 2.5:
+                if (x + y) % 2 == 0 and d > r - 6:
+                    img.putpixel((c[0] + x, c[1] + y), rgba("cyan", 70))
+            elif d <= r - 1.5:
+                _P(img, c[0] + x, c[1] + y, "ink")
+            elif d <= r + 0.5:
+                _P(img, c[0] + x, c[1] + y, "gold" if x + y > 0 else "yellow")
+            elif d <= r + 1.5:
+                _P(img, c[0] + x, c[1] + y, "ink")
+    return img, X, Y
+
+
+def swaptile(w=20, h=14):
+    """A rank tile as on the ranking board: two models' places as yellow lines that cross, white dots at the ends."""
+    img = blank(w, h)
+    _rbox(img, 0, 0, w, h, "dusk", "slate")
+    a0, a1 = 4, h - 5
+    line(img, 3, a0, w - 4, a1, "yellow"); line(img, 3, a1, w - 4, a0, "yellow")
+    for (x, y) in ((2, a0 - 1), (2, a1 - 1), (w - 4, a0 - 1), (w - 4, a1 - 1)):
+        rect(img, x, y, 2, 3, "white")
+    return img
+
+
+def placard(rows, w=56, scale=None, ticks=()):
+    """A white sign held in front of the body: rows = [(length in px, 'paper' | 'ours', label or None)].
+    Paper's run blue, ours orange, the bars lit on top and shaded on the right. With ticks (lengths in px), every
+    sign drawn on the same scale carries the same faint gridlines, so the signs of different models compare."""
+    from sprites.deckui import say
+    hs = 6 if not ticks else 8
+    labs = [say(r[2], "ink") if r[2] else None for r in rows]
+    rh = [max(hs, l.height if l is not None else 0) for l in labs]
+    h = sum(rh) + 3 * (len(rows) - 1) + 10
+    w = max([w] + [4 + max(2, round(r[0])) + 3 + (l.width if l is not None else 0) + 5 for r, l in zip(rows, labs)])
+    img = blank(w, h)
+    _rbox(img, 0, 0, w, h, "white", "ink")
+    rect(img, w - 3, 2, 2, h - 4, "ice"); rect(img, 2, h - 3, w - 4, 2, "ice")
+    for t in ticks:
+        for yy in range(3, h - 3):
+            if yy % 3 != 2:
+                _P(img, 4 + round(t), yy, "ice")
+    if ticks:
+        rect(img, 3, 3, 1, h - 6, "ink")          # the common baseline
+    y = 5
+    for (L, who, _), lab, hh in zip(rows, labs, rh):
+        body, hi, lo = ("sky", "cyan", "navy") if who == "paper" else ("orange", "gold", "rust")
+        by = y + (hh - hs) // 2
+        L = max(2, round(L))
+        rect(img, 4, by, L, hs, body); rect(img, 4, by, L, 1, hi); rect(img, 4 + L - 1, by + 1, 1, hs - 1, lo)
+        if lab is not None:
+            paste(img, lab, 4 + L + 3, y + (hh - lab.height) // 2)
+        y += hh + 3
+    return img
+
+
+def flagsign(n, w=50, col="orange"):
+    """A sign held in front of the body: a gold flag (flagged pairs) and the count, in our run's orange."""
+    from sprites.deckui import say
+    f = flag(h=20)
+    t = say(str(n), col, 40)
+    h = max(f.height, t.height) + 10
+    w = max(w, f.width + 6 + t.width + 12)
+    img = blank(w, h)
+    _rbox(img, 0, 0, w, h, "white", "ink")
+    rect(img, w - 3, 2, 2, h - 4, "ice"); rect(img, 2, h - 3, w - 4, 2, "ice")
+    x = (w - f.width - 6 - t.width) // 2
+    paste(img, f, x, (h - f.height) // 2)
+    paste(img, t, x + f.width + 6, (h - t.height) // 2)
+    return img
+
+
+def paper(w=56, h=70, col="sky", hi="cyan"):
+    """A printed page held up: a coloured title band, text lines and a small bar chart in the same colour."""
+    img = blank(w, h)
+    _box(img, 0, 0, w, h, "white")
+    poly(img, [(w - 9, 0), (w - 1, 8), (w - 9, 8)], "ice")
+    line(img, w - 9, 0, w - 9, 8, "ink"); line(img, w - 9, 8, w - 1, 8, "ink")
+    rect(img, 4, 4, w - 16, 5, col); rect(img, 4, 4, w - 16, 1, hi)
+    for r in range(4):
+        rect(img, 4, 14 + r * 4, w - 9 if r % 2 == 0 else w - 16, 1, "steel")
+    hs = (16, 6, 10, 3, 13, 5, 8)
+    for i, hh in enumerate(hs):
+        if 5 + i * 6 + 4 > w - 5:
+            break
+        rect(img, 5 + i * 6, h - 5 - hh, 4, hh, col); rect(img, 5 + i * 6, h - 5 - hh, 4, 1, hi)
+    rect(img, 4, h - 5, w - 8, 1, "ink")
+    return img
+
+
+def divpage(w=50, h=64):
+    """The plot's page with a division sign on it: the divisor."""
+    img = doc(w, h)
+    cx, cy = w // 2, h // 2 - 2
+    _box(img, cx - 13, cy - 13, 26, 26, "white")
+    rect(img, cx - 9, cy - 1, 18, 3, "navy")
+    for dy in (-7, 5):
+        rect(img, cx - 2, cy + dy, 4, 4, "navy"); rect(img, cx - 2, cy + dy, 2, 1, "sky")
+    return img
+
+
+def gauge(r=50, used=0.4, stated=0.5, lo=0.3, hi=0.6, post=30, small=False):
+    """A cutoff gauge on a post: a half dial from lo (left) to hi (right), a solid blue needle at the value used and
+    an outlined (ghost) needle at the value stated, a knob at the right of its base. Returns (img, (cx, cy), tip)
+    where tip(v) gives the end of a needle at value v in the picture."""
+    import math as _m
+    pad = 6
+    W_, H_ = 2 * r + 2 * pad + 10, r + pad + post + 6
+    img = blank(W_, H_)
+    cx, cy = pad + r, pad + r
+    ang = lambda v: _m.pi * (1 - (v - lo) / (hi - lo))
+    for y in range(-r - 1, 1):
+        for x in range(-r - 1, r + 2):
+            d = _m.hypot(x, y)
+            if d <= r + 1:
+                _P(img, cx + x, cy + y, "ink" if d > r - 1 or y == 0 else ("white" if d < r - 7 else "ice"))
+    rect(img, cx - r - 1, cy, 2 * r + 3, 3, "ink"); rect(img, cx - r, cy + 1, 2 * r + 1, 1, "slate")
+    for k in range(7):
+        v = lo + k * (hi - lo) / 6
+        a = ang(v)
+        r0 = r - (9 if k % 2 == 0 else 5)
+        for t in range(r0, r - 1):
+            _P(img, cx + round(t * _m.cos(a)), cy - round(t * _m.sin(a)), "ink")
+    tip = lambda v, rr=r - 10: (cx + round(rr * _m.cos(ang(v))), cy - round(rr * _m.sin(ang(v))))
+    if stated is not None:                 # the ghost needle: an outline only
+        ex, ey = tip(stated)
+        for off in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            line(img, cx + off[0], cy + off[1], ex + off[0], ey + off[1], "sky")
+        line(img, cx, cy, ex, ey, "white")
+    if used is not None:
+        ex, ey = tip(used)
+        for off in ((-1, 0), (0, -1), (-1, -1), (0, 0)):
+            line(img, cx + off[0], cy + off[1], ex + off[0], ey + off[1], "navy")
+        line(img, cx, cy - 1, ex, ey - 1, "sky")
+    disc(img, cx, cy, 4, "ink"); disc(img, cx, cy, 3, "gold"); _P(img, cx - 1, cy - 1, "yellow")
+    # post, foot and the knob at the right of the base
+    rect(img, cx - 3, cy + 3, 7, post, "ink"); rect(img, cx - 2, cy + 3, 5, post, "steel"); rect(img, cx - 2, cy + 3, 1, post, "ice")
+    rect(img, cx - 16, H_ - 5, 33, 5, "ink"); rect(img, cx - 15, H_ - 4, 31, 2, "slate"); rect(img, cx - 15, H_ - 4, 31, 1, "steel")
+    kx, ky = cx + r + 4, cy - 3
+    rect(img, kx - 2, ky, 12, 10, "ink"); rect(img, kx - 1, ky + 1, 10, 8, "gold"); rect(img, kx - 1, ky + 1, 10, 2, "yellow")
+    for k in range(3):
+        rect(img, kx + 1 + k * 3, ky + 3, 1, 6, "orange")
+    return img, (cx, cy), tip
+
+
+def swapcard(w=40, h=30):
+    """A rank tile held up: two models' places as yellow lines that cross."""
+    img = blank(w, h)
+    _rbox(img, 0, 0, w, h, "dusk", "ink")
+    rect(img, 2, 2, w - 4, 1, "slate")
+    a0, a1 = 6, h - 7
+    for off in (0, 1):
+        line(img, 5, a0 + off, w - 6, a1 + off, "yellow"); line(img, 5, a1 + off, w - 6, a0 + off, "yellow")
+    for (x, y) in ((3, a0 - 1), (3, a1 - 1), (w - 6, a0 - 1), (w - 6, a1 - 1)):
+        rect(img, x, y, 3, 4, "white")
+    return img
+
+
+def elbow(pts, col="wine", head=True):
+    """A thick arrow along a path of right-angled segments [(x, y), ...] in picture coordinates; the head points
+    along the last segment. Returns (img, x, y) placed so the path keeps its coordinates."""
+    xs, ys = [p_[0] for p_ in pts], [p_[1] for p_ in pts]
+    X, Y = min(xs) - 6, min(ys) - 6
+    img = blank(max(xs) - X + 7, max(ys) - Y + 7)
+    q = [(x - X, y - Y) for x, y in pts]
+    for (x0, y0), (x1, y1) in zip(q, q[1:]):
+        rect(img, min(x0, x1) - 2, min(y0, y1) - 2, abs(x1 - x0) + 5, abs(y1 - y0) + 5, "ink")
+    for (x0, y0), (x1, y1) in zip(q, q[1:]):
+        rect(img, min(x0, x1) - 1, min(y0, y1) - 1, abs(x1 - x0) + 3, abs(y1 - y0) + 3, col)
+    if head:
+        (x0, y0), (x1, y1) = q[-2], q[-1]
+        dx, dy = (x1 > x0) - (x1 < x0), (y1 > y0) - (y1 < y0)
+        for k in range(6):
+            ww = 6 - k
+            if dy:
+                rect(img, x1 - ww - 1, y1 + dy * k - (1 if dy < 0 else 0), 2 * ww + 3, 1, "ink")
+                rect(img, x1 - ww, y1 + dy * k, 2 * ww + 1, 1, col)
+            else:
+                rect(img, x1 + dx * k, y1 - ww - 1, 1, 2 * ww + 3, "ink")
+                rect(img, x1 + dx * k, y1 - ww, 1, 2 * ww + 1, col)
+    return img, X, Y

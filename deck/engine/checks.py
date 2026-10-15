@@ -141,6 +141,7 @@ def claims():
     rec = [k for k, v in f2.items() if v["source"] == "recomputed"]
     same = sum(f2[k]["paper_count"] == f2[k]["our_count"] for k in rec)
     out.append((len(rec) == 8 and same == 8, f"'eight models ... exactly their numbers': {same} of {len(rec)} recomputed counts match"))
+    out.append((len(rec) == 8 and same == 8, f"'for the eight models with released data, Figure 2's counts recompute exactly': {same} of {len(rec)}"))
     bad = [k for k, v in f2.items() if round(100 * v["paper_count"] / ch.PLOT_DIVISOR, 2) != v["paper_pct"]]
     out.append((not bad, f"'divides by 4,892 pairs': count / 4,892 gives every plotted bar ({len(f2) - len(bad)} of {len(f2)})"))
     m = c["retest_mean_of_models"]
@@ -159,12 +160,13 @@ def claims():
     d = N["paired"][ch.DS]
     ds = (d["paper_run_vs_ours"]["flags"], d["paper_answers_our_labels_vs_ours"]["flags"], R["base"][ch.DS]["n_unf"])
     out.append((ds[0] > ds[1] > ds[2], f"'DeepSeek gets fewer, part of that our labeller': paper {ds[0]}, paper's answers with our labels {ds[1]}, ours {ds[2]}"))
-    ex = {lab: N["paired"][k]["one_sided_lean_recurrence"] for k, lab in ch.FOUR}
-    gx = ex["GPT-4o mini"]
-    others = [v for l, v in ex.items() if l != "GPT-4o mini"]
-    out.append((gx["mean_in_other_run"] > 2 * gx["null_975"] and all(v["mean_in_other_run"] < gx["mean_in_other_run"] / 2 for v in others),
-                "'for GPT-4o mini ... beyond its general lean; for the others small': " +
-                ", ".join(f"{l} {v['mean_in_other_run']:.2f} (noise {v['null_975']:.2f})" for l, v in ex.items())))
+    gx = N["paired"]["openai/gpt-4o-mini"]["one_sided_lean_recurrence"]
+    out.append((gx["mean_in_other_run"] > 2 * gx["null_975"],
+                f"'GPT-4o mini ... also did better on that order in ours, beyond its general lean': "
+                f"{gx['mean_in_other_run']:.2f} against noise up to {gx['null_975']:.2f}"))
+    out.append((gx["anti_mean_in_other_run"] > 2 * gx["anti_null_975"] and gx["anti_mean_in_other_run"] >= gx["mean_in_other_run"],
+                f"'it did so just as often on pairs that went against its lean': against the lean "
+                f"{gx['anti_mean_in_other_run']:.2f} (noise up to {gx['anti_null_975']:.2f}), with the lean {gx['mean_in_other_run']:.2f}"))
     rk = N["rate_by_kind_paper_full"]
     gm = rk["openai/gpt-4o-mini"]
     out.append((0.18 <= gm["geography"]["rate"] < 0.22 and 0.005 <= gm["other"]["rate"] < 0.02,
@@ -181,12 +183,19 @@ def claims():
     out.append((a == 57 and b == 0, f"'from fifty-seven to zero across four models': {a} -> {b} over {len(ch.FACT4)} models"))
     lr = ch.J("recall_probe.json")["meta-llama/llama-3.3-70b-instruct"]   # checks the spoken figure only; not shown on screen
     out.append((0.65 <= lr["known_order_flagged"] < 0.75, f"'Llama ordered about seven in ten of its flagged pairs correctly': {lr['known_order_flagged']:.0%} of {lr['flagged']}"))
+    out.append((0.8 <= lr["known_order_unflagged"] < 0.9, f"'against eight and a half in ten for its other pairs': {lr['known_order_unflagged']:.1%} of {lr['unflagged']}"))
     lc = CF["meta-llama/llama-3.3-70b-instruct | other"]
     out.append((lc["wrong_states_wrong_order"] > 0.5, f"'in its wrong answers the numbers it writes support the wrong answer': {lc['wrong_states_wrong_order']:.0%} of {lc['wrong_answers']}"))
     q = ch.GEO["distances"]["paper | openai/gpt-4o-mini"]["flag_rate_by_asked_quartile"]
     out.append((q[-1] == max(q), f"'flags most common for places far apart': by distance quarter {', '.join(f'{v:.1%}' for v in q)}"))
+    out.append((G["base"]["flags"] == 131, f"'with the paper's wording it has 131 flags': {G['base']['flags']} of {G['base']['pairs']}"))
     out.append((135 <= G["paraphrase"]["flags"] <= 145, f"'left the flags at about 140': {G['paraphrase']['flags']} (paper's wording {G['base']['flags']})"))
     out.append((G["clarified"]["flags"] == 31, f"'cut them to 31': {G['clarified']['flags']}"))
     out.append((G["strict"]["flags"] == 667 and G["strict"]["pairs"] == 684, f"'raised them to 667 of 684': {G['strict']['flags']} of {G['strict']['pairs']}"))
+    import re
+    paper = open(os.path.join(ROOT, "scratch", "paper.txt")).read()
+    m_ = re.search(r"GPT-4o-mini\s+(\d+\.\d+)%", paper[paper.index("near-identical longitudes"):])
+    ab = float(m_.group(1)) if m_ else -1
+    out.append((round(ab) == ch.ABLATION_PCT == 9, f"'the paper's own test ... still flags GPT-4o mini on nine percent': {ab}% in the paper's ablation"))
     out.append((lc["wrong_says_unsure"] > 0.5, f"'Llama often says it is unsure and answers anyway': {lc['wrong_says_unsure']:.0%} of its wrong answers"))
     return out

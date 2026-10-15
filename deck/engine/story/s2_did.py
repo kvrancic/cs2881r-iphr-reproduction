@@ -1,129 +1,177 @@
-"""Act 2, what we did: four cards, then the first two: the recompute from the released data and the rerun on a
-fifth of the pairs."""
+"""Act 2, the first two things we did: the recompute from the released data and the rerun on a fifth of the
+pairs. The recompute stands on the monitor (released data), the rerun on the lab bench (our runs)."""
 from story.common import *
-from px import rect
+from px import rect, frame, paste, blank
 
-CARD_W, CARD_H, CARD_Y = 88, 142, 28
-CARD_X = tuple(10 + k * (CARD_W + 4) for k in range(4))    # four cards centred in the frame
-
-
-def card_icons():
-    """The four things, each a large picture: the paper's figure, two chats, the kinds of question, the two
-    variations (the aqua fact card and the compass)."""
-    two = blank(72, 64)
-    paste(two, P.chat(54, 40, ""), 0, 0); paste(two, P.chat(54, 40, ""), 18, 24)
-    kinds = blank(72, 92)
-    g = P.kindicon("geography", 50)
-    paste(kinds, g, (72 - g.width) // 2, 0)
-    paste(kinds, P.calendar(32), 0, 58); paste(kinds, P.ruler(36, 14), 36, 76)
-    var = blank(72, 94)
-    fc = blank(70, 40)
-    rect(fc, 0, 0, 70, 40, "deep"); rect(fc, 1, 1, 68, 38, "cyan"); rect(fc, 1, 1, 68, 1, "white")
-    rect(fc, 6, 10, 46, 3, "deep"); rect(fc, 6, 23, 34, 3, "deep")
-    paste(var, fc, 1, 0); cp = P.compass(24); paste(var, cp, (72 - cp.width) // 2, fc.height + 2)
-    return [P.doc(60, 78), two, kinds, var]
-
-
-CARD_LABELS = ("check\nFigure 2", "rerun", "split by\nkind", "2\nvariations")
-
-
-def four(tl):
-    tl.section = "four things"
-    tl.clear()
-    put_ground(tl)
-    for k, x in enumerate(CARD_X):
-        tl.put(f"card_{k}", P.cardback(CARD_W, CARD_H), x, CARD_Y, z=10, screen=True)
-    cue(tl, "four things")
-    tl.beat("We did four things.", fade=True)
-    says = ("We checked the figure,", "ran it again,", "split it by kind of question", "and tried two variations.")
-    for k, (img, lab, say) in enumerate(zip(card_icons(), CARD_LABELS, says)):
-        x = CARD_X[k]
-        tl.put(f"card_{k}", P.card(CARD_W, CARD_H))
-        tl.put(f"sl_ic{k}", img, x + (CARD_W - img.width) // 2, CARD_Y + 8 + (100 - img.height) // 2, z=12, screen=True)
-        t = T(lab, "ink", align="center")
-        tl.put(f"t_sl{k}", t, x + (CARD_W - t.width) // 2, CARD_Y + CARD_H - t.height - 10, z=40, screen=True)
-        if k == 0:
-            tl.drop("cue")
-        tl.beat(say)
+CARD_W, CARD_H, CARD_Y = 100, 142, 26
 
 
 def recompute(tl):
     tl.section = "recompute"
-    # the released data, our code and the figure, large on the ground; the 'check Figure 2' card's page opens
-    # into the figure (same id), the other cards fall away
-    tl.keep("ground", "sl_ic0")
-    items = [("folder", P.folder(100, 78), "released data"), ("term", P.terminal(100, 78), "our code"),
-             ("sl_ic0", P.doc(64, 82), "Figure 2")]
-    xs = (30, 166, 302)
-    for (i, img, lab), x in zip(items, xs):
-        tl.put(i, img, x, feet(img), z=12, screen=True)
-        t = T(lab, "ink")
-        tl.put("t_" + i, t, x + img.width // 2 - t.width // 2, feet(img) - t.height - 6, z=40, screen=True)
-    for k, x in enumerate((136, 272)):
-        tl.put(f"arr{k}", ui.arrow(24, "slate", 2), x, GY - 42, z=12, screen=True)
-    tl.put("floor", floor(372), 6, GY, z=2, screen=True)
-    cue(tl, "recompute")
-    tl.beat("First, we recomputed the figure from the authors' released data.", morph=0.8)
-
+    # the released data, our code on its monitor stand and the figure, large on the ground
     tl.clear(); put_ground(tl)
-    chart(tl, "rec_table")
-    stage(tl, "happy")
-    cue(tl, "exact match")
-    tl.beat("For the eight models whose ten-answer counts were released, our code gives exactly their numbers.", fade=True)
-    chart(tl, "rec_two")
-    stage(tl, "side")
-    tl.drop("cue")
-    tl.beat("We also found three small discrepancies.")
-    chart(tl, "divisor")
-    stage(tl, "focus", POINT)
-    tl.beat("The plot divides by 4,892 pairs where the data hold 4,834.")
-    chart(tl, "retest_cut")
-    stage(tl, "focus")
-    tl.beat("The retest uses a looser cutoff than the paper states.")
-    chart(tl, "rank_claim")
-    stage(tl, "neutral")
-    tl.beat("The paper says the model ranking never changes with the cutoffs,")
-    chart(tl, "rank_table")
-    stage(tl, "shock", POINT)
-    tl.beat("while its own table shows that it does.")
+    items = [("folder", P.folder(96, 74), "released data"), ("term", P.terminal(96, 70), "our code"),
+             ("doc", P.doc(62, 80), "Figure 2")]
+    xs = (34, 152, 282)
+    for (i, img, lab), x in zip(items, xs):
+        y = feet(img) - (14 if i == "term" else 0)
+        tl.put(i, img, x, y, z=12, screen=True)
+        t = T(lab, "ink")
+        tl.put("t_" + i, t, x + img.width // 2 - t.width // 2, y - t.height - 6, z=40, screen=True)
+    tl.put("stand", P.monitor(96, 14), 152, GY - 14, z=11, screen=True)
+    for k, x in enumerate((134, 256)):
+        tl.put(f"arr{k}", ui.arrow(16, "slate", 2), x, GY - 42, z=12, screen=True)
+    tl.put("floor", floor(340), 22, GY, z=2, screen=True)
+    cue(tl, "recompute")
+    tl.beat("First, we recomputed the figure from the authors' released data.", fade=True)
+
+    # our code's small terminal grows into the monitor board; the robot stands at its right
+    tl.clear(); put_ground(tl)
+    chart(tl, "rec_table", alias={"bd": "term"})
+    stage(tl, "happy", ("down", "up"))
+    cue(tl, "released data: exact match")
+    tl.beat("For the eight models whose ten-answer counts were released, our code gives exactly their numbers.", morph=0.9)
+
+    # three small discrepancies as three props on plinths: the plot's page, the retest's dial, the ranking's swap
+    clear_charts(tl)
+    tl.keep("ground")
+    props = (("pg", P.divpage(50, 64), "the plot"), ("dial", P.gauge(26, post=10)[0], "the retest"),
+             ("swap", P.swapcard(44, 32), "the ranking"))
+    for k, (i, img, lab) in enumerate(props):
+        c_ = 66 + k * 98
+        tl.put(f"plinth{k}", P.plinth(64, 14), c_ - 32, GY - 14, z=8, screen=True)
+        tl.put(i, img, c_ - img.width // 2, GY - 14 - img.height, z=12, screen=True)
+        t = T(lab, "ink")
+        tl.put(f"t_{i}", t, c_ - t.width // 2, GY - 14 - img.height - t.height - 6, z=40, screen=True)
+    tl.put("floor", floor(320), 18, GY, z=2, screen=True)
+    stage(tl, "focus", c=344)
+    cue(tl, "three small discrepancies")
+    tl.beat("We also found three small discrepancies.", morph=0.9)
+
+    # the divisor: the plot's page with the number it divides by, against the stack of pairs in the data;
+    # the robot stands between them, squints and points at 4,892
+    tl.keep("ground", "pg", "robot", "cfloor")
+    pg = P.divpage(80, 100)
+    tl.put("pg", pg, 34, GY - pg.height, z=12, screen=True)
+    st = P.deckpile(12, w=46, h=58)
+    tl.put("stack", st, 262, GY - st.height, z=12, screen=True)
+    for i, (x0, w_, lab, num, col) in enumerate(((34, pg.width, "the plot divides by", f"{charts.PLOT_DIVISOR:,}", "sky"),
+                                                 (262, st.width, "pairs in the data", f"{charts.N_PAIRS:,}", "ink"))):
+        n = ui.big(num, col, 40, drop="ice")
+        top = GY - (pg.height if i == 0 else st.height) - n.height - 8
+        tl.put(f"t_num{i}", n, x0 + w_ // 2 - n.width // 2, top, z=40, screen=True)
+        t = T(lab, "slate")
+        tl.put(f"t_lab{i}", t, x0 + w_ // 2 - t.width // 2, top - t.height - 4, z=40, screen=True)
+    tl.put("floor", floor(340), 22, GY, z=2, screen=True)
+    stage(tl, "squint", POINT, c=196)
+    hx, hy = hand(tl, "L", POINT)
+    n0 = tl.objs["t_num0"]
+    hold(tl, "stick", hx, hy, round(n0.x + n0.w + 4), round(n0.y + n0.h - 4))
+    cue(tl, "the plot's divisor")
+    tl.beat("The plot divides by 4,892 pairs where the data hold 4,834.", morph=0.9)
+
+    # the retest: the cutoff as a gauge on the ground; the paper states 0.5 (the ghost needle), its code uses 0.4;
+    # the robot turns the knob down
+    tl.keep("ground", "robot", "cfloor", "floor")
+    g, (gcx, gcy), tip = P.gauge(56, post=20)
+    gx_ = 128 - gcx
+    tl.put("dial", g, gx_, GY - g.height, z=12, screen=True)
+    gy_ = GY - g.height
+    for i, (v, lab, fg, bg, side) in enumerate(((0.4, "used 0.4", "white", "sky", -1), (0.5, "stated 0.5", "sky", "white", 1))):
+        ex, ey = tip(v, 66)
+        c = ui.chip(lab, fg, bg, border="sky" if bg == "white" else "ink")
+        x = gx_ + ex - (c.width if side < 0 else 0)
+        tl.put(f"t_cut{i}", c, x - (8 if side > 0 else 0), gy_ + ey - c.height, z=40, screen=True)
+    for v, lab in ((0.3, "0.3"), (0.6, "0.6")):
+        t = T(lab, "slate")
+        ex, _ = tip(v, 56)
+        tl.put(f"t_tick{lab[-1]}", t, gx_ + ex - t.width // 2, gy_ + gcy + 12, z=40, screen=True)
+    stage(tl, "squint", ("out", "down"), c=gx_ + gcx + 56 + 52)
+    cue(tl, "looser than stated")
+    tl.beat("The retest uses a looser cutoff than the paper states.", morph=0.9)
+
+    # the ranking: the robot reads the paper's claim, then holds up a rank tile whose two lines cross
+    tl.keep("ground")
+    chart(tl, "rank_claim", alias={"bd": "term"})
+    stage(tl, "side_l", ("down", "down"))
+    cue(tl, "the paper's claim")
+    tl.beat("The paper says the model ranking never changes with the cutoffs,", morph=0.9)
+    chart(tl, "rank_table", alias={"bd": "term"})
+    arms = ("out", "down")
+    stage(tl, "shock", arms, c=342)
+    hx, hy = hand(tl, "L", arms)
+    t = P.swapcard(40, 30)
+    tl.put("swap", t, hx - t.width // 2 + 2, hy - t.height + 4, z=33, screen=True)
+    cue(tl, "its own table: it changes")
+    tl.beat("while its own table shows that it does.", morph=0.9)
+
+
+def run_panel(who, rows, h=86):
+    """One run of a pair, framed in its run's colour (the paper's blue, our orange): the question and its reverse,
+    ten answers each, a word and the true answer on the left of each row and the number of right answers at its
+    end; the order that comes out better sits on a yellow highlight."""
+    col, lab = ("sky", "paper's run") if who == "paper" else ("orange", "our run")
+    from px import text as _text
+    words = [_text(wd, "ink", 20) for wd in ("this order", "other order")]
+    tabs = [P.truthtab("YES" if truth == "Y" else "NO") for _, truth in rows]
+    counts = [_text(f"{sum(a == truth for a in answers)} right", "ink", 20, line=True) for answers, truth in rows]
+    qx = 9 + max(t_.width for t_ in words + tabs) + 4
+    PX0, PP = qx + 22, 11                      # the first pip and the pip pitch
+    cx_ = PX0 + 9 * PP + 10 + 5
+    w = cx_ + max(c_.width for c_ in counts) + 6
+    img = blank(w, h)
+    rect(img, 0, 0, w, h, "ink"); rect(img, 1, 1, w - 2, h - 2, col); rect(img, 3, 17, w - 6, h - 20, "white")
+    t = _text(lab, "white", 20, line=True)          # cut to the font's lines: both headers share a baseline
+    paste(img, t, (w - t.width) // 2, 2)
+    for k, ((answers, truth), lw, tb, cn) in enumerate(zip(rows, words, tabs, counts)):
+        y = 20 + k * 32
+        if k == 0:
+            rect(img, 5, y - 1, w - 10, 30, "yellow")
+        paste(img, lw, 9, y + 1)
+        paste(img, tb, 9, y + 13)
+        paste(img, P.qcard("place", 18, 22), qx, y + 3)
+        for i, a in enumerate(answers):       # ten answers as plain pips: green YES, red NO
+            c, hi = ("green", "yellow") if a == "Y" else ("red", "rose")
+            px_ = PX0 + i * PP
+            rect(img, px_, y + 5, 10, 19, "ink"); rect(img, px_ + 1, y + 6, 8, 17, c); rect(img, px_ + 1, y + 6, 8, 1, hi)
+        paste(img, cn, cx_, y + 14 - cn.height // 2)
+    return img
 
 
 def rerun(tl):
     tl.section = "rerun"
     clear_charts(tl)
-    tl.keep("ground", "robot", "cfloor")
-    # the whole set as a tall deck; a fifth of the cards fly out into our pile
-    d = P.deckpile(9)
-    tl.put("deck", d, 22, GY - d.height, z=12, screen=True)
-    nb = T(f"{charts.N_PAIRS:,}", "ink", 40)
-    tl.put("t_all", nb, 22 + (d.width - nb.width) // 2, GY - d.height - nb.height - 6, z=40, screen=True)
-    path = [(84, 104), (112, 76), (144, 62), (176, 66), (204, 84)]
-    for k, (x, y) in enumerate(path):
-        tl.put(f"fly{k}", P.qcard("place" if k % 3 else "film", 22, 28), x, y, z=14, screen=True)
-    pile = blank(48, 56)
-    for k in range(4):
-        paste(pile, P.qcard("place" if k % 2 else "book", 30, 38), 4 + k * 3 - 4, 18 - k * 6)
-    tl.put("pile", pile, 214, GY - pile.height, z=12, screen=True)
-    n = ui.big("1,014 pairs", "orange", 40, drop="ice")
-    tl.put("t_fifth", n, 176, 22, z=40, screen=True)
-    tl.put("t_same", T("same setup", "ink"), 178, 22 + n.height + 2, z=40, screen=True)
-    tl.put("floor", floor(290), 6, GY, z=2, screen=True)
-    stage(tl, "happy")
-    cue(tl, "a fifth, again")
+    tl.clear(); put_ground(tl)
+    # the whole set as a stack on a plinth; a fifth of it peels off into a smaller stack beside it
+    pl = P.plinth(214, 22)
+    tl.put("panel_pl", pl, 192 - 107, GY - 22, z=8, screen=True)
+    d = P.deckpile(12, w=46, h=58)
+    tl.put("deck", d, 104, GY - 22 - d.height, z=12, screen=True)
+    sm = P.deckpile(3, w=46, h=58)
+    tl.put("pile", sm, 222, GY - 22 - sm.height, z=12, screen=True)
+    for k, (x, y) in enumerate(((176, 76), (200, 62))):
+        tl.put(f"fly{k}", P.qcard("place" if k else "film", 30, 38), x, y, z=14, screen=True)
+    lab = ui.runs([(f"{charts.RUNS['base']['openai/gpt-4o-mini']['n_pairs']:,}", "orange"), (" of ", "ink"), (f"{charts.N_PAIRS:,}", "ink")])
+    tl.put("t_fifth", lab, 192 - lab.width // 2, GY - 22 + (22 - lab.height) // 2, z=40, screen=True)
+    s_ = T("same prompt, same settings", "ink")
+    tl.put("t_same", s_, 192 - s_.width // 2, 22, z=40, screen=True)
+    tl.put("floor", floor(330), 26, GY, z=2, screen=True)
+    cue(tl, "a fifth of the pairs, rerun")
     tl.beat("Second, we ran the experiment again on a fifth of the pairs with the same prompt and settings.", fade=True)
 
     # the judge -------------------------------------------------------------------------------------------
     tl.clear(); put_ground(tl)
-    tl.put("floor", floor(300), 42, GY, z=2)
-    tl.put("old", robot("blank", grey=True), at(100), ROBOT_Y, z=20)
+    tl.put("floor", floor(290), 47, GY, z=2, screen=True)
+    tl.put("old", robot("blank", grey=True), at(110), ROBOT_Y, z=20, screen=True)
     pl = P.plug(40)
-    tl.put("plug", pl, 100 + 34, GY - pl.height + 1, z=21)
-    tl.put("judge", judge("focus"), at(262), ROBOT_Y, z=20)
+    tl.put("plug", pl, 110 + 34, GY - pl.height + 1, z=21, screen=True)
+    tl.put("judge", judge("focus"), at(262), ROBOT_Y, z=20, screen=True)
     a1, a2 = ui.chip("their judge, retired", "white", "slate"), ui.chip("our labeller", "white", "ink")
-    tl.put("t_old", a1, 100 - a1.width // 2, ROBOT_Y - a1.height - 6, z=40)
-    tl.put("t_new", a2, 262 - a2.width // 2, ROBOT_Y - a2.height - 12, z=40)
+    cy_ = ROBOT_Y - max(a1.height, a2.height) - 12
+    tl.put("t_old", a1, 110 - a1.width // 2, cy_, z=40, screen=True)
+    tl.put("t_new", a2, 262 - a2.width // 2, cy_, z=40, screen=True)
     cue(tl, "old judge gone: a new labeller")
-    tl.beat("The authors' judge is retired, so we built our own labeller,", fade=True)
+    tl.beat("The authors' judge is retired, so we built our own labeller,")
 
     pct, n = charts.judge_pct()
     for k in range(3):
@@ -132,76 +180,151 @@ def rerun(tl):
         for r in range(3):
             rect(slip, 3, 3 + r * 3, 12 - r * 3, 1, "steel")
         rect(slip, 13, 8, 7, 6, "orange"); rect(slip, 14, 9, 5, 4, "white"); rect(slip, 15, 10, 3, 2, "orange")
-        tl.put(f"slip{k}", slip, 318 + k * 9, GY - 16 - k * 12, z=24)
+        tl.put(f"slip{k}", slip, 314 + k * 9, GY - 16 - k * 12, z=24, screen=True)
     b = ui.big(f"{pct}%", "orange", 60)
-    tl.put("t_pct", b, 160 - b.width // 2, 6, z=40, screen=True)
-    t2 = T("label agreement,\non their answers", "ink", align="center")
-    tl.put("t_pct2", t2, 160 - t2.width // 2, 6 + b.height + 3, z=40, screen=True)
+    t2 = T("label agreement, on their answers", "ink")
+    top = 6
+    tl.put("t_pct", b, 192 - b.width // 2, top, z=40, screen=True)
+    tl.put("t_pct2", t2, 192 - t2.width // 2, top + b.height + 3, z=40, screen=True)
     tl.put("judge", judge("happy"))
     cue(tl, "our labeller vs their labels")
     tl.beat("which matches their labels on about ninety-nine percent of their answers.")
 
-    # the three original models still online and the newer release of Gemini 2.5 Flash, each with one trait ------
+    # the four models we could rerun, each with its look -----------------------------------------------------------
     tl.clear(); put_ground(tl)
-    tl.put("floor", floor(356), 14, GY, z=2)
+    tl.put("floor", floor(340), 22, GY, z=2, screen=True)
     names = ("GPT-4o\nmini", "Llama 3.3\n70B", "DeepSeek\nV3", "Gemini 2.5\nFlash")    # two lines: four tags in one row
-    looks = (dict(face="grin", arms=("down", "up"), ant="pink"), dict(face="happy", ant="gold", hat="beret"),
-             dict(face="calm", ant="cyan"), dict(face="smug", ant="rose", hat="bow"))
+    whos = ("gpt", "llama", "deepseek", "gemini")
+    faces = (("grin", ("down", "up")), ("happy", ("down", "down")), ("calm", ("down", "down")), ("smug", ("down", "down")))
     for k, nm in enumerate(names):
-        c_ = 48 + k * 92
-        lk = dict(looks[k])
-        tl.put(f"bot{k}", robot(lk.pop("face"), lk.pop("arms", ("down", "down")), **lk), at(c_), ROBOT_Y, z=20 + k)
+        c_ = BOT_X[k]
+        f, a = faces[k]
+        tl.put(f"bot{k}", robot(f, a, who=whos[k]), at(c_), ROBOT_Y, z=20 + k, screen=True)
         c = ui.tag(nm, "white", "ink")
-        tl.put(f"t_bot{k}", c, c_ - c.width // 2, ROBOT_Y - c.height - 6, z=40)
-    nw = P.ribbon("newer release")
-    tag3 = tl.objs["t_bot3"]
-    tl.put("t_newer", nw, tag3.x + (tag3.img.width - nw.width) // 2, tag3.y - nw.height - 2, z=41)
-    cue(tl, "still online: 3 originals + 1 newer")
-    tl.beat("On the three original models still online and the newer release of Gemini 2.5 Flash,", fade=True)
+        tl.put(f"t_bot{k}", c, c_ - c.width // 2, ROBOT_Y - c.height - 10, z=40, screen=True)
+    cue(tl, "4 models rerun")
+    tl.beat("On the four models we could rerun,", fade=False)
 
-    # the charts of the rerun: the name tags become the chart's row labels -----------------------------------
-    tl.keep("ground", "t_bot0", "t_bot1", "t_bot2", "t_bot3")
-    tags = {f"rn{k}": f"t_bot{k}" for k in range(4)}
-    chart(tl, "lean_size", alias=tags)
-    stage(tl, "focus")
-    tl.beat("each model leans about as strongly as in the paper.", morph=0.8)
-    chart(tl, "flag_count", alias={k: v for k, v in tags.items() if k in ("rn0", "rn1")})
-    stage(tl, "happy")
+    # each model holds up a sign with the size of its lean: the paper's run (blue) and ours (orange)
+    _key(tl, "size of the lean")
+    lean_signs(tl)
+    for k in range(4):
+        tl.put(f"bot{k}", robot("happy", who=whos[k]))
+    cue(tl, "our runs: the same lean")
+    tl.beat("each leans about as strongly as in the paper.", morph=0.8)
+
+    # the flag counts: GPT-4o mini and Llama step forward with their counts; the other two step back
+    R = charts.RUNS
+    for k in (2, 3):
+        tl.drop(f"bot{k}", f"t_bot{k}", f"sign{k}")
+    for k, c_ in ((0, 140), (1, 244)):
+        key = charts.FOUR[k][0]
+        a_, b_ = R["paper_same_pairs"][key]["n_unf"], R["base"][key]["n_unf"]
+        tl.move(f"bot{k}", x=at(c_))
+        tg = tl.objs[f"t_bot{k}"]
+        tl.move(f"t_bot{k}", x=c_ - tg.img.width // 2)
+        pc = P.placard([(a_ * 0.3, "paper", str(a_)), (b_ * 0.3, "ours", str(b_))], 76)
+        tl.put(f"sign{k}", pc, c_ - pc.width // 2, ROBOT_Y + 52)
+    tl.put("bot0", robot("grin", who="gpt"))
+    _key(tl, "flagged pairs")
+    cue(tl, "flags: about the same")
     tl.beat("GPT-4o mini and Llama get about the same number of flags.")
+
+    # DeepSeek beside its board: the paper's flags and ours, then the paper's answers relabelled by our labeller
+    tl.keep("ground")
     chart(tl, "ds_two")
-    stage(tl, "side")
+    stage(tl, "side_l", who="deepseek")
+    cue(tl, "DeepSeek: fewer flags")
     tl.beat("DeepSeek gets fewer.")
     chart(tl, "ds_three")
-    stage(tl, "dots", POINT)
+    stage(tl, "side_l", POINT, ("sweat",), who="deepseek")
+    hx, hy = hand(tl, "L", POINT)
+    x, y, w, h = chart_pos("ds_three", "dsv1")
+    hold(tl, "stick", hx, hy, round(x + w + 4), round(y + h / 2 + 2))
+    cue(tl, "part of it: our labeller")
     tl.beat("Part of that is our labeller.")
 
-    # the rest: maybe a different model behind the same name: the paper's run in blue, ours in orange --------------
+    # the rest: maybe a different model behind the same name: a close-up of the paper's run (blue) and ours (orange)
     clear_charts(tl)
-    tl.clear(); put_ground(tl)
-    tl.put("floor", floor(300), 42, GY, z=2)
-    tl.put("ds_old", robot("calm", ant="sky", tint="sky"), at(120), ROBOT_Y, z=20)
-    tl.put("ds_new", robot("question", ant="orange", tint="orange"), at(264), ROBOT_Y, z=20)
+    tl.keep("ground")
+    k = 1.5
+    tl.put("floor", floor(330), 27, GY, z=2, screen=True)
+    for i, (c_, face, col, who) in enumerate(((112, "calm", "sky", "robot"), (272, "question", "orange", "ds_new"))):
+        place(tl, who, robot(face, ant=col, tint=col, who="deepseek"), c_, k)
+        t = ui.chip(("paper's run", "our run")[i], "white", col)
+        tl.put(f"t_dsrun{i}", t, c_ - t.width // 2, 36, z=40, screen=True)
     nm = ui.chip("DeepSeek V3", "white", "ink")
-    tl.put("t_dsname", nm, 192 - nm.width // 2, 20, z=40)
-    for k, x in enumerate((120, 264)):
-        t = ui.chip(("paper's run", "our run")[k], "white", ("sky", "orange")[k])
-        tl.put(f"t_dsrun{k}", t, x - t.width // 2, ROBOT_Y - t.height - 8, z=40)
-    from px import line as _line
-    br = blank(150, 14)
-    _line(br, 0, 13, 6, 2, "ink"); _line(br, 6, 2, 143, 2, "ink"); _line(br, 143, 2, 149, 13, "ink")
-    _line(br, 75, 0, 75, 2, "ink")
-    tl.put("bracket", br, 117, 44, z=30)
+    tl.put("t_dsname", nm, 192 - nm.width // 2, 4, z=40, screen=True)
+    by0, by1 = 4 + nm.height, 36
+    br = blank(164, by1 - by0)
+    my = (by1 - by0) // 2
+    rect(br, 0, my, 164, 2, "ink"); rect(br, 81, 0, 2, my, "ink")
+    rect(br, 0, my, 2, by1 - by0 - my, "ink"); rect(br, 162, my, 2, by1 - by0 - my, "ink")
+    tl.put("bracket", br, 111, by0, z=30, screen=True)
     cue(tl, "same name, maybe another model")
-    tl.beat("The rest may be a different model behind the same name.", fade=True)
+    tl.beat("The rest may be a different model behind the same name.")
 
-    # pair-level asymmetry beyond the lean: clear for GPT-4o mini, small for the others -----------------------------
+    # GPT-4o mini at the left points at one pair as two stacked runs: the paper's (blue) and ours (orange, grey
+    # until its turn); the order that came out better sits on yellow in both
     tl.clear(); put_ground(tl)
-    chart(tl, "excess_gpt")
-    stage(tl, "happy", POINT)
-    tl.beat("For GPT-4o mini, when it did better on one order of a pair in the paper's run, it tends to do better on the same order in ours, beyond its general lean.", fade=True)
-    chart(tl, "excess_all")
-    stage(tl, "neutral")
-    tl.beat("For the other models this effect is small.")
+    tl.put("floor", floor(120), 4, GY, z=2, screen=True)
+    pa = run_panel("paper", (("NNNNNNNNYN", "N"), ("NNYNNNYNNN", "Y")))
+    ou = run_panel("ours", (("NNNNNNYNNN", "N"), ("NNNYNNNNNY", "Y")))
+    PXL = 376 - pa.width
+    tl.put("panel_p", pa, PXL, 8, z=10, screen=True)
+    tl.put("panel_o", P.faint(ou), PXL, 98, z=10, screen=True)
+    RC = PXL - 44                             # the robot's hand just reaches the panels
+    stage(tl, "focus", POINT_R, who="gpt", c=RC)
+    t = ui.tag("GPT-4o mini", "white", "ink")
+    tl.put("t_name", t, max(6, RC - t.width // 2), ROBOT_Y - t.height - 8, z=40, screen=True)
+    cue(tl, "one order better in the paper's run")
+    tl.beat("When GPT-4o mini did better on one order of a pair in the paper's run,", fade=True)
+
+    tl.put("panel_o", ou)
+    tl.put("robot", robot("happy", POINT_R, who="gpt"))
+    cue(tl, "the same order, better again")
+    tl.beat("it also did better on that order in ours,")
+
+    tl.keep("ground", "robot", "cfloor", "cue")
+    chart(tl, "excess", dx=STD_R)
+    stage(tl, "happy", POINT_R, who="gpt", side="L")
+    cue(tl, "same order better again")
+    tl.beat("beyond its general lean.", morph=0.9)
+
+    chart(tl, "excess_both", dx=STD_R)
+    stage(tl, "focus", POINT_R, who="gpt", side="L")
+    cue(tl, "against the lean: just as often")
+    tl.beat("It did so just as often on pairs that went against its lean.", morph=0.9)
+
+
+BOT_X = (66, 152, 238, 324)          # the four models in a row
+
+
+LEAN_PX = 300                       # placard px per unit of lean: 0.2 spans 60 px on every sign
+LEAN_TICKS = (0.1 * LEAN_PX, 0.2 * LEAN_PX)
+
+
+def lean_signs(tl, whos=range(4)):
+    """Each model holds a sign with the size of its lean, the paper's run (blue) and ours (orange), all on one
+    scale: a common baseline and the same faint gridlines on every sign."""
+    N = charts.NOISE["paired"]
+    for k, (key, _) in enumerate(charts.FOUR):
+        if k not in whos:
+            continue
+        lg = N[key]["lean_gap"]
+        pc = P.placard([(lg["paper"] * LEAN_PX, "paper", None), (lg["ours"] * LEAN_PX, "ours", None)], 72, ticks=LEAN_TICKS)
+        tl.put(f"sign{k}", pc, BOT_X[k] - pc.width // 2, ROBOT_Y + 50, z=36 + k, screen=True)
+
+
+def _key(tl, what):
+    """What the signs show, then the two runs' colours: one line at the top of the stage."""
+    t = T(what + ":", "ink")
+    k1, k2 = ui.chip("paper's run", "white", "sky"), ui.chip("our run", "white", "orange")
+    w = t.width + 8 + k1.width + 6 + k2.width
+    x = 192 - w // 2
+    tl.put("t_keyw", t, x, 14 + (k1.height - t.height) // 2, z=40, screen=True)
+    tl.put("t_key0", k1, x + t.width + 8, 14, z=40, screen=True)
+    tl.put("t_key1", k2, x + t.width + 8 + k1.width + 6, 14, z=40, screen=True)
 
 
 def _mini_wall(lit=(2, 7, 12), cols=5, rows=3):
@@ -221,6 +344,5 @@ def _mini_wall(lit=(2, 7, 12), cols=5, rows=3):
 
 
 def act2(tl):
-    four(tl)
     recompute(tl)
     rerun(tl)

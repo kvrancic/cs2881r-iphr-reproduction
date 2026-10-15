@@ -87,6 +87,13 @@ def tag(s, fg="ink", bg="white", point="down", size=20):
     """A pointer label: a chip with a small tail pointing at the thing it names."""
     c = chip(s, fg, bg, size=size)
     img = blank(c.width, c.height + 4)
+    if point == "left":                  # the tail on the left edge, pointing left at what it names
+        img = blank(c.width + 4, c.height)
+        paste(img, c, 4, 0)
+        cy = c.height // 2
+        poly(img, [(4, cy - 3), (4, cy + 3), (0, cy)], "ink")
+        poly(img, [(5, cy - 2), (5, cy + 2), (2, cy)], bg)
+        return img
     if point == "down":
         paste(img, c, 0, 0)
         cx = c.width // 2

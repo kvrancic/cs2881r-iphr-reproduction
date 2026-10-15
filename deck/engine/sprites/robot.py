@@ -307,6 +307,18 @@ FACES = {
 ................
 ................
 """,
+"squint": """
+................
+..c..........c..
+...cc......cc...
+................
+..cccc....cccc..
+................
+................
+......cccc......
+................
+................
+""",
 "calm": """
 ................
 ................
@@ -364,6 +376,9 @@ KDKWLMDDDDDDDDDDDDDDMLMKDK
 
 
 def face_img(name):
+    """A face glyph; a name ending in _l is the same face looking the other way (mirrored)."""
+    if name.endswith("_l"):
+        return flip(ascii_sprite(FACES[name[:-2]].strip("\n").split("\n"), KEY))
     return ascii_sprite(FACES[name].strip("\n").split("\n"), KEY)
 
 
@@ -395,7 +410,31 @@ def _shapes():
     return {"down": ARM_DOWN, "up": ARM_UP, "out": ARM_OUT}
 
 
-def robot(face="neutral", arms=("down", "down"), acc=(), view="front", glow=True):
+KEY_BOW = {"K": "ink", "G": "gold", "Y": "yellow", "B": "brown", "b": "clay"}
+BOW_BIG = """
+KK.............KK
+KYK...........KYK
+KYGK..KKKKK..KGYK
+KYGGKKBbbbBKKGGYK
+KYGGGKBbBBBKGGGYK
+KYGGKKBBBBBKKGGYK
+KYGK..KKKKK..KGGK
+KYK...........KGK
+KK.............KK
+""".strip("\n").split("\n")
+BOW_SMALL = """
+K.......K
+KGK.K.KGK
+KGGKBKGGK
+KGK.K.KGK
+K.......K
+""".strip("\n").split("\n")
+
+ANT1 = {"red": ("red", "wine"), "pink": ("pink", "grape"), "gold": ("gold", "orange"), "steel": ("ice", "steel"),
+        "sky": ("cyan", "sky"), "orange": ("gold", "orange"), "plum": ("pink", "plum")}
+
+
+def robot(face="neutral", arms=("down", "down"), acc=(), view="front", glow=True, ant="red", hat=None):
     acc = set(acc or ())
     img = blank(CW, CH)
     ox, oy = OX, OY
@@ -414,6 +453,11 @@ def robot(face="neutral", arms=("down", "down"), acc=(), view="front", glow=True
     if "sit" in acc or "kneel" in acc:
         rows = rows[:32]
     body = ascii_sprite(rows, KEY)
+    if ant != "red":
+        from px import recolor
+        a1, a2 = ANT1.get(ant, (ant, "ink"))
+        top = recolor(body.crop((0, 0, body.width, 4)), {"red": a1, "wine": a2})
+        body.paste(top, (0, 0))
     paste(img, body, ox, oy)
     if view == "front":
         sx, sy = ox + SCREEN[0], oy + SCREEN[1]
@@ -613,6 +657,25 @@ def robot(face="neutral", arms=("down", "down"), acc=(), view="front", glow=True
         for k in range(3, 14, 2):
             _P(img, sx + k, sy + 6, "steel"); _P(img, sx + k, sy + 8, "steel")
         _R(img, sx + 13, sy + 6, 2, 3, "gold")
+    if "climb" in acc:           # both arms raised above the head, hands gripping (seen from behind: climbing)
+        for x in (ox - 1, ox + 23):
+            _R(img, x, oy + 1, 4, 22, "ink"); _R(img, x + 1, oy + 2, 2, 20, "ice"); _R(img, x + 1, oy + 2, 1, 20, "white")
+            _R(img, x - 1, oy - 2, 6, 5, "ink"); _R(img, x, oy - 1, 4, 3, "slate")
+    # the model looks at 1x: the same accessory per model as on the big robot
+    if hat == "bow":
+        paste(img, ascii_sprite(BOW_SMALL, KEY_BOW), ox + 16, oy + 2)
+    if hat == "beret":
+        _R(img, ox + 2, oy + 3, 13, 4, "ink"); _R(img, ox + 3, oy + 4, 11, 2, "brown"); _R(img, ox + 4, oy + 4, 7, 1, "clay")
+        _R(img, ox + 6, oy + 2, 2, 2, "ink")
+    if hat == "fin":
+        for k in range(5):
+            _R(img, ox + 4 + k, oy + 5 - k, 7 - k, 1 + k, "ink")
+        for k in range(3):
+            _R(img, ox + 5 + k, oy + 5 - k, 4 - k, 1 + k, "slate")
+    if "badge" in acc and view == "front":
+        _R(img, ox - 2, oy + 3, 8, 6, "ink"); _R(img, ox - 1, oy + 4, 6, 4, "white")
+        _P(img, ox, oy + 6, "ink"); _P(img, ox + 2, oy + 6, "ink"); _P(img, ox + 4, oy + 6, "ink")
+        _P(img, ox, oy + 9, "ink")
     img.info["robot"] = dict(face=face, arms=tuple(arms), acc=tuple(sorted(acc)), view=view)
     return img
 
@@ -620,6 +683,20 @@ def robot(face="neutral", arms=("down", "down"), acc=(), view="front", glow=True
 # ================================================================================================ the big robot
 BCW, BCH = 112, 86       # canvas of the big robot; the body's origin is (BOX, 2) and the feet land on the last row
 BOX = 18
+BIG_CX = 50              # x of the body's centre in the canvas
+
+
+def big_hand(arms=("down", "down"), side="R"):
+    """Where a hand of the big robot is in its canvas, for props held out of the sprite (a pointer, a lens)."""
+    tx, ty, tw = BOX + 14, 2 + 52, 36
+    kind = arms[0] if side == "L" else arms[1]
+    if kind == "down":
+        x = (tx - 7 if side == "L" else tx + tw + 1) + 3
+        return x, ty + 19
+    if kind == "out":
+        return (10, ty + 5) if side == "L" else (90, ty + 5)
+    x = tx + tw + 1 + 10 + 3
+    return ((2 * BIG_CX - x - 1) if side == "L" else x), ty - 17
 
 
 def big(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", hat=None, tint=None):
@@ -633,7 +710,8 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", ha
     # antenna
     _R(img, ox + 30, oy + 6, 4, 6, "ink"); _R(img, ox + 31, oy + 6, 2, 6, "steel")
     ANT = {"red": ("red", "wine"), "gold": ("gold", "orange"), "pink": ("pink", "grape"), "cyan": ("cyan", "sky"),
-           "green": ("green", "leaf"), "rose": ("rose", "pink"), "grape": ("pink", "grape"), "steel": ("ice", "steel")}
+           "green": ("green", "leaf"), "rose": ("rose", "pink"), "grape": ("pink", "grape"), "steel": ("ice", "steel"),
+           "sky": ("cyan", "sky"), "orange": ("gold", "orange"), "brown": ("clay", "brown"), "plum": ("pink", "plum")}
     a1, a2 = ANT.get(ant, (ant, "ink"))
     _R(img, ox + 27, oy, 10, 7, "ink"); _R(img, ox + 28, oy + 1, 8, 5, a1); _R(img, ox + 29, oy + 1, 3, 2, "white")
     _R(img, ox + 28, oy + 4, 8, 2, a2)
@@ -699,9 +777,21 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", ha
             _R(img, ax - 1, ty + 17, 8, 5, "ink"); _R(img, ax, ty + 18, 6, 3, "slate")
             hand = (ax + 3, ty + 19)
         elif kind == "up":
-            _R(img, ax, ty - 16, 6, 19, "ink"); _R(img, ax + 1, ty - 15, 4, 17, "ice"); _R(img, ax + 1, ty - 15, 1, 17, "white")
-            _R(img, ax - 1, ty - 21, 8, 6, "ink"); _R(img, ax, ty - 20, 6, 4, "slate")
-            hand = (ax + 3, ty - 19)
+            # the upper arm out to the side, the forearm raised clear of the head, an open mitten hand
+            m = side == "L"
+            R_ = lambda x, y, w, h, c: _R(img, (2 * BIG_CX - x - w) if m else x, y, w, h, c)
+            ax0 = tx + tw + 1
+            R_(ax0, ty + 2, 14, 6, "ink"); R_(ax0 + 1, ty + 3, 12, 4, "ice"); R_(ax0 + 1, ty + 3, 12, 1, "white")
+            fx = ax0 + 10
+            R_(fx, ty - 12, 6, 20, "ink"); R_(fx + 1, ty - 11, 4, 19, "ice"); R_(fx + 1, ty - 11, 1, 19, "white")
+            R_(fx + 3, ty - 11, 1, 19, "steel")
+            R_(fx - 2, ty - 22, 10, 11, "ink"); R_(fx - 1, ty - 21, 8, 9, "ice"); R_(fx - 1, ty - 21, 8, 1, "white")
+            for k in (1, 3, 5):
+                R_(fx + k, ty - 21, 1, 3, "steel")
+            R_(fx - 1, ty - 13, 8, 1, "slate")
+            R_(fx - 5, ty - 18, 4, 5, "ink"); R_(fx - 4, ty - 17, 3, 3, "ice")
+            hx_ = fx + 3
+            hand = ((2 * BIG_CX - hx_ - 1) if m else hx_, ty - 17)
         else:
             dx = 1 if side == "R" else -1
             x0 = ax if side == "R" else ax - 12
@@ -752,9 +842,31 @@ def big(face="neutral", arms=("down", "down"), acc=(), grey=False, ant="red", ha
         _R(img, hx + 8, hy - 8, 36, 9, "ink"); _R(img, hx + 9, hy - 7, 34, 7, "sky" if False else "grape")
         _R(img, hx + 9, hy - 7, 34, 1, "pink")
         _R(img, hx + 30, hy - 1, 26, 3, "ink"); _R(img, hx + 31, hy, 24, 1, "pink")
-    if hat == "bow":
-        _R(img, hx + 36, hy - 6, 14, 8, "ink"); _R(img, hx + 37, hy - 5, 5, 6, "gold"); _R(img, hx + 44, hy - 5, 5, 6, "gold")
-        _R(img, hx + 42, hy - 4, 2, 4, "orange")
+    if hat == "bow":             # Gemini: a gold bow on the right of the head
+        paste(img, ascii_sprite(BOW_BIG, KEY_BOW), hx + 33, hy - 7)
+    if hat == "fin":             # DeepSeek: a slate fin on top of the head, left of the antenna
+        for k in range(10):
+            _R(img, hx + 6 + k, hy - 1 - k, 14 - k, 1 + k, "ink")
+        for k in range(8):
+            _R(img, hx + 8 + k, hy - 1 - k, 11 - k, 1 + k, "slate")
+        for k in range(7):
+            _P(img, hx + 8 + k, hy - 1 - k, "steel")
+        _R(img, hx + 4, hy, 20, 1, "ink")
+    if hat == "moon":            # GPT-5.6 Luna: a gold crescent moon on the head's right corner
+        mx, my, r = hx + 43, hy - 3, 8
+        for y in range(-r - 1, r + 2):
+            for x in range(-r - 1, r + 2):
+                d0 = x * x + y * y
+                d1 = (x - 4) * (x - 4) + (y + 3) * (y + 3)
+                if d0 <= (r + 1) ** 2 and d1 > (r - 2) ** 2:
+                    lit = d0 <= r * r and d1 > (r - 1) ** 2
+                    _P(img, mx + x, my + y, ("yellow" if x + y < -4 else "gold") if lit else "ink")
+    if "badge" in acc:           # GPT-4o mini: a white chat-bubble badge on the head's left corner
+        bx_, by_ = hx - 6, hy - 6
+        _R(img, bx_, by_, 15, 11, "ink"); _R(img, bx_ + 1, by_ + 1, 13, 9, "white"); _R(img, bx_ + 1, by_ + 8, 13, 2, "ice")
+        for k in range(3):
+            _R(img, bx_ + 3 + k * 4, by_ + 4, 2, 2, "ink")
+        _R(img, bx_ + 3, by_ + 11, 3, 2, "ink"); _P(img, bx_ + 4, by_ + 11, "ice")
     if "judge" in acc:
         _R(img, hx + 4, hy - 7, 44, 8, "ink"); _R(img, hx + 5, hy - 6, 42, 6, "night"); _R(img, hx + 5, hy - 6, 42, 1, "dusk")
         _R(img, hx - 2, hy - 1, 56, 3, "ink"); _R(img, hx - 1, hy, 54, 1, "gold")

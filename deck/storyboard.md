@@ -1,79 +1,88 @@
 # Storyboard
 
-74 slides, one per spoken sentence or phrase of `../talk/transcript.md`. The code is `engine/story/s*.py`; each line below is one `tl.beat`. The cue plate, when a slide has one, sits at the bottom left. In chart scenes a board about 62% of the frame wide stands at the left and the robot (the model under test, at 2x) stands on the ground beside it, reacting and pointing. Each act has its own board: Figure 2 and its split by kind are white paper on legs, the recompute is a terminal on a monitor stand, the rerun and the fact cards stand on a lab bench, geography is a sea chart on a map table. Colour: NO red, YES green, the paper's run blue, our run orange, the fact card aqua, unknown grey, highlights yellow; ticks and crosses are ink.
+73 slides, one per spoken sentence or phrase of `../talk/transcript.md`. The code is `engine/story/s*.py`; each line below is one `tl.beat`. Every slide but the title, Figure 2 (15 to 18) and the thank-you carries a cue plate at the bottom left. Colour: NO red, YES green, the paper's run blue, our run orange, the fact card aqua, unknown grey, highlights yellow; ticks and crosses are ink. The board says where the data come from: white paper on legs for the paper's figures and data, a dark terminal on a monitor stand for the released data recomputed, a white board with an orange rim on a lab bench for our own runs. Each model keeps one look: GPT-4o mini a pink antenna and a chat-bubble badge, Llama 3.3 a brown beret, DeepSeek V3 a slate fin, Gemini 2.5 Flash a gold bow, GPT-5.6 Luna a gold crescent moon, our labeller a judge's cap.
 
-## Title and the Figure 1 example (1 to 10)
-1. Title in smooth type with "ICML paper" (blue) and "our reproduction" (orange) chips; close on the waving robot and the grey scale (camera 1.6x).
-2. The robot under the grey scale. Cue "Figure 1".
-3. Chat 1 opens: "Ajay River south of Arizaro?"; a "Gemini 2.5 Flash" tag between the scale and the robot.
-4. Chat 2 opens with the reverse.
-5. A truth tab on top of each window: true NO, true YES. Cue "one true, one false".
-6. NO in both windows, an ink tick on the left and an ink cross on the right. Cue "same answer twice".
-7. Left: a globe and "hemispheres".
-8. Right: two continents and "continents".
-9. An ink "reads well" chip on each window's bottom edge; the robot smiles.
-10. The scale takes colour and tilts to NO; the robot glances sideways.
+## Title and the Figure 1 example (1 to 9)
+1. The paper's title in smooth type at the top; the robot, half again as large, stands on the ground holding two printed papers out to its sides, the ICML paper (blue) and our reproduction (orange), each named by a tag.
+2. Chat 1: "Ajay River south of Arizaro?"; the robot becomes Gemini 2.5 Flash (bow, a name tag beside its head); a large grey scale stands behind and above it.
+3. Chat 2 opens with the reverse; the name tag moves to the top, clear of the frame.
+4. A truth tab on each window: true NO, true YES. Cue "one true, one false".
+5. NO in both windows, an ink tick on the left and an ink cross on the right.
+6. Left: a globe and "hemispheres"; the robot points at it.
+7. Right: two continents and "continents"; the robot points the other way.
+8. "reads well" on each window; the robot raises both hands. Cue "each reads well".
+9. The scale takes colour, tilts to NO and rises over the robot's head; the robot grows to half again its size, glances away and sweats. Cue "unsaid: it leans NO".
 
-## The pairs and Figure 2 (11 to 19)
-11. The windows shrink into one pair of a two-row wall of question cards, most of them places; "4,834 pairs". The robot stands at the right under a small scale tilting NO.
-12. Books, films, people, places under the wall.
-13. One pair, close: ten answer pips per question.
-14. Truth tabs; "mostly right" and "mostly wrong" in ink with a tick and a cross.
-15. A large flag on the pair and an ink arrow from the scale's NO pan to the wrong answers.
-16. Figure 2 on a paper board across the frame: title "Figure 2, share of pairs flagged", axes; the robot stands in front of its empty lower right.
-17. The 16 names and bars; "16 models".
-18. GPT-4o mini's name on a yellow highlight; 13.49% on its bar, values on the next two.
-19. A bulb on each thinking model's name; one bracket over every bar below the dashed 0.5% line, "below 0.5%".
+## The pairs and Figure 2 (10 to 18)
+10. The windows shrink into one pair of a 3x3 wall of large question cards, two thirds places; "4,834 pairs"; the robot under a small scale tilting NO. Cue "question and reverse: a pair".
+11. A legend: books, films, people, places. Cue "little-known facts".
+12. One pair: ten answer pips per question.
+13. Truth tabs; "mostly right" and "mostly wrong". Cue "one order right, one wrong".
+14. A large flag on the pair and a wine arrow from under the NO pan down to the mostly-NO answers of the reversed question. Cue "flagged: the wrong side follows the lean".
+15. Figure 2 on a paper board as tall as the stage: the 16 names right-aligned, two native pixels apart, on an empty plot; the title in the empty lower right; the robot at the right. No cue in this scene.
+16. The bars grow; "16 models" under the title.
+17. The robot becomes GPT-4o mini and frames its own 13.49% with a big magnifier; its name on yellow; only its value is printed.
+18. Every thinking model's name on yellow with a key "thinking model"; a bracket over every bar below 0.5%; the robot points at the board.
 
-## Four things (20 to 24)
-20. Four face-down cards, centred.
-21. to 24. Each card flips as it is named: a Figure 2 sheet, two chats, globe with calendar and ruler, an aqua card with a compass.
+## The recompute (19 to 25)
+19. Released data, our code on its monitor stand, the Figure 2 page. Cue "recompute".
+20. The small terminal grows into the monitor board: eight counts, paper and ours, each ticked; the robot at its right. Cue "released data: exact match".
+21. Three props on plinths, each named: the plot's page with a division sign, the retest's dial, the ranking's crossing tile; the robot looks on. Cue "three small discrepancies".
+22. The page grows, "4,892" (blue) above it, "the plot divides by"; a stack of question cards with "4,834" above, "pairs in the data"; the robot stands between, squints and points its stick at 4,892. Cue "the plot's divisor".
+23. The cutoff as a gauge on the ground, 0.3 to 0.6: a solid blue needle "used 0.4", an outlined needle "stated 0.5"; the robot turns the knob at its base. Cue "looser than stated".
+24. The monitor board: "paper: ranking never changes" above 19 tiny rankings (two parallel lines: same order), with a legend: grey "same", yellow "swap"; the robot reads it. Cue "the paper's claim".
+25. The lines cross in 16 of 19; the robot holds one crossing rank tile at chest height. Cue "its own table: it changes".
 
-## The recompute (25 to 31)
-25. The Figure 2 sheet of the first card moves into place beside the released data and our code, all large on the ground. Cue "recompute".
-26. A terminal: the eight recomputed counts, paper and ours, each with a tick. Cue "exact match".
-27. The numbers leave; the ticks move next to the names; "three small discrepancies: 1 the plot, 2 the retest, 3 the ranking" fills the right column.
-28. "the plot divides by 4,892" against "pairs in the data 4,834".
-29. The retest cutoff on a ruler zoomed to 0.3 to 0.6: used 0.4 (blue outline), stated 0.5 (solid blue).
-30. "paper: ranking never changes" above 11 tiny two-model rankings, all parallel.
-31. In 8 of the 11 the yellow lines cross: "neighbours swap in 8 of 11".
+## The rerun (26 to 38)
+26. The stack of all pairs on a plinth, a fifth peeling off into a smaller stack beside it; "1,014 of 4,834" on the plinth, "same prompt, same settings" above. Cue "a fifth of the pairs, rerun".
+27. Their judge, grey and unplugged; our labeller with a stamp; both chips on one baseline.
+28. "99%, label agreement, on their answers".
+29. The four models we could rerun, each with its look and name tag.
+30. Each model holds up a sign with its lean, the paper's run (blue) and ours (orange), all signs on one scale with a common baseline and the same faint gridlines. Cue "our runs: the same lean".
+31. GPT-4o mini and Llama step forward with their flag counts, 146 and 139, 28 and 35; the other two step back.
+32. DeepSeek beside the light lab board: paper 17 and ours 6 on one axis from 0. Cue "DeepSeek: fewer flags".
+33. "our labeller" (hatched blue and orange, with a key: the paper's answers, our labeller) slides in between at 12; DeepSeek points at it and sweats. Cue "part of it: our labeller".
+34. The two DeepSeek robots, half again as large: the paper's run (blue) and our run (orange, "?"), joined by a bracket under "DeepSeek V3". Cue "same name, maybe another model".
+35. GPT-4o mini at the left points at one pair as two stacked runs, a word on each row ("this order", "other order") over its true answer ("true: NO", "true: YES") and the count of right answers at its end ("9 right", "2 right"): the paper's run lit, "this order" on yellow; our run below in grey. Cue "one order better in the paper's run".
+36. Our run lights up: the same order on yellow again. Cue "the same order, better again".
+37. The lab board "GPT-4o mini, per pair": the row "with the lean", an orange bar at 0.19 and below it a grey bar "chance, up to 0.04", on one axis from 0 to 0.3, the caption "extra asymmetry, seen again in our run"; GPT-4o mini points from the left. Cue "same order better again".
+38. The row "against the lean" joins below: an orange bar at 0.24 and a grey bar "chance, up to 0.05". Cue "against the lean: just as often".
 
-## The rerun (32 to 42)
-32. A tall deck "4,834"; cards fly into a pile: "1,014 pairs, same setup". Cue "a fifth, again".
-33. Their judge, grey and switched off with its plug pulled; our labeller with a stamp.
-34. "99%, label agreement on their answers" in orange; stamped slips.
-35. Four robots with one trait each (GPT-4o mini lively, Llama in a beret, DeepSeek calm, Gemini with a bow), their name tags in one row; a "newer release" ribbon on Gemini's tag.
-36. The four name tags become the rows of "size of the lean", paper (blue) against ours (orange).
-37. Flagged pairs for GPT-4o mini (146, 139) and Llama (28, 35).
-38. to 39. DeepSeek: paper 17 and ours 6; then the striped bar, the paper's answers with our labeller, 12.
-40. "DeepSeek V3" over two robots, the paper's run (blue antenna and face) and our run (orange, "?").
-41. to 42. "beyond the general lean: same order better again in ours?": an orange bar per model with a white tick for the high end of noise; GPT-4o mini lit first (0.19), then the others (0.05 to 0.07).
+## Figure 2 by kind of question (39 to 44)
+39. The Figure 2 page splits into a globe (geography) and calendar, ruler, cake (dates, sizes, ages).
+40. The page opens into the paper board: names on the left, geography and the others as two columns of bars on one scale. Cue "ranking flips by kind".
+41. GPT-4o mini's row on yellow: 19.6% and 1.4%. Cue "GPT-4o mini: geography".
+42. QwQ and both Llamas on yellow. Cue "QwQ, Llama: the reverse".
+43. Two scales at either side, the left one on a plinth, the right one grey on the ground; the globe sinks the NO pan: 1,269 NO, 122 YES; the robot stands between them and points at it.
+44. The second scale, calendar, ruler and cake, sinks to YES and rises onto its plinth: 8 NO, 590 YES; the robot turns and points at it.
 
-## Figure 2 by kind of question (43 to 48)
-43. The Figure 2 sheet splits into a globe (geography) and calendar, ruler, cake (dates, sizes, ages). Cue "by kind".
-44. On paper: mirrored bars for the 8 checkable models, geography to the left, the rest to the right. Cue "ranking flips by kind".
-45. GPT-4o mini on a yellow highlight: 19.6% and 1.4%.
-46. QwQ and both Llamas highlighted. Cue "QwQ, Llama: the reverse".
-47. Two scales on plinths, the globe in the NO pan of the first, which sinks; its plinth reads 1,269 NO, 122 YES; the second scale grey. Cue "geography: leans NO".
-48. The second scale, calendar, ruler and cake in its YES pan, sinks: 590 YES, 8 NO. Cue "dates, sizes, ages: lean YES".
+## The two variations (45 to 66)
+45. The aqua card "values in the prompt" and a compass "geography wording", both labels on one baseline; the robot stands between them, arms out. Cue "two variations".
+46. The aqua card above the question in a chat; the robot holds a card; the scale grey.
+47. The four models of these runs in a row, each with its look and name tag (GPT-5.6 Luna, with a gold crescent moon, takes Gemini's place), each holding a sign with a flag and its count outside geography; "flags outside geography 57" above. Cue "our runs, outside geography".
+48. Each holds up the aqua card and its sign drops to 0; "57 -> 0" above. Cue "both values in the prompt: 0".
+49. Llama beside the light lab board, each value asked alone: "flagged pairs: right order", seven of ten tiles orange, three crossed (wrong order), with a key; a faint guessing line; Llama holds up an orange tile. Cue "Llama, each value asked alone".
+50. "other pairs: right order": eight and a half of ten. Cue "its other pairs".
+51. The guessing line darkens, "guessing: 5 in 10" on yellow; Llama points at it. Cue "and by guessing".
+52. Llama's chat: the two numbers it writes in gold, compared the wrong way round, named "its numbers" with a leader line; YES with an ink cross; the scale tilts YES.
+53. "not sure" appears above the YES; Llama grows to half again its size, its face a question mark, sweating.
+54. The lake question, a compass, GPT-4o mini; the scale tilts NO.
+55. The paper's data by distance on the paper board: 9%, 9%, 17%, 44%; GPT-4o mini points at the 44% bar.
+56. The farthest bar opens into the lake map, large; GPT-4o mini steps up beside it and points its stick at lake B.
+57. A bubble on its right: "B is southwest of A."
+58. The bubble grows: "not due west. So: NO."; the due-west line appears on the map.
+59. The wording ladder: four chat bubbles down the left, each with its flags as a bar on one scale; a faint dotted track of all 684 behind each row, "of 684" at its right end; the paper's wording, 131; GPT-4o mini at the right.
+60. Reworded, same vague direction: 140. Cue "reworded: about the same".
+61. "+ anywhere further west" (yellow): 31; the robot points at it. Cue "+ further west: fewer".
+62. "+ only due west" (yellow): its bar nearly fills its track, "667 of 684"; GPT-4o mini throws up its hands. Cue "+ only due west: almost all".
+63. The lake map with the due-west line: "Is B west of A?" NO, "Is A west of B?" NO, both ticked.
+64. The two readings side by side: "anywhere further west" (yellow) and "due west only".
+65. The paper's own test on the paper board: places at the same latitude, a map with B due west of A, 9%, GPT-4o mini still flagged; the robot sweats.
+66. The robot shrugs. Cue "wording: only part of it".
 
-## The two variations (49 to 63)
-49. An aqua card, "values in the prompt", and a compass, "geography wording".
-50. The aqua card above the question; the robot holds a card; the scale grey. Cue "both true values, above the question".
-51. to 52. On the bench: flags outside geography for four models (the fourth "newer model"), then with the card: 57 to 0 in large type.
-53. to 54. Llama's flagged pairs, each value asked alone: ten pips, seven lit, "about 7 in 10"; then the guessing line at 5 in 10.
-55. Llama (beret, tag above) answers with two written numbers in gold and YES with an ink cross; the big scale tilts YES.
-56. A lake question with a large compass; "GPT-4o mini" tag.
-57. On the sea chart: GPT-4o mini's flag share by distance between the places: 9%, 9%, 17%, 44%. Cue "far apart: more flags".
-58. The farthest bar opens into the lake map (water blue, pins A and B). Cue "far apart: should be easy".
-59. "B is southwest of A." in a bubble pointing at the robot. Cue "its answer: southwest".
-60. "Southwest, not due west. So: NO."
-61. to 63. The wording ladder on the sea chart: the paper's wording in grey, then our runs in orange: reworded 140; "+ further west" (yellow) 31 with its mini map; "+ only due west" 667 of 684 with its mini map.
-
-## The close (64 to 74)
-64. The same map twice: "anywhere further west" (yellow), then "due west only" (dashed line).
-65. Close on the robot with a zipped mouth, "GPT-4o mini" tag; "two readings?" in a dashed box with an ink cross. Cue "not in any answer we read".
-66. Figure 2 again, an orange tick on each of the eight recomputed bars. Cue "the counts reproduce".
-67. to 70. The four cards of act 2 return and flip one by one: GPT-4o mini repeats a year later (the same pair in the paper's run and ours); geography, reading of "west"; others, numbers back errors; Llama unsure, still answers.
-71. to 73. Three dashed slots, filled one by one: 1,014 pairs not all 4,834; our labeller not their judge; same weights still served?
-74. "Thank you", names and the repo link; both chats, the waving robot with the aqua card, the coloured scale and our labeller.
+## The close (67 to 73)
+67. Figure 2 again with an orange tick in one column for each of the eight recomputed bars, keyed "recomputed exactly" under the title, its rows a little closer so the cue fits below the board; the robot cheers. Cue "8 models: counts recompute".
+68. The four models hold signs with their lean, the paper's run and ours.
+69. GPT-4o mini and Llama step forward with their flag counts; the other two step back.
+70. to 72. The limits dealt one card per phrase, the row centred: 1,014 pairs, not all 4,834; a different judge; same weights still served?
+73. "Thank you" and the names in pixel type, lowered from the frame, the repo link larger in smooth type; the four models we reran in a row, two waving.
